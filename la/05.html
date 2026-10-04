@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>线代预备05 速查与自诊</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<script>
+window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],macros:{bm:['\\boldsymbol{#1}',1]}},svg:{fontCache:'global'},options:{enableMenu:false},startup:{ready(){MathJax.startup.defaultReady();MathJax.startup.promise.then(()=>{window.__onMJ&&window.__onMJ();});}}};
+</script>
+<script src="../assets/mathjax/tex-svg-full.js" async></script>
+<style>
+/* Layout: single-column study sheet; each section = text + one interactive figure (SVG) + readout */
+:root{
+  --bg:#eef1f4; --paper:#ffffff; --ink:#18212c; --muted:#5a6675; --rule:#d3dae3; --soft:#e4e9ef; --grid:#dfe5ec; --axis:#9aa6b4;
+  --accent:#1d5b9e; --m1:#1f6fb2; --m2:#cf7a22; --m3:#a83c75; --ok:#2b7d4f; --bad:#b33a2e; --hl:#fff3c4;
+  --serif:"Noto Serif SC","Songti SC","SimSun",serif;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"JetBrains Mono",Consolas,"SFMono-Regular",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11151b; --paper:#181e26; --ink:#e2e7ed; --muted:#98a4b3; --rule:#2c3643; --soft:#212a35; --grid:#252e3a; --axis:#5d6a7a;
+  --accent:#6ea8ea; --m1:#5ba7ec; --m2:#efa352; --m3:#e07bb0; --ok:#5cc08a; --bad:#ef7b6e; --hl:#4a4220; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11151b; --paper:#181e26; --ink:#e2e7ed; --muted:#98a4b3; --rule:#2c3643; --soft:#212a35; --grid:#252e3a; --axis:#5d6a7a;
+  --accent:#6ea8ea; --m1:#5ba7ec; --m2:#efa352; --m3:#e07bb0; --ok:#5cc08a; --bad:#ef7b6e; --hl:#4a4220; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.75;padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:980px;margin:0 auto}
+header.top{padding-block:36px 16px}
+.eyebrow{font-size:12px;letter-spacing:.12em;color:var(--muted)}
+h1{font-family:var(--serif);font-size:clamp(26px,4.4vw,38px);line-height:1.25;margin:6px 0 10px;text-wrap:balance}
+h2{font-family:var(--serif);font-size:22px;line-height:1.35;margin:0;text-wrap:balance}
+h3{font-size:15.5px;margin:20px 0 6px}
+p{margin:8px 0}
+ul{margin:6px 0;padding-left:1.4em}
+.lede{max-width:46em;color:var(--muted)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.series{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;font-size:13px}
+.series span{border:1px solid var(--rule);border-radius:4px;padding:3px 10px;background:var(--paper);color:var(--muted)}
+.series span.cur{border-color:var(--accent);color:var(--accent);font-weight:500}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;font-size:13px}
+.toc a{color:var(--ink);text-decoration:none;border-bottom:1px dotted var(--axis)}
+.toc a:hover,.toc a:focus-visible{color:var(--accent)}
+section.step{background:var(--paper);border:1px solid var(--rule);border-radius:6px;margin-top:22px;padding:22px 22px 18px}
+.stephead{display:flex;gap:14px;align-items:baseline;border-bottom:1px solid var(--rule);padding-bottom:10px;margin-bottom:12px;flex-wrap:wrap}
+.stepno{font-family:var(--mono);font-size:13px;color:var(--accent);border:1px solid var(--accent);border-radius:3px;padding:0 7px;white-space:nowrap}
+.src{font-size:12px;color:var(--muted);margin-left:auto}
+.why{font-size:13.5px;color:var(--muted)}
+.note{border-left:3px solid var(--accent);padding:6px 12px;background:var(--soft);font-size:14px;margin:12px 0;border-radius:0 4px 4px 0}
+.note.warn{border-color:var(--m2)}
+.note.key{border-color:var(--ok)}
+.fig{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:18px;align-items:start;margin:12px 0}
+.fig>*{min-width:0}
+@media (max-width:720px){.fig{grid-template-columns:minmax(0,1fr)}}
+svg.plane{width:100%;max-width:420px;display:block;touch-action:none;background:var(--paper);border:1px solid var(--rule);border-radius:4px}
+svg text{fill:var(--ink);font-family:var(--sans)}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+.ctrl label{font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+input,select,button{font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:4px;padding:4px 8px}
+input[type=number]{width:4.6em;font-family:var(--mono)}
+input[type=range]{padding:0;width:150px}
+button{cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.pri{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.read{font-family:var(--sans);font-size:14px;background:var(--soft);border-radius:4px;padding:10px 12px;line-height:2;overflow-x:auto}
+.read .row{display:block}
+#r6 .row{margin:6px 0}
+.read .on{background:var(--hl);border-radius:3px;padding:0 4px}
+.read .dim{opacity:.35}
+.read b{font-weight:600}
+.c1{color:var(--m1)}.c2{color:var(--m2)}.c3{color:var(--m3)}.cok{color:var(--ok)}.cbad{color:var(--bad)}
+.tbl{overflow-x:auto;margin:10px 0}
+table{border-collapse:collapse;font-size:13.5px;min-width:100%}
+.tbl table{min-width:540px}
+th:first-child,td:first-child{white-space:nowrap}
+th,td{border-bottom:1px solid var(--rule);padding:6px 10px;text-align:left;vertical-align:top}
+th{font-weight:500;color:var(--muted);font-size:12.5px}
+mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;max-width:100%;padding:2px 0}
+.mat{display:inline-grid;gap:2px 12px;vertical-align:middle;border-left:2px solid var(--ink);border-right:2px solid var(--ink);border-radius:6px;padding:4px 10px;font-family:var(--mono);text-align:center}
+.mat span{padding:1px 4px;border-radius:3px;transition:background .25s}
+.mat span.on{background:var(--hl)}
+.mat input{width:3.4em;text-align:center;padding:2px}
+.eqrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:10px 0;font-family:var(--mono)}
+.tgrid{position:relative;display:inline-block;vertical-align:middle}
+.tcell{position:absolute;width:40px;height:34px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);border-radius:4px;transition:transform .9s cubic-bezier(.4,.1,.2,1),background .3s}
+.tcell.diag{background:var(--hl)}
+.chip{display:inline-block;font-family:var(--mono);border:1px solid var(--rule);border-radius:4px;padding:1px 8px}
+.chip.ok{border-color:var(--ok);color:var(--ok)}.chip.bad{border-color:var(--bad);color:var(--bad)}
+details{border:1px solid var(--rule);border-radius:4px;padding:6px 12px;margin:10px 0}
+details summary{cursor:pointer;color:var(--accent);font-weight:500}
+.ex li{margin:6px 0}
+.check label{display:flex;gap:8px;align-items:flex-start;margin:6px 0;font-size:14.5px}
+.check input{margin-top:6px}
+footer{font-size:12.5px;color:var(--muted);margin-top:26px}
+@media (max-width:640px){section.step{padding:16px 14px}}
+a{color:var(--accent)}
+.series a{text-decoration:none}
+.series a span:hover{border-color:var(--accent)}
+.duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+@media (max-width:720px){.duo{grid-template-columns:minmax(0,1fr)}}
+svg.mini{width:100%;display:block;background:var(--paper);border:1px solid var(--rule);border-radius:4px}
+.flag{display:inline-block;font-size:12.5px;border-radius:3px;padding:0 8px;margin-left:6px;background:var(--hl);color:var(--ink)}
+.mis{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin:10px 0}
+.mis button{text-align:left;padding:10px 12px;line-height:1.6;min-height:84px;background:var(--soft);border-color:var(--rule)}
+.mis button .a{display:none;color:var(--ok)}
+.mis button.open .q{text-decoration:line-through;color:var(--muted)}
+.mis button.open .a{display:block;margin-top:4px}
+.flow{margin:10px 0;display:grid;gap:2px}
+.flow .st{display:grid;grid-template-columns:minmax(0,1fr) 6.5em minmax(0,13em);gap:10px;align-items:center;background:var(--soft);border-radius:4px;padding:6px 12px}
+.flow .sec{font-size:12.5px;color:var(--muted)}
+.flow .ar{font-size:13px;color:var(--accent);padding-left:14px}
+@media (max-width:560px){.flow .st{grid-template-columns:minmax(0,1fr)}.flow .sec{display:none}}
+pre.line{font-family:var(--mono);font-size:13px;background:var(--soft);border-radius:4px;padding:12px 14px;overflow-x:auto;line-height:1.7;margin:10px 0}
+</style>
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow"><a href="../index.html" style="color:var(--accent);text-decoration:none;letter-spacing:0">← 返回首页</a>　线性代数预备 · 面向结构动力学 · 交互版</div>
+  <h1>05 速查表与自诊清单</h1>
+  <p class="lede">这一篇不讲新东西，是 00–04 篇的索引：忘了公式来这里查，拿到软件结果来这里对，做完全套来这里自检。每条都标了出处，点出处直接打开对应的交互页。顶部的搜索框可以同时筛选本页所有表格。</p>
+  <div class="series" id="series" data-cur="05" aria-label="系列目录"></div>
+  <nav class="toc" aria-label="本篇目录">
+    <a href="#s1">1 符号与术语</a>·<a href="#s2">2 核心公式</a>·<a href="#s3">3 两自由度计算器</a>·<a href="#s4">4 等价说法与谱定理</a>·<a href="#s5">5 常见错误</a>·<a href="#s6">6 模态核对器</a>·<a href="#s7">7 排查与总验收</a>·<a href="#s8">8 Python 代码卡</a>
+  </nav>
+  <div class="ctrl" style="margin-top:14px"><label>搜索本页表格 <input id="q" type="search" placeholder="如：正交、秩、Rayleigh、eigh" style="width:16em;font-family:var(--sans)"></label><span class="why" id="qn"></span></div>
+</header>
+
+<!-- 1 -->
+<section class="step" id="s1">
+  <div class="stephead"><span class="stepno">1</span><h2>符号约定与中英术语</h2><span class="src">笔记 §1–§3</span></div>
+  <div class="tbl"><table class="srch" id="t1"></table></div>
+  <ul>
+    <li>\(a_{ij}\)：第 \(i\) 行第 \(j\) 列（先行后列）。\(\boldsymbol\phi_j\)：第 \(j\) 阶振型（列）；\(\phi_{ij}\)：第 \(j\) 阶振型在第 \(i\) 个自由度上的分量。</li>
+    <li>特征值升序 \(\lambda_1\le\lambda_2\le\cdots\)，\(\boldsymbol\phi_1\) 是基本振型。\(\lambda=\omega^2\)；\(\omega\) 单位 rad/s，\(f=\omega/2\pi\) Hz，\(T=2\pi/\omega\) s。</li>
+  </ul>
+  <div class="tbl"><table class="srch" id="t1b"></table></div>
+</section>
+
+<!-- 2 -->
+<section class="step" id="s2">
+  <div class="stephead"><span class="stepno">2</span><h2>必须能默写的公式</h2><span class="src">笔记 §4</span></div>
+  <div class="tbl"><table class="srch" id="t2"></table></div>
+</section>
+
+<!-- 3 -->
+<section class="step" id="s3">
+  <div class="stephead"><span class="stepno">3</span><h2>贯穿算例一页纸：两自由度计算器</h2><span class="src">笔记 §5</span></div>
+  <p>两层剪切模型 \(M=\mathrm{diag}(m_1,m_2)\)，\(K=\begin{bmatrix}k_1+k_2&-k_2\\-k_2&k_2\end{bmatrix}\)。默认值就是全套贯穿算例；改参数，下表全部重算（一致单位）。</p>
+  <div class="ctrl"><label>\(m_1\) <input type="number" id="m1" value="2" step="0.1"></label><label>\(m_2\) <input type="number" id="m2" value="1" step="0.1"></label><label>\(k_1\) <input type="number" id="k1" value="2" step="0.1"></label><label>\(k_2\) <input type="number" id="k2" value="1" step="0.1"></label><button type="button" id="b3r">恢复贯穿算例</button></div>
+  <div class="tbl"><table id="t3"></table></div>
+</section>
+
+<!-- 4 -->
+<section class="step" id="s4">
+  <div class="stephead"><span class="stepno">4</span><h2>方阵的等价说法；谱定理</h2><span class="src">笔记 §6–§7</span></div>
+  <p><b>可逆组</b>（每条互相等价）：\(A\) 可逆 \(\iff\det A\ne0\) \(\iff\operatorname{rank}A=n\) \(\iff\mathcal N(A)=\{\boldsymbol 0\}\) \(\iff\) 列线性无关 \(\iff\) 列构成 \(\mathbb R^n\) 的基 \(\iff A\boldsymbol x=\boldsymbol b\) 对每个 \(\boldsymbol b\) 有唯一解 \(\iff\) 所有特征值 \(\ne0\)。</p>
+  <p><b>奇异组</b>（全部取反）：\(A\) 奇异 \(\iff\det A=0\) \(\iff\operatorname{rank}A&lt;n\) \(\iff\mathcal N(A)\ne\{\boldsymbol 0\}\) \(\iff\) 列线性相关 \(\iff A\boldsymbol x=\boldsymbol 0\) 有非零解 \(\iff\) 有特征值 \(=0\)。</p>
+  <div class="note key"><b>结构翻译</b>（\(K\) 对称）：\(K\) 奇异 \(\iff\) 存在零刚度模式 \(\iff\) 存在 \(\omega=0\) 的模态 \(\iff\boldsymbol u^TK\boldsymbol u=0\) 有非零解（\(K\) 半正定时）。02 篇第 6 节可以改矩阵看八条同时成立或不成立。</div>
+  <div class="tbl"><table class="srch" id="t4"></table></div>
+  <p>对广义问题 \(K\boldsymbol\phi=\lambda M\boldsymbol\phi\)（\(K\) 对称、\(M\) 对称正定），四条通过 Cholesky 桥全部继承，“正交”换成“\(M\)-正交”。</p>
+</section>
+
+<!-- 5 -->
+<section class="step" id="s5">
+  <div class="stephead"><span class="stepno">5</span><h2>常见错误清单</h2><span class="src">笔记 §8–§10</span></div>
+  <div class="ctrl" id="tab5"></div>
+  <div class="tbl"><table class="srch" id="t5"></table></div>
+</section>
+
+<!-- 6 -->
+<section class="step" id="s6">
+  <div class="stephead"><span class="stepno">6</span><h2>模态核对器：浏览器里跑 <code>modal_check</code></h2><span class="src">笔记 §11、§14、§16</span></div>
+  <p>按笔记 §14 的 <code>modal_check</code> 逻辑在浏览器里实现：检查对称性，对 \(M\) 做 Cholesky（\(M\) 不正定直接报错），解 \(\tilde K\boldsymbol y=\lambda\boldsymbol y\)（Jacobi 法），回代 \(\boldsymbol\phi=L^{-T}\boldsymbol y\)，输出升序 \(\lambda\)、频率、负值与近零标记、相对残差、两个 Gram 矩阵。每行一行矩阵，元素用空格或逗号隔开，最多 8 阶：</p>
+  <div class="ctrl" id="pre6"></div>
+  <div class="duo">
+    <label style="display:grid;gap:4px;font-size:13px;color:var(--muted)">\(K\)<textarea id="K6" rows="5" spellcheck="false" style="font-family:var(--mono);font-size:13px;padding:8px;border:1px solid var(--rule);border-radius:4px;background:var(--paper);color:var(--ink);width:100%">3 -1
+-1 1</textarea></label>
+    <label style="display:grid;gap:4px;font-size:13px;color:var(--muted)">\(M\)<textarea id="M6" rows="5" spellcheck="false" style="font-family:var(--mono);font-size:13px;padding:8px;border:1px solid var(--rule);border-radius:4px;background:var(--paper);color:var(--ink);width:100%">2 0
+0 1</textarea></label>
+  </div>
+  <div class="ctrl"><button type="button" id="b6" class="pri">▶ 核对</button><label>rtol <input type="number" id="rt6" value="1e-10" step="any" style="width:7em"></label></div>
+  <div class="read" id="r6"></div>
+  <h3>拿到软件模态结果后的核对顺序</h3>
+  <div class="check" id="chk6">
+    <label><input type="checkbox" id="c61"><span><b>先对矩阵</b>：\(M\)、\(K\) 尺寸、自由度顺序、单位与手算一致；\(K\) 对称；\(M\) 正定（对角元全正、无零质量自由度）</span></label>
+    <label><input type="checkbox" id="c62"><span><b>对频率</b>：升序后逐阶比；\(\lambda\) 有无负值（失稳）、近零值（漏约束或本应自由）</span></label>
+    <label><input type="checkbox" id="c63"><span><b>对残差</b>：\(\eta_i\lesssim10^{-10}\)</span></label>
+    <label><input type="checkbox" id="c64"><span><b>对正交性</b>：\(\Phi^TM\Phi\)、\(\Phi^TK\Phi\) 非对角元相对对角元 \(\lesssim10^{-10}\)</span></label>
+    <label><input type="checkbox" id="c65"><span><b>对振型</b>：统一归一化（转质量归一最方便）、允许整体反号、重频比子空间</span></label>
+    <label><input type="checkbox" id="c66"><span><b>对物理</b>：基本振型同向？高阶反向更多？有效质量累计合理？</span></label>
+  </div>
+  <div class="note warn">容差 rtol 按本组特征值的尺度区分“数值近零”与“明显负值”，不是工程验收标准。\(M\) 非正定时应回去处理无质量或约束自由度（静力凝聚），不能靠加小数或对称化掩盖。</div>
+</section>
+
+<!-- 7 -->
+<section class="step" id="s7">
+  <div class="stephead"><span class="stepno">7</span><h2>手算与软件不一致的排查；总验收</h2><span class="src">笔记 §12–§13、§17</span></div>
+  <div class="tbl"><table class="srch" id="t7"></table></div>
+  <h3>总验收：能不看笔记回答以下十题，线性代数补课结束</h3>
+  <div class="mis" id="mis7"></div>
+  <div class="note key">带着三件东西进入多自由度学习：一个算到底的两自由度算例（第 3 节）；一份能跑的核对脚本（第 6、8 节）；一句话：<b>振型分解 = 换到 \(M\)-正交基，让 \(M\)、\(K\) 同时对角，方程拆开、结构没拆。</b></div>
+</section>
+
+<!-- 8 -->
+<section class="step" id="s8">
+  <div class="stephead"><span class="stepno">8</span><h2>Python 代码卡</h2><span class="src">笔记 §14–§16</span></div>
+  <p>对应源文件 <code>01-Athena/线性代数笔记维护/核对算例.py</code>。依赖 NumPy、SciPy，一致单位，矩阵行列对应同一组自由度。</p>
+  <div class="ctrl"><button type="button" data-copy="code1">复制 modal_check</button><span class="why" id="cp1"></span></div>
+<pre class="line" id="code1">import numpy as np
+from scipy.linalg import eigh
+
+
+def modal_check(K, M, rtol=1e-10):
+    """广义对称特征问题 K φ = λ M φ 的求解与核对。
+    要求 K 对称、M 对称正定。负特征值不截断，单独标记。"""
+    K, M = np.asarray(K, dtype=float), np.asarray(M, dtype=float)
+    if K.ndim != 2 or K.shape[0] == 0 or K.shape[0] != K.shape[1] or M.shape != K.shape:
+        raise ValueError("K、M 必须是同尺寸非空方阵")
+    if not (np.isfinite(K).all() and np.isfinite(M).all()):
+        raise ValueError("矩阵必须全部为有限实数")
+    if not np.isfinite(rtol) or not 0 &lt; rtol &lt; 1:
+        raise ValueError("rtol 必须位于 0 与 1 之间")
+    for name, A in [("K", K), ("M", M)]:
+        scale = np.linalg.norm(A, ord="fro")
+        if np.linalg.norm(A - A.T, ord="fro") &gt; rtol * scale:
+            raise ValueError(f"{name} 不对称")
+    # M 非正定时 eigh 会明确报错；不擅自调整输入。
+    lam, Phi = eigh(K, M)
+    tol = rtol * np.max(np.abs(lam))
+    negative = lam &lt; -tol                       # 明显负值：失稳信号
+    near_zero = np.abs(lam) &lt;= tol              # 数值近零：零刚度模式
+    omega = np.full(lam.shape, np.nan)
+    omega[near_zero] = 0.0
+    positive = lam &gt; tol
+    omega[positive] = np.sqrt(lam[positive])    # 负值保持 nan，不掩盖
+    residual = K @ Phi - (M @ Phi) * lam
+    denominator = (np.linalg.norm(K, 2) + np.abs(lam) * np.linalg.norm(M, 2)) * np.linalg.norm(Phi, axis=0)
+    numerator = np.linalg.norm(residual, axis=0)
+    # K=0 且 λ=0 时残差和分母同时为零，定义该精确残差为 0。
+    relative = np.divide(numerator, denominator, out=np.zeros_like(numerator), where=denominator &gt; 0)
+    return {"lambda": lam, "omega": omega, "frequency_hz": omega / (2 * np.pi),
+            "negative": negative, "near_zero": near_zero,
+            "relative_residual": relative,
+            "mass_gram": Phi.T @ M @ Phi,        # 应 ≈ I
+            "stiffness_gram": Phi.T @ K @ Phi,   # 应 ≈ diag(λ)
+            "Phi": Phi}
+
+
+M = np.diag([2.0, 1.0])
+K = np.array([[3.0, -1.0], [-1.0, 1.0]])
+result = modal_check(K, M)
+for key, value in result.items():
+    print(key, "\n", value)</pre>
+  <p>主算例应得到 \(\lambda=[0.5,\ 2]\)、\(f\approx[0.112540,\ 0.225079]\) Hz，质量 Gram 矩阵约为单位阵，刚度 Gram 矩阵约为 \(\mathrm{diag}(0.5,2)\)，残差在 \(10^{-16}\) 量级。</p>
+  <div class="ctrl"><button type="button" data-copy="code2">复制 Rayleigh 与边界情况</button><span class="why" id="cp2"></span></div>
+<pre class="line" id="code2">def rayleigh(K, M, x):
+    x = np.asarray(x, dtype=float)
+    return (x @ K @ x) / (x @ M @ x)
+
+# 所有 R 都应 >= λ1 = 0.5；输出 0.5, 0.5038, 0.6667, 1.5
+for x in ([1, 2], [1, 1.8], [1, 1], [1, 0]):
+    R = rayleigh(K, M, x)
+    print(f"x={x}: R={R:.6f}, ω上界={np.sqrt(R):.4f}")
+
+# 半正定 K：单弹簧连两个自由质点 → 一个零频
+modal_check(np.array([[1., -1.], [-1., 1.]]), np.eye(2))["near_zero"]   # [True, False]
+# 不定 K：出现负特征值，omega 为 nan
+modal_check(np.array([[1., 2.], [2., 1.]]), np.eye(2))["negative"]      # [True, False]
+# 重根：M=K=I，任何基都是特征向量，Gram 仍为 I
+modal_check(np.eye(2), np.eye(2))["mass_gram"]
+# M 不正定 → eigh 直接报错，这是对的
+# modal_check(np.eye(2), np.diag([1., 0.]))   # LinAlgError</pre>
+</section>
+
+<footer>
+  <p>对应笔记：15-General/12-线性代数/260730-线性代数预备05-速查表与自诊清单.md。</p>
+</footer>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const NS='http://www.w3.org/2000/svg';
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs){if(k==='text')e.textContent=attrs[k];else e.setAttribute(k,attrs[k]);}if(parent)parent.appendChild(e);return e;}
+const fm=(v,d=2)=>{const r=Math.round(v*10**d)/10**d;return (Object.is(r,-0)?0:r).toString();};
+const f2=v=>fm(v,2), f3=v=>fm(v,3);
+const vec=a=>`[${a.map(v=>fm(v,2)).join(', ')}]`;
+const paren=v=>v<0?`(${fm(v)})`:fm(v);
+function animate(dur,step,done){ // returns cancel fn
+  if(reduced){step(1);done&&done();return ()=>{};}
+  let t0=null,id=0,stop=false;
+  const loop=now=>{if(stop)return;if(t0===null)t0=now;const t=Math.min(1,(now-t0)/dur);step(t);if(t<1)id=requestAnimationFrame(loop);else done&&done();};
+  id=requestAnimationFrame(loop);return ()=>{stop=true;cancelAnimationFrame(id);};
+}
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+
+/* ---------- LaTeX 读数（MathJax 渲染，拖动时节流） ---------- */
+const TX=String.raw;
+const pn=(v,d=2)=>{const s=fm(v,d);return s.startsWith('-')?`(${s})`:s;};
+const rv=(a,d=2)=>`[${a.map(v=>fm(v,d)).join(',\\ ')}]`;
+const cv=(a,d=2)=>`\\begin{bmatrix}${a.map(v=>fm(v,d)).join('\\\\')}\\end{bmatrix}`;
+const bmx=(M,d=2)=>`\\begin{bmatrix}${M.map(r=>r.map(v=>fm(v,d)).join('&')).join('\\\\')}\\end{bmatrix}`;
+let texReady=false,texTimer=0,texLast=0;const TEXQ=new Map(),TEXPRE=new Set();
+function texRun(els){try{MathJax.typesetClear(els);MathJax.typeset(els);}catch(e){}}
+function setTex(el,html){
+  if(typeof el==='string')el=$(el);
+  if(el.__tex===html)return;el.__tex=html;
+  if(!texReady){el.innerHTML=html;TEXPRE.add(el);return;}
+  const now=performance.now();
+  if(!texTimer&&now-texLast>45){el.innerHTML=html;texRun([el]);texLast=performance.now();return;}
+  TEXQ.set(el,html);if(!texTimer)texTimer=setTimeout(flushTex,50);
+}
+function flushTex(){texTimer=0;const els=[...TEXQ.keys()];TEXQ.forEach((h,el)=>{el.innerHTML=h;});TEXQ.clear();if(els.length)texRun(els);texLast=performance.now();}
+window.__onMJ=()=>{texReady=true;const els=[...TEXPRE];TEXPRE.clear();if(els.length)texRun(els);flushTex();};
+
+/* ---------- 平面坐标系 ---------- */
+function Plane(svg,R,o={}){
+  const W=360,H=360,pad=18; svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.replaceChildren();
+  const s=(W/2-pad)/R, X=x=>W/2+x*s, Y=y=>H/2-y*s;
+  const g0=el('g',{},svg), gC=el('g',{},svg), gH=el('g',{},svg);
+  const stepG=R>7?2:1;
+  for(let i=-Math.floor(R);i<=R;i+=1){
+    if(i%stepG)continue;
+    el('line',{x1:X(i),y1:Y(-R-1),x2:X(i),y2:Y(R+1),style:`stroke:var(${i?'--grid':'--axis'});stroke-width:${i?1:1.4}`},g0);
+    el('line',{x1:X(-R-1),y1:Y(i),x2:X(R+1),y2:Y(i),style:`stroke:var(${i?'--grid':'--axis'});stroke-width:${i?1:1.4}`},g0);
+    if(i&&i%(stepG*(R>4?2:1))===0){el('text',{x:X(i),y:Y(0)+13,'text-anchor':'middle','font-size':10,style:'fill:var(--muted)',text:i},g0);el('text',{x:X(0)-5,y:Y(i)+3.5,'text-anchor':'end','font-size':10,style:'fill:var(--muted)',text:i},g0);}
+  }
+  if(o.xl)el('text',{x:W-6,y:Y(0)-6,'text-anchor':'end','font-size':11.5,style:'fill:var(--muted)',text:o.xl},g0);
+  if(o.yl)el('text',{x:X(0)+6,y:14,'font-size':11.5,style:'fill:var(--muted)',text:o.yl},g0);
+  const P={X,Y,s,R,svg,gC,gH};
+  P.clear=()=>gC.replaceChildren();
+  P.line=(x0,y0,x1,y1,st)=>el('line',{x1:X(x0),y1:Y(y0),x2:X(x1),y2:Y(y1),style:st},P.gC);
+  P.poly=(pts,st)=>el('polygon',{points:pts.map(p=>X(p[0]).toFixed(1)+','+Y(p[1]).toFixed(1)).join(' '),style:st},P.gC);
+  P.text=(x,y,t,st='',anchor='start',size=12.5)=>el('text',{x:X(x),y:Y(y),'text-anchor':anchor,'font-size':size,style:st,text:t},P.gC);
+  P.arrow=(x0,y0,x1,y1,col,op={})=>{
+    const ax=X(x0),ay=Y(y0),bx=X(x1),by=Y(y1),dx=bx-ax,dy=by-ay,L=Math.hypot(dx,dy),w=op.w||2.6;
+    const st=`stroke:${col};stroke-width:${w};stroke-linecap:round;${op.dash?'stroke-dasharray:'+op.dash+';':''}opacity:${op.op??1}`;
+    if(L<2){el('circle',{cx:bx,cy:by,r:3.5,style:`fill:${col};opacity:${op.op??1}`},P.gC);}
+    else{const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5),hw=h*.42;
+      el('line',{x1:ax,y1:ay,x2:bx-ux*h*.85,y2:by-uy*h*.85,style:st},P.gC);
+      el('polygon',{points:`${bx},${by} ${bx-ux*h-uy*hw},${by-uy*h+ux*hw} ${bx-ux*h+uy*hw},${by-uy*h-ux*hw}`,style:`fill:${col};opacity:${op.op??1}`},P.gC);}
+    if(op.label){const left=dx<-0.3*L,lx=op.lx??(L<2?8:(dx/(L||1))*10+(left?-4:4)), ly=op.ly??(L<2?-8:(dy/(L||1))*10+(dy>0?12:-4));
+      const mx=op.mid?(ax+bx)/2-bx+(L?-dy/L*14:0):0,my=op.mid?(ay+by)/2-by+(L?dx/L*14:0):0;
+      const tx=el('text',{x:bx+(op.mid?mx:lx),y:by+(op.mid?my+4:ly),'font-size':op.fs||13,'text-anchor':op.anchor||(op.mid?'middle':left?'end':'start'),style:`fill:${col};font-weight:600;paint-order:stroke;stroke:var(--paper);stroke-width:3px`,text:op.label},P.gC);
+      try{const bb=tx.getBBox();let sx=0,sy=0;if(bb.x+bb.width>W-3)sx=W-3-bb.x-bb.width;if(bb.x+sx<3)sx=3-bb.x;if(bb.y<3)sy=3-bb.y;if(bb.y+bb.height>H-3)sy=H-3-bb.y-bb.height;if(sx||sy)tx.setAttribute('transform',`translate(${sx},${sy})`);}catch(e){}}
+  };
+  P.toXY=ev=>{const pt=svg.createSVGPoint();pt.x=ev.clientX;pt.y=ev.clientY;const q=pt.matrixTransform(svg.getScreenCTM().inverse());return [(q.x-W/2)/s,(H/2-q.y)/s];};
+  P.handle=(get,set,col,step=0.5,label='拖动',lim=R)=>{
+    const c=el('circle',{r:10,tabindex:0,role:'slider','aria-label':label,style:`fill:${col};fill-opacity:.22;stroke:${col};stroke-width:1.6;cursor:grab`},gH);
+    let on=false;
+    c.addEventListener('pointerdown',e=>{on=true;c.setPointerCapture(e.pointerId);e.preventDefault();});
+    c.addEventListener('pointermove',e=>{if(!on)return;let [x,y]=P.toXY(e);x=Math.max(-lim,Math.min(lim,Math.round(x/step)*step));y=Math.max(-lim,Math.min(lim,Math.round(y/step)*step));set(x,y);});
+    const end=()=>{on=false;}; c.addEventListener('pointerup',end); c.addEventListener('pointercancel',end);
+    c.addEventListener('keydown',e=>{const [x,y]=get();const m={ArrowLeft:[-step,0],ArrowRight:[step,0],ArrowUp:[0,step],ArrowDown:[0,-step]}[e.key];if(m){e.preventDefault();set(Math.max(-lim,Math.min(lim,x+m[0])),Math.max(-lim,Math.min(lim,y+m[1])));}});
+    return {el:c,update(){const [x,y]=get();c.setAttribute('cx',X(x));c.setAttribute('cy',Y(y));}};
+  };
+  return P;
+}
+
+/* ---------- 公共 ---------- */
+function seq(steps,apply){ // steps: [from,to,ms] 或 ['hold',ms]
+  let cancelled=false,cur=()=>{},tm=0;
+  const run=i=>{if(cancelled||i>=steps.length)return;const s=steps[i];
+    if(s[0]==='hold'){tm=setTimeout(()=>run(i+1),reduced?0:s[1]);}
+    else cur=animate(s[2],t=>apply(s[0]+(s[1]-s[0])*ease(t)),()=>run(i+1));};
+  run(0);return ()=>{cancelled=true;cur();clearTimeout(tm);};
+}
+const mv=(A,[x,y])=>[A[0][0]*x+A[0][1]*y,A[1][0]*x+A[1][1]*y];
+const lerpM=(A,t)=>[[1+(A[0][0]-1)*t,A[0][1]*t],[A[1][0]*t,1+(A[1][1]-1)*t]];
+const det2=A=>A[0][0]*A[1][1]-A[0][1]*A[1][0];
+function matInputs(host,M,onchange){
+  host.replaceChildren();
+  M.forEach((row,i)=>row.forEach((v,j)=>{const sp=document.createElement('span');const inp=document.createElement('input');inp.type='number';inp.step='0.5';inp.value=v;inp.setAttribute('aria-label',`第${i+1}行第${j+1}列`);
+    inp.oninput=()=>{const n=parseFloat(inp.value);if(!isNaN(n)){M[i][j]=n;onchange();}};sp.appendChild(inp);host.appendChild(sp);}));
+}
+function drawBuilding(svg,u1,u2,o={}){
+  const sc=o.sc??14,unit=o.unit??' mm';
+  svg.replaceChildren();
+  const gy=225,y1=150,y2=75,cx=130,half=48;
+  const ink='var(--ink)',mut='var(--muted)';
+  el('line',{x1:40,y1:gy,x2:220,y2:gy,style:`stroke:${ink};stroke-width:2`},svg);
+  for(let i=0;i<12;i++)el('line',{x1:46+i*15,y1:gy,x2:38+i*15,y2:gy+8,style:`stroke:${mut}`},svg);
+  [y1,y2].forEach(y=>el('line',{x1:cx-half-6,y1:y,x2:cx+half+6,y2:y,style:`stroke:${mut};stroke-dasharray:3 3;opacity:.6`},svg));
+  const d1=u1*sc,d2=u2*sc;
+  const col=(xb,xt,yb,yt)=>`M${xb},${yb} C${xb},${(yb*2+yt)/3} ${xt},${(yb+yt*2)/3} ${xt},${yt}`;
+  for(const s of[-1,1])el('path',{d:col(cx+s*half,cx+s*half+d1,gy,y1)+' '+col(cx+s*half+d1,cx+s*half+d2,y1,y2).replace('M','L'),style:`fill:none;stroke:${ink};stroke-width:2`},svg);
+  el('rect',{x:cx-half-8+d1,y:y1-6,width:2*half+16,height:12,rx:2,style:'fill:var(--m1)'},svg);
+  el('rect',{x:cx-half-8+d2,y:y2-6,width:2*half+16,height:12,rx:2,style:'fill:var(--m2)'},svg);
+  el('text',{x:cx+half+14+Math.max(d1,0),y:y1+4,'font-size':13,style:'fill:var(--m1);font-weight:600',text:o.l1??`u₁ = ${fm(u1)}${unit}`},svg);
+  el('text',{x:cx+half+14+Math.max(d2,0),y:y2+4,'font-size':13,style:'fill:var(--m2);font-weight:600',text:o.l2??`u₂ = ${fm(u2)}${unit}`},svg);
+  el('text',{x:cx,y:gy+22,'text-anchor':'middle','font-size':11.5,style:`fill:${o.capCol||mut};font-weight:${o.capCol?600:400}`,text:o.cap??'水平位移放大显示'},svg);
+}
+const dotsPath=(pts,r)=>pts.map(([x,y])=>`M${(x-r).toFixed(1)},${y.toFixed(1)}a${r},${r} 0 1,0 ${2*r},0a${r},${r} 0 1,0 ${-2*r},0`).join('');
+
+/* ---------- 系列条 ---------- */
+const SERIES=[
+ ['00','几何直觉','00.html'],
+ ['01','向量矩阵与基本运算','01.html'],
+ ['02','方程组、秩与可逆性','02.html'],
+ ['03','坐标、正交与二次型','03.html'],
+ ['04','特征值与解耦','04.html'],
+ ['05','速查与自诊','05.html'],
+];
+(function(){const h=document.getElementById('series');if(!h)return;const cur=h.dataset.cur;
+  h.innerHTML=SERIES.map(([n,t,u])=>n===cur?`<span class="cur">${n} ${t}</span>`:u?`<a href="${u}"><span>${n} ${t} ↗</span></a>`:`<span>${n} ${t}</span>`).join('');})();
+/* ---------- 出处链接：笔记 "NN §k" → 交互页 #sN ---------- */
+const PURL=Object.fromEntries(SERIES.map(([n,,u])=>[n,u]));
+const SEC={
+ '00':k=>({1:1,2:2,3:3,4:4,5:5,6:6,7:8,8:10,9:10,10:10})[k],
+ '01':k=>({1:1,2:2,3:2,4:3,5:4,6:4,7:1,8:5,9:5,10:6,11:7,12:8,13:7,14:9,15:10,16:11,17:11,18:12,19:13,20:13,21:13})[k],
+ '02':k=>k<=4?1:k<=6?2:(k===7||k===10)?3:(k<=9||k===11)?4:k<=13?2:k===14?5:k<=16?6:k===17?7:k===18?8:k<=20?9:10,
+ '03':k=>k<=4?1:k===5?6:k<=7?2:k<=10?3:k<=12?4:k<=15?5:k===16?6:k<=22?7:8,
+ '04':k=>k<=4?1:k<=8?2:k<=10?3:k<=14?4:k===15?5:k===16?6:k<=19?7:k===20?8:9,
+};
+function refs(s){
+  let vol='';
+  return s.replace(/(?:(\d\d)\s*)?§(\d+)/g,(m,v,k)=>{if(v)vol=v;const u=PURL[vol],n=SEC[vol]&&SEC[vol](+k);const lab=(v?vol+' ':'')+'§'+k;
+    return u&&n?`<a href="${u}#s${n}" title="打开 ${vol} 篇交互页第 ${n} 节">${lab}</a>`:lab;});
+}
+const escA=s=>s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const KEYMAP=[[/\\lambda/g,'λ'],[/\\Lambda/g,'Λ'],[/\\phi/g,'φ'],[/\\Phi/g,'Φ'],[/\\omega/g,'ω'],[/\\eta/g,'η']];
+const keyOf=s=>{let k=s.toLowerCase();KEYMAP.forEach(([r,c])=>{k+=' '+s.replace(r,c).toLowerCase();});return k;};
+const rowsOf=s=>s.trim().split('\n').map(l=>l.split('¦').map(x=>x.trim()));
+function mkTable(id,head,rows,refCol,cat){
+  const html=`<thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>`+
+    rows.map(r=>{const c=r.cells;return `<tr data-k="${escA(keyOf(c.join(' ')+' '+(r.cat||'')))}"${r.cat?` data-cat="${r.cat}"`:''}>`+
+      c.map((x,i)=>`<td${i===refCol?' class="why" style="white-space:nowrap"':''}>${i===refCol?refs(x):x}</td>`).join('')+'</tr>';}).join('')+'</tbody>';
+  setTex(id,html);
+}
+
+/* ---------- 1 符号与术语 ---------- */
+mkTable('t1',['记号','含义','出处'],rowsOf(TX`
+小写正体 \(a,\ \lambda,\ \omega\) ¦ 标量 ¦
+小写粗体 \(\boldsymbol u,\ \boldsymbol\phi,\ \boldsymbol x\) ¦ 列向量；行向量写 \(\boldsymbol x^T\) ¦
+大写 \(A,\ K,\ M,\ \Phi\) ¦ 矩阵 ¦
+\([3,2]^T\) ¦ 列向量的省地方写法 ¦ 00 §1
+\(\boldsymbol e_j\) ¦ 标准基向量（第 \(j\) 分量为 1，其余为 0） ¦ 01 §10
+\(\mathrm{diag}(a,b)\) ¦ 对角矩阵 ¦
+\(\mathcal C(A)\)、\(\mathcal N(A)\) ¦ 列空间、零空间 ¦ 02 §6、§12
+\(\operatorname{span}\{\cdot\}\) ¦ 张成 ¦ 02 §2
+\(\|\boldsymbol x\|\)、\(\|\boldsymbol x\|_M\) ¦ 普通长度、\(M\)-长度 ¦ 01 §6、03 §18
+\(\langle\boldsymbol x,\boldsymbol y\rangle_M=\boldsymbol x^TM\boldsymbol y\) ¦ 质量加权内积 ¦ 03 §18
+\(\hat{\boldsymbol\phi}\) ¦ 质量归一化振型 ¦ 03 §21
+\(\Lambda=\mathrm{diag}(\lambda_i)\) ¦ 特征值对角阵 ¦ 04 §9
+\(M^*,\ K^*\) ¦ 广义质量、广义刚度 \(=\Phi^TM\Phi,\ \Phi^TK\Phi\) ¦ 04 §16
+`).map(c=>({cells:c})),2);
+
+mkTable('t1b',['中文','English','出处'],rowsOf(TX`
+线性组合 / 张成 ¦ linear combination / span ¦ 02 §2
+线性无关 / 相关 ¦ linearly independent / dependent ¦ 02 §3
+基 / 维数 ¦ basis / dimension ¦ 02 §4
+列空间 / 零空间 ¦ column space / null space (kernel) ¦ 02 §6、§12
+秩 / 零度 ¦ rank / nullity ¦ 02 §11、§14
+行阶梯形 / 主元 ¦ row echelon form / pivot ¦ 02 §9
+奇异 / 可逆 ¦ singular / invertible (nonsingular) ¦ 02 §16
+病态 / 条件数 ¦ ill-conditioned / condition number ¦ 02 §18
+内积 / 点积 ¦ inner product / dot product ¦ 01 §5
+正交 / 正交归一 ¦ orthogonal / orthonormal ¦ 03 §6–§7
+投影 ¦ projection ¦ 03 §8
+二次型 / 正定 / 半正定 ¦ quadratic form / positive definite / semidefinite ¦ 03 §13、§15
+相似变换 / 合同变换 ¦ similarity / congruence transformation ¦ 03 §5、§16
+特征值 / 特征向量 ¦ eigenvalue / eigenvector ¦ 04 §5
+特征多项式 / 特征空间 ¦ characteristic polynomial / eigenspace ¦ 04 §6、§8
+对角化 ¦ diagonalization ¦ 04 §9
+广义特征值问题 ¦ generalized eigenvalue problem ¦ 04 §11
+振型 / 模态 ¦ mode shape / mode ¦ 04 §13
+质量正交 ¦ mass-orthogonality (\(M\)-orthogonality) ¦ 03 §18
+Cholesky 分解 ¦ Cholesky factorization ¦ 04 §18
+Rayleigh 商 ¦ Rayleigh quotient ¦ 04 §20
+谱定理 ¦ spectral theorem ¦ 04 §10
+`).map(c=>({cells:c})),2);
+
+/* ---------- 2 核心公式 ---------- */
+mkTable('t2',['公式','条件','出处'],rowsOf(TX`
+\(A\boldsymbol x=\sum_jx_j\boldsymbol a_j\)（列读法） ¦ — ¦ 01 §9
+\(A\boldsymbol e_j=\) 第 \(j\) 列 ¦ — ¦ 01 §10
+\((AB)^T=B^TA^T\) ¦ 尺寸相容 ¦ 01 §14
+\(K=\begin{bmatrix}k_1+k_2&-k_2\\-k_2&k_2\end{bmatrix}\) ¦ 两层剪切模型 ¦ 01 §16
+\(\operatorname{rank}(A)+\dim\mathcal N(A)=n\) ¦ \(A\) 为 \(m\times n\) ¦ 02 §14
+\(A\boldsymbol x=\boldsymbol b\) 有解 \(\iff\boldsymbol b\in\mathcal C(A)\) ¦ — ¦ 02 §6
+全部解 \(=\boldsymbol x_p+\mathcal N(A)\) ¦ 有解时 ¦ 02 §13
+\(\begin{bmatrix}a&b\\c&d\end{bmatrix}^{-1}=\dfrac{1}{ad-bc}\begin{bmatrix}d&-b\\-c&a\end{bmatrix}\) ¦ \(ad-bc\ne0\) ¦ 02 §15
+\(\boldsymbol x=V\boldsymbol q,\quad\boldsymbol q=V^{-1}\boldsymbol x\) ¦ \(V\) 的列为新基 ¦ 03 §3
+\(\operatorname{proj}_{\boldsymbol v}\boldsymbol x=\dfrac{\boldsymbol v^T\boldsymbol x}{\boldsymbol v^T\boldsymbol v}\boldsymbol v\) ¦ \(\boldsymbol v\ne\boldsymbol 0\) ¦ 03 §8
+正交归一基下 \(c_i=\hat{\boldsymbol e}_i^T\boldsymbol x\) ¦ 基正交归一 ¦ 03 §9
+\(Q^{-1}=Q^T\) ¦ \(Q\) 为正交矩阵 ¦ 03 §7
+\(\boldsymbol x^TA\boldsymbol x=\boldsymbol x^TS\boldsymbol x,\quad S=\tfrac12(A+A^T)\) ¦ — ¦ 03 §13
+\(k_{ij}=\dfrac{\partial^2U}{\partial u_i\,\partial u_j}\ \Rightarrow\ K=K^T\) ¦ 保守线弹性 ¦ 03 §14
+二阶正定判据 \(a>0,\ ad-b^2>0\) ¦ 对称 ¦ 03 §15
+二次型换基 \(V^TAV\)；映射换基 \(V^{-1}AV\) ¦ — ¦ 03 §16
+\(\langle\boldsymbol x,\boldsymbol y\rangle_M=\boldsymbol x^TM\boldsymbol y\) ¦ \(M\) 对称正定 ¦ 03 §18
+\(q_i=\dfrac{\boldsymbol\phi_i^TM\boldsymbol u}{\boldsymbol\phi_i^TM\boldsymbol\phi_i}\) ¦ 振型 \(M\)-正交 ¦ 03 §22
+\(\det(A-\lambda I)=0\) ¦ — ¦ 04 §6
+\(K\boldsymbol\phi=\omega^2M\boldsymbol\phi\) ¦ 无阻尼自由振动 ¦ 04 §11
+\(\boldsymbol\phi_i^TM\boldsymbol\phi_j=\boldsymbol\phi_i^TK\boldsymbol\phi_j=0\) ¦ \(\lambda_i\ne\lambda_j\)，\(K,M\) 对称 ¦ 04 §15
+\(\Phi^TM\Phi\,\ddot{\boldsymbol q}+\Phi^TK\Phi\,\boldsymbol q=\Phi^T\boldsymbol p\) ¦ 同上 ¦ 04 §16
+\(M=LL^T,\ \ \tilde K=L^{-1}KL^{-T},\ \ \boldsymbol\phi=L^{-T}\boldsymbol y\) ¦ \(M\) 正定 ¦ 04 §18
+\(R(\boldsymbol x)=\dfrac{\boldsymbol x^TK\boldsymbol x}{\boldsymbol x^TM\boldsymbol x}\ge\lambda_1\) ¦ \(\boldsymbol x\ne\boldsymbol 0\) ¦ 04 §20
+`).map(c=>({cells:c})),2);
+
+/* ---------- 4 谱定理 ---------- */
+mkTable('t4',['条','实对称矩阵的保证（谱定理）','出处'],rowsOf(TX`
+1 ¦ 特征值全为实数 ¦ 04 §10
+2 ¦ 不同特征值的特征向量正交 ¦ 04 §10
+3 ¦ 存在正交归一特征向量基，\(Q^TAQ=\Lambda\) ¦ 04 §10
+4 ¦ 正定 \(\iff\) 全部 \(\lambda>0\)；半正定 \(\iff\) 全部 \(\lambda\ge0\) ¦ 03 §15、04 §12
+`).map(c=>({cells:c})),2);
+
+/* ---------- 5 常见错误 ---------- */
+const ERR5=[
+['运算',TX`
+尺寸不看就乘 ¦ 左列数 = 右行数 ¦ 01 §8、§11
+\(AB=BA\) ¦ 一般不成立 ¦ 01 §12
+\((AB)^T=A^TB^T\) ¦ \(=B^TA^T\)，次序反转 ¦ 01 §14
+\(\boldsymbol x\boldsymbol y^T\) 当标量 ¦ 那是矩阵（外积）；标量是 \(\boldsymbol x^T\boldsymbol y\) ¦ 01 §15
+数原矩阵非零行当秩 ¦ 消元后再数 ¦ 02 §11
+消元后的列当列空间的基 ¦ 取原矩阵中主元位置的列 ¦ 02 §11
+求逆再乘 ¦ 用 <code>solve</code> ¦ 02 §17
+只换刚度单位不换质量单位 ¦ \(\omega^2=k/m\)，两者要配套 ¦ 01 §18
+非正交基下用投影公式求坐标 ¦ 只在正交基下成立；否则解方程 ¦ 03 §4
+二次型换基用 \(V^{-1}AV\) ¦ 用 \(V^TAV\) ¦ 03 §16
+从 \(\boldsymbol x^TA\boldsymbol x=\boldsymbol x^TA^T\boldsymbol x\) 推 \(A\) 对称 ¦ 对任何 \(A\) 都成立，推不出 ¦ 03 §13
+对称化不影响动力学 ¦ 对称化改变矩阵的作用（力） ¦ 03 §13
+用普通投影求振型坐标 ¦ 用 \(M\)-投影 ¦ 03 §22
+矩阵减标量 \(A-\lambda\) ¦ 写 \(A-\lambda I\) ¦ 04 §6
+从零行取二阶快捷法 ¦ 取非零行 ¦ 04 §7
+`],
+['特征值',TX`
+特征值 = 频率 ¦ \(\lambda=\omega^2\) ¦ 04 §23
+负特征值截成零 ¦ 是失稳信号，要报出 ¦ 04 §12
+振型正负号有意义 ¦ \(\pm\boldsymbol\phi\) 是同一振型 ¦ 04 §8
+振型是实际位移 ¦ 只是形状；乘 \(q_i(t)\) 才是位移 ¦ 04 §23
+振型普通正交 ¦ \(M\)-正交、\(K\)-正交 ¦ 04 §15
+重根时任取的两个向量必正交 ¦ 需在子空间内正交化 ¦ 04 §10
+用 <code>eig(inv(M)@K)</code> ¦ 用 <code>eigh(K, M)</code> ¦ 04 §17、§19
+<code>eigh</code> 要求 \(K\) 正定 ¦ 只要求 \(M\) 正定 ¦ 04 §19
+Rayleigh 商直接当频率 ¦ \(R\) 对应 \(\omega^2\)，要开平方 ¦ 04 §20
+Rayleigh 商“总是偏高” ¦ 是<b>不低于</b>真值的上界，取到真振型时相等 ¦ 04 §20
+用 Rayleigh 商估高阶频率 ¦ 需先与低阶振型 \(M\)-正交 ¦ 04 §20
+误差“严格按四倍走” ¦ 二阶是渐近性质，有限扰动趋近四倍 ¦ 04 §20
+`],
+['物理量',TX`
+\(\dim\mathcal N(K)\) = 刚体模态数 ¦ = 零刚度模式数（含机构） ¦ 02 §19
+自由三维结构必有 6 个零频 ¦ 需连通、内部稳定、无机构 ¦ 02 §19
+\(K\) 奇异 \(\Rightarrow\) 半正定 ¦ 只能推出奇异且不正定；半正定还要其余方向非负 ¦ 03 §15
+质量正交 \(\Rightarrow\) 完全解耦 ¦ 只消动能交叉项；刚度、阻尼另查 ¦ 03 §20
+振型分解是近似 ¦ 取全部振型时精确；近似来自截断 ¦ 04 §16
+折线过零点是反弯点 ¦ 反弯点看曲率，不看楼层位移连线 ¦ 04 §14
+振幅大的振型频率高 ¦ 振型可任意缩放，频率看 \(\lambda\) ¦ 04 §14
+\(M\)-正交是结构专用概念 ¦ 就是 \(L^T\boldsymbol\phi\) 的普通正交 ¦ 04 §18
+只比频率就算核对 ¦ 还要比矩阵、振型、正交性、残差 ¦ 04 §21
+频率接近零就是奇异 ¦ 可能是柔软模式、尺度、舍入；看 \(\lambda\) 的相对尺度 ¦ 02 §19
+`]];
+mkTable('t5',['错误','纠正','出处'],ERR5.flatMap(([cat,s])=>rowsOf(s).map(c=>({cells:c,cat}))),2);
+let cat5='全部';
+(function(){const h=$('tab5');['全部','运算','特征值','物理量'].forEach(c=>{const b=document.createElement('button');b.type='button';
+  const n=c==='全部'?ERR5.reduce((a,[,s])=>a+rowsOf(s).length,0):rowsOf(ERR5.find(e=>e[0]===c)[1]).length;
+  b.textContent=`${c} ${n}`;b.dataset.cat=c;b.setAttribute('aria-pressed',c===cat5);if(c===cat5)b.classList.add('pri');
+  b.onclick=()=>{cat5=c;h.querySelectorAll('button').forEach(x=>{const on=x.dataset.cat===c;x.classList.toggle('pri',on);x.setAttribute('aria-pressed',on);});filt();};h.appendChild(b);});})();
+
+/* ---------- 7 排查 ---------- */
+mkTable('t7',['现象','先查','相关页'],rowsOf(TX`
+频率全部差同一倍数 ¦ 单位：\(\sqrt{1000}\approx31.6\) 倍 → kN/mm 与 t 混用 ¦ 01 §18
+频率顺序对、数值差 ¦ \(M\) 或 \(K\) 某元素；自由度顺序 ¦ 01 §16
+频率对、振型差 ¦ 归一化、符号、重频 ¦ 04 §21
+多出接近零的频率 ¦ 漏约束、孤立节点、机构 ¦ 02 §19
+出现负特征值 ¦ 几何刚度、弹簧符号、单位 ¦ 04 §12
+残差大 ¦ 特征对张冠李戴、矩阵读错 ¦ 04 §21
+\(\Phi^TM\Phi\) 非对角不为零 ¦ 重频未正交化、振型不是同一组 \(M\) 算的 ¦ 04 §10、§15
+`).map(c=>({cells:c})),2);
+
+/* ---------- 搜索 ---------- */
+function filt(){
+  const toks=$('q').value.trim().toLowerCase().split(/\s+/).filter(Boolean);let n=0,tot=0;
+  document.querySelectorAll('table.srch').forEach(t=>{let vis=0;
+    t.querySelectorAll('tbody tr').forEach(tr=>{const okc=!tr.dataset.cat||cat5==='全部'||tr.dataset.cat===cat5;const okq=toks.every(x=>tr.dataset.k.includes(x));
+      tr.style.display=okc&&okq?'':'none';if(okc){tot++;if(okq){n++;vis++;}}});
+    t.closest('.tbl').style.opacity=toks.length&&!vis?.35:'';});
+  $('qn').textContent=toks.length?`匹配 ${n} / ${tot} 行（无匹配的表格变淡）`:'';
+}
+$('q').addEventListener('input',filt);
+
+/* ---------- 3 两自由度计算器 ---------- */
+const f4=v=>fm(v,4);
+function poly(terms){let s='';terms.forEach(([c,v])=>{if(Math.abs(c)<1e-12)return;const a=Math.abs(c);const num=(Math.abs(a-1)<1e-12&&v)?'':f4(a);s+=(c<0?'-':(s?'+':''))+num+v;});return s||'0';}
+const diag=(a,b)=>TX`\mathrm{diag}(${f4(a)},\ ${f4(b)})`;
+function calc3(){
+  const g=id=>parseFloat($(id).value);const m1=g('m1'),m2=g('m2'),k1=g('k1'),k2=g('k2');
+  if(![m1,m2,k1,k2].every(v=>isFinite(v)&&v>0)){setTex('t3','<tbody><tr><td class="cbad">四个参数都须为正数。</td></tr></tbody>');return;}
+  const A=m1*m2,B=m1*k2+m2*(k1+k2),C=k1*k2,D=Math.sqrt(B*B-4*A*C);
+  const l1=(B-D)/(2*A),l2=(B+D)/(2*A),w1=Math.sqrt(l1),w2=Math.sqrt(l2);
+  const a1=(k1+k2-l1*m1)/k2,a2=(k1+k2-l2*m1)/k2;
+  const P=[[1,1],[a1,a2]];
+  const dot=1+a1*a2,dotM=m1+m2*a1*a2;
+  const M1=m1+m2*a1*a1,M2=m1+m2*a2*a2,K1=(k1+k2)-2*k2*a1+k2*a1*a1,K2=(k1+k2)-2*k2*a2+k2*a2*a2;
+  const Ph=[[1/Math.sqrt(M1),1/Math.sqrt(M2)],[a1/Math.sqrt(M1),a2/Math.sqrt(M2)]];
+  const Pi=[[m1/M1,m2*a1/M1],[m1/M2,m2*a2/M2]];
+  const Kt=[[(k1+k2)/m1,-k2/Math.sqrt(m1*m2)],[-k2/Math.sqrt(m1*m2),k2/m2]];
+  const Ki=[[1/k1,1/k1],[1/k1,1/k1+1/k2]];
+  const pc=a=>poly([[1,'p_1'],[a,'p_2']]);
+  const orth=Math.abs(dot)<1e-9;
+  const R=[
+    [TX`\(\det(K-\lambda M)\)`,TX`\(${poly([[A,'\\lambda^2'],[-B,'\\lambda'],[C,'']])}\)`,'特征多项式'],
+    [TX`\(\lambda_1,\ \lambda_2\)`,TX`\(${f4(l1)},\ \ ${f4(l2)}\)`,TX`\(\lambda=\omega^2\)，升序`],
+    [TX`\(\omega_1,\ \omega_2\)`,TX`\(${f4(w1)},\ \ ${f4(w2)}\ \mathrm{rad/s}\)`,TX`\(\omega=\sqrt\lambda\)`],
+    [TX`\(f_1,\ f_2\)`,TX`\(${f4(w1/2/Math.PI)},\ \ ${f4(w2/2/Math.PI)}\ \mathrm{Hz}\)`,TX`\(T_1,T_2=${f4(2*Math.PI/w1)},\ ${f4(2*Math.PI/w2)}\ \mathrm s\)`],
+    [TX`\(\boldsymbol\phi_1,\ \boldsymbol\phi_2\)`,TX`\(${rv([1,a1],4)}^T,\ \ ${rv([1,a2],4)}^T\)`,'首分量取 1；'+(a1>0&&a2<0?'一阶同向、二阶反向':'看符号')],
+    [TX`\(\boldsymbol\phi_1^T\boldsymbol\phi_2\)（普通）`,TX`\(${f4(dot)}\)`,orth?'<span class="chip ok">恰好正交</span> 因为 \\(m_1=m_2\\)，\\(M\\propto I\\)':'<span class="chip bad">不正交</span>'],
+    [TX`\(\boldsymbol\phi_1^TM\boldsymbol\phi_2\)`,TX`\(${f4(Math.abs(dotM)<1e-9?0:dotM)}\)`,TX`<span class="chip ok">\(M\)-正交</span>`],
+    [TX`\(\Phi^TM\Phi\)`,TX`\(${diag(M1,M2)}\)`,'广义质量 \\(M_i^*\\)'],
+    [TX`\(\Phi^TK\Phi\)`,TX`\(${diag(K1,K2)}\)`,TX`广义刚度；\(K_i^*/M_i^*=${f4(K1/M1)},\ ${f4(K2/M2)}=\lambda_i\)`],
+    [TX`\(\hat\Phi\)`,TX`\(\Big[\tfrac{\boldsymbol\phi_1}{\sqrt{${f4(M1)}}}\ \ \tfrac{\boldsymbol\phi_2}{\sqrt{${f4(M2)}}}\Big]=${bmx(Ph,4)}\)`,TX`\(\hat\Phi^TM\hat\Phi=I\)`],
+    [TX`\(\Phi^{-1}\)`,TX`\(${bmx(Pi,4)}\)`,TX`\(=(\Phi^TM\Phi)^{-1}\Phi^TM\)，不用真求逆`],
+    [TX`Cholesky \(L\)`,TX`\(\mathrm{diag}(\sqrt{${f4(m1)}},\ \sqrt{${f4(m2)}})=${diag(Math.sqrt(m1),Math.sqrt(m2))}\)`,TX`\(M=LL^T\)`],
+    [TX`\(\tilde K\)`,TX`\(${bmx(Kt,4)}\)`,TX`\(L^{-1}KL^{-T}\)，对称，特征值仍为 \(${f4(l1)},\ ${f4(l2)}\)`],
+    ['解耦方程',TX`\(${f4(M1)}\ddot q_1+${f4(K1)}q_1=${pc(a1)}\)<br>\(${f4(M2)}\ddot q_2+${f4(K2)}q_2=${pc(a2)}\)`,TX`右端 \(\boldsymbol\phi_i^T\boldsymbol p\)`],
+    [TX`\(K^{-1}\)`,TX`\(${bmx(Ki,4)}\)`,'柔度矩阵：单位力引起的位移'],
+    [TX`\(R(1,a)\)`,TX`\(\dfrac{${poly([[k1+k2,''],[-2*k2,'a'],[k2,'a^2']])}}{${poly([[m1,''],[m2,'a^2']])}}\)`,TX`\(a=${f4(a1)}\) 时 \(=${f4(l1)}=\lambda_1\)，其余 \(a\) 都更大`],
+  ];
+  setTex('t3','<thead><tr><th>量</th><th>值</th><th>说明</th></tr></thead><tbody>'+R.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td class="why">${r[2]}</td></tr>`).join('')+'</tbody>');
+}
+['m1','m2','k1','k2'].forEach(id=>$(id).addEventListener('input',calc3));
+$('b3r').onclick=()=>{[['m1',2],['m2',1],['k1',2],['k2',1]].forEach(([i,v])=>$(i).value=v);calc3();};
+
+/* ---------- 6 模态核对器 ---------- */
+const zeros=n=>Array.from({length:n},()=>Array(n).fill(0));
+const T_=A=>A[0].map((_,j)=>A.map(r=>r[j]));
+const mm=(A,B)=>A.map(r=>B[0].map((_,j)=>r.reduce((s,a,k)=>s+a*B[k][j],0)));
+const fro=A=>Math.sqrt(A.reduce((s,r)=>s+r.reduce((t,v)=>t+v*v,0),0));
+function jacobi(A){
+  const n=A.length,a=A.map(r=>r.slice()),V=a.map((r,i)=>r.map((_,j)=>+(i===j)));
+  for(let sw=0;sw<100;sw++){
+    let off=0,nrm=0;for(let i=0;i<n;i++)for(let j=0;j<n;j++){nrm+=a[i][j]**2;if(i!==j)off+=a[i][j]**2;}
+    if(off<=1e-32*nrm||off===0)break;
+    for(let p=0;p<n;p++)for(let q=p+1;q<n;q++){const apq=a[p][q];if(apq===0)continue;
+      const th=(a[q][q]-a[p][p])/(2*apq),t=(th>=0?1:-1)/(Math.abs(th)+Math.sqrt(th*th+1)),c=1/Math.sqrt(t*t+1),s=t*c;
+      for(let k=0;k<n;k++){const x=a[k][p],y=a[k][q];a[k][p]=c*x-s*y;a[k][q]=s*x+c*y;}
+      for(let k=0;k<n;k++){const x=a[p][k],y=a[q][k];a[p][k]=c*x-s*y;a[q][k]=s*x+c*y;}
+      for(let k=0;k<n;k++){const x=V[k][p],y=V[k][q];V[k][p]=c*x-s*y;V[k][q]=s*x+c*y;}}
+  }
+  return {w:a.map((r,i)=>r[i]),V};
+}
+function chol(M){const n=M.length,L=zeros(n);
+  for(let j=0;j<n;j++){let s=M[j][j];for(let k=0;k<j;k++)s-=L[j][k]**2;if(!(s>0))return {err:j,piv:s};L[j][j]=Math.sqrt(s);
+    for(let i=j+1;i<n;i++){let t=M[i][j];for(let k=0;k<j;k++)t-=L[i][k]*L[j][k];L[i][j]=t/L[j][j];}}
+  return {L};}
+const fwd=(L,b)=>{const x=[];for(let i=0;i<b.length;i++){let s=b[i];for(let k=0;k<i;k++)s-=L[i][k]*x[k];x.push(s/L[i][i]);}return x;};
+const bwdT=(L,y)=>{const n=y.length,x=Array(n);for(let i=n-1;i>=0;i--){let s=y[i];for(let k=i+1;k<n;k++)s-=L[k][i]*x[k];x[i]=s/L[i][i];}return x;};
+function ft(v,sig=6){
+  if(Number.isNaN(v))return TX`\text{nan}`;if(v===0)return '0';const a=Math.abs(v);
+  if(a<1e-4||a>=1e7){let e=Math.floor(Math.log10(a)),m=+(v/10**e).toFixed(2);if(Math.abs(m)>=10){m/=10;e++;}return `${m}\\times10^{${e}}`;}
+  return String(+v.toPrecision(sig));
+}
+const bmxS=(A,sig=6)=>`\\begin{bmatrix}${A.map(r=>r.map(v=>ft(v,sig)).join('&')).join('\\\\')}\\end{bmatrix}`;
+function parseMat(s,name){
+  const rows=s.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>l.split(/[\s,，;；]+/).filter(Boolean).map(Number));
+  if(!rows.length)throw `${name} 为空`;
+  if(rows.length>8)throw `${name} 超过 8 阶`;
+  if(rows.some(r=>r.length!==rows.length))throw `${name} 不是方阵：${rows.length} 行，各行元素数 ${rows.map(r=>r.length).join('、')}`;
+  if(rows.some(r=>r.some(v=>!isFinite(v))))throw `${name} 含非数字或非有限值`;
+  return rows;
+}
+function modalCheck(K,M,rtol){
+  const n=K.length;
+  if(M.length!==n)throw 'K、M 必须是同尺寸方阵';
+  if(!(isFinite(rtol)&&rtol>0&&rtol<1))throw 'rtol 必须位于 0 与 1 之间';
+  for(const [nm,A] of [['K',K],['M',M]]){const d=fro(A.map((r,i)=>r.map((v,j)=>v-A[j][i]))),sc=fro(A);
+    if(d>rtol*sc)throw TX`\(${nm}\) 不对称：\(\|${nm}-${nm}^T\|_F/\|${nm}\|_F=${ft(d/sc,3)}>\mathrm{rtol}\)。检查输入；不要直接对称化——那会改变矩阵的作用（`+refs('03 §13')+'）。';}
+  const ch=chol(M);
+  if(ch.err!==undefined)throw TX`\(M\) 不正定：Cholesky 第 ${ch.err+1} 个主元 \(=${ft(ch.piv,4)}\le0\)。<code>eigh</code> 此时报 <code>LinAlgError</code>——这是对的。回去处理零质量或约束自由度（静力凝聚），不要加小数掩盖。`;
+  const L=ch.L;
+  const Y=T_(T_(K).map(col=>fwd(L,col)));       // Y = L^{-1}K
+  const Kt=T_(Y.map(row=>fwd(L,row)));            // 列 = L^{-1}(KL^{-T}) 的列：KL^{-T}=Y^T 的列即 Y 的行
+  const Kts=Kt.map((r,i)=>r.map((v,j)=>(v+Kt[j][i])/2));
+  const {w,V}=jacobi(Kts);
+  let modes=w.map((l,j)=>{let ph=bwdT(L,V.map(r=>r[j]));const i0=ph.findIndex(v=>Math.abs(v)>1e-12*Math.max(...ph.map(Math.abs)));if(i0>=0&&ph[i0]<0)ph=ph.map(v=>-v);return {l,ph};});
+  modes.sort((a,b)=>a.l-b.l);
+  const lam=modes.map(m=>m.l),Phi=T_(modes.map(m=>m.ph));
+  const tol=rtol*Math.max(...lam.map(Math.abs));
+  const nK=Math.max(...jacobi(K).w.map(Math.abs)),nM=Math.max(...jacobi(M).w.map(Math.abs));
+  const res=modes.map(({l,ph})=>{const r=K.map((row,i)=>row.reduce((s,v,k)=>s+v*ph[k],0)-l*M[i].reduce((s,v,k)=>s+v*ph[k],0));
+    const num=Math.hypot(...r),den=(nK+Math.abs(l)*nM)*Math.hypot(...ph);return den>0?num/den:0;});
+  const MG=mm(mm(T_(Phi),M),Phi),KG=mm(mm(T_(Phi),K),Phi);
+  return {n,L,lam,Phi,tol,res,MG,KG,neg:lam.map(l=>l<-tol),nz:lam.map(l=>Math.abs(l)<=tol)};
+}
+function run6(){
+  const out=$('r6');
+  try{
+    const K=parseMat($('K6').value,'K'),M=parseMat($('M6').value,'M'),rtol=parseFloat($('rt6').value);
+    const R=modalCheck(K,M,rtol),n=R.n;
+    const om=R.lam.map((l,i)=>R.nz[i]?0:l>R.tol?Math.sqrt(l):NaN);
+    const scale=Math.max(...R.lam.map(Math.abs))||1;
+    const rep=R.lam.map((l,i)=>(i>0&&Math.abs(l-R.lam[i-1])<=1e-8*scale)||(i<n-1&&Math.abs(R.lam[i+1]-l)<=1e-8*scale));
+    const offM=Math.max(0,...R.MG.flatMap((r,i)=>r.map((v,j)=>i===j?0:Math.abs(v)/Math.sqrt(Math.abs(R.MG[i][i]*R.MG[j][j])))));
+    const offK=Math.max(0,...R.KG.flatMap((r,i)=>r.map((v,j)=>{if(i===j)return 0;const d=Math.sqrt(Math.abs(R.KG[i][i]*R.KG[j][j]));return d>0?Math.abs(v)/d:Math.abs(v)/scale;})));
+    const tag=i=>[R.neg[i]?'<span class="chip bad">负值 → 失稳信号</span>':'',R.nz[i]?'<span class="chip bad">近零 → 零刚度模式</span>':'',rep[i]?'<span class="chip">重频 → 比子空间</span>':''].filter(Boolean).join(' ')||'<span class="chip ok">正常</span>';
+    const tbl='<div class="tbl"><table><thead><tr><th>阶</th><th>\\(\\lambda\\)</th><th>\\(\\omega\\) rad/s</th><th>\\(f\\) Hz</th><th>标记</th><th>残差 \\(\\eta\\)</th></tr></thead><tbody>'+
+      R.lam.map((l,i)=>`<tr><td>${i+1}</td><td>\\(${ft(l)}\\)</td><td>\\(${ft(om[i])}\\)</td><td>\\(${ft(om[i]/2/Math.PI)}\\)</td><td>${tag(i)}</td><td>\\(${ft(R.res[i],3)}\\)</td></tr>`).join('')+'</tbody></table></div>';
+    const maxRes=Math.max(...R.res);
+    const concl=R.neg.some(Boolean)?'<b class="cbad">有明显负特征值：\\(K\\) 不定，结构在这组参数下失稳（或输入有符号/单位错误）。负值的 \\(\\omega\\) 保持 nan，不截断。</b>':
+      R.nz.some(Boolean)?'<b class="cbad">有近零特征值：\\(K\\) 半正定，存在零刚度模式（刚体或机构）。本应约束的话，查约束是否漏了。</b>':
+      '<b class="cok">全部 \\(\\lambda>0\\)：\\(K\\) 正定。</b>';
+    const big=n<=4;
+    setTex(out,[
+      `<div class="row">${n} 阶；\\(K\\)、\\(M\\) 对称 ✓；\\(M\\) 的 Cholesky 成功 ✓${big?`　\\(L=${bmxS(R.L,5)}\\)`:''}；\\(\\mathrm{tol}=\\mathrm{rtol}\\cdot\\max|\\lambda|=${ft(R.tol,3)}\\)</div>`,
+      tbl,
+      `<div class="row">\\(\\Phi\\)（质量归一化，列为振型，首个非零分量取正）\\(=${bmxS(R.Phi,5)}\\)</div>`,
+      `<div class="row">质量 Gram \\(\\Phi^TM\\Phi=${bmxS(R.MG,6)}\\)　应 \\(\\approx I\\)；非对角最大相对值 \\(${ft(offM,3)}\\)</div>`,
+      `<div class="row">刚度 Gram \\(\\Phi^TK\\Phi=${bmxS(R.KG,6)}\\)　应 \\(\\approx\\mathrm{diag}(\\lambda)\\)；非对角最大相对值 \\(${ft(offK,3)}\\)</div>`,
+      `<div class="row on">${concl}　最大残差 \\(${ft(maxRes,3)}\\)${maxRes<1e-10?' ✓':' <span class="cbad">偏大</span>'}${rep.some(Boolean)?'；有重频：该子空间内任一组 \\(M\\)-正交基都对，软件给的振型可能和这里不同，比子空间不比单向量。':''}</div>`
+    ].join(''));
+  }catch(e){setTex(out,`<div class="row on"><b class="cbad">✗</b> ${typeof e==='string'?e:e.message}</div>`);}
+}
+const PRE6=[
+ ['贯穿算例','3 -1\n-1 1','2 0\n0 1'],
+ ['三层剪切','4 -2 0\n-2 3 -1\n0 -1 1','2 0 0\n0 1.5 0\n0 0 1'],
+ ['半正定：自由质点','1 -1\n-1 1','1 0\n0 1'],
+ ['不定：失稳','1 2\n2 1','1 0\n0 1'],
+ ['重根 M=K=I','1 0\n0 1','1 0\n0 1'],
+ ['M 不正定','1 0\n0 1','1 0\n0 0'],
+ ['K 不对称','3 -1\n-0.9 1','2 0\n0 1'],
+];
+PRE6.forEach(([t,k,m])=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.onclick=()=>{$('K6').value=k;$('M6').value=m;run6();};$('pre6').appendChild(b);});
+$('b6').onclick=run6;
+
+/* 核对清单（仅本机浏览器记忆） */
+(function(){const KEY='la05-check';let st={};try{st=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){}
+  document.querySelectorAll('#chk6 input').forEach(c=>{c.checked=!!st[c.id];c.onchange=()=>{st[c.id]=c.checked;try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}};});})();
+
+/* ---------- 7 总验收 ---------- */
+const MIS7=[
+ [TX`两层楼位移为什么能画成一支箭？纵轴是什么？`,TX`位移就是两个有序的数 \([u_1,u_2]^T\)，对应平面上一点、从原点出发一支箭。横轴 \(u_1\)、纵轴 \(u_2\)（二层位移），不是楼层高度。<br>→ 00 §1`],
+ [TX`矩阵乘向量的行读法和列读法各回答什么问题？`,TX`行读法：输出第 \(i\) 个分量 = 第 \(i\) 行与 \(\boldsymbol x\) 的点积（每层力怎么算）。列读法：输出 = 各列按 \(x_j\) 加权相加（由哪些基本形状拼成）。<br>→ 01 §9`],
+ [TX`\(A\boldsymbol x=\boldsymbol b\) 何时有解、何时唯一？`,TX`有解 \(\iff\boldsymbol b\in\mathcal C(A)\)；唯一 \(\iff\) 有解且 \(\mathcal N(A)=\{\boldsymbol 0\}\)。全部解 \(=\boldsymbol x_p+\mathcal N(A)\)。<br>→ 02 §6、§13`],
+ [TX`消元后如何直接读出秩、解的类型？`,TX`主元个数 = 秩 \(r\)。出现 \([0\ \cdots\ 0\mid c\ne0]\) → 无解；否则 \(r=n\) → 唯一解，\(r&lt;n\) → 无穷多解（\(n-r\) 个自由变量）。<br>→ 02 §10–§11`],
+ [TX`同一个向量为什么有两套坐标？\(\boldsymbol u=\Phi\boldsymbol q\) 里 \(\Phi\) 的列是什么？`,TX`坐标是相对于基的配方，换基换配方，箭不变。\(\Phi\) 的列是各阶振型，\(\boldsymbol u=\sum_jq_j\boldsymbol\phi_j\)，\(\boldsymbol q\) 是振型基下的坐标。<br>→ 03 §2–§3`],
+ [TX`为什么正交基下求坐标不用解方程？\(M\)-正交基下公式是什么？`,TX`对 \(\boldsymbol x=\sum c_j\boldsymbol v_j\) 两边点乘 \(\boldsymbol v_i\)，交叉项全为 0，只剩 \(c_i=\dfrac{\boldsymbol v_i^T\boldsymbol x}{\boldsymbol v_i^T\boldsymbol v_i}\)。\(M\)-正交基：\(q_i=\dfrac{\boldsymbol\phi_i^TM\boldsymbol u}{\boldsymbol\phi_i^TM\boldsymbol\phi_i}\)。<br>→ 03 §9、§22`],
+ [TX`\(K\) 为什么对称？“能量是标量”能不能作为理由？`,TX`\(k_{ij}=\partial^2U/\partial u_i\partial u_j\)，混合偏导次序可换（保守线弹性，互等定理）。“能量是标量”不能：\(\boldsymbol x^TA\boldsymbol x=\boldsymbol x^TA^T\boldsymbol x\) 对任何 \(A\) 都成立。<br>→ 03 §13–§14`],
+ [TX`广义特征值问题从哪来？\(\lambda\) 为负、为零各说明什么？`,TX`设 \(\boldsymbol u=\boldsymbol\phi\sin\omega t\) 代入 \(M\ddot{\boldsymbol u}+K\boldsymbol u=\boldsymbol 0\)，得 \(K\boldsymbol\phi=\omega^2M\boldsymbol\phi\)。\(\lambda=0\)：零刚度模式（刚体或机构）；\(\lambda&lt;0\)：存在 \(\boldsymbol\phi^TK\boldsymbol\phi&lt;0\) 的方向，失稳。<br>→ 04 §11–§12`],
+ [TX`为什么左乘 \(\Phi^T\) 能解耦？和 \(\Phi^{-1}\) 什么关系？`,TX`振型 \(M\)-、\(K\)-正交，\(\Phi^TM\Phi\)、\(\Phi^TK\Phi\) 都是对角阵，每个方程只剩一个 \(q_i\)。\(\Phi^{-1}=(\Phi^TM\Phi)^{-1}\Phi^TM\)：左乘 \(\Phi^T\) 等价于左乘 \(\Phi^{-1}\) 再乘一个对角阵，不用真求逆。<br>→ 04 §16`],
+ [TX`Cholesky 桥解决什么问题？\(M\)-正交与普通正交什么关系？`,TX`把 \(K\boldsymbol\phi=\lambda M\boldsymbol\phi\) 化成标准对称问题 \(\tilde K\boldsymbol y=\lambda\boldsymbol y\)（\(M=LL^T\)，\(\boldsymbol y=L^T\boldsymbol\phi\)），谱定理直接可用。\(\boldsymbol\phi_i^TM\boldsymbol\phi_j=\boldsymbol y_i^T\boldsymbol y_j\)：\(M\)-正交就是 \(L^T\boldsymbol\phi\) 的普通正交。<br>→ 04 §18`],
+];
+(function(){const h=$('mis7');
+  h.innerHTML=MIS7.map(([q,a],i)=>`<button type="button" aria-expanded="false"><span class="q"><b>${i+1}.</b> ${q}</span><span class="a">${a}</span></button>`).join('');
+  setTex(h,h.innerHTML);
+  h.querySelectorAll('button').forEach(b=>b.onclick=()=>{const o=b.classList.toggle('open');b.setAttribute('aria-expanded',o);});})();
+
+/* ---------- 8 复制 ---------- */
+document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=async()=>{
+  const pre=$(b.dataset.copy),out=b.nextElementSibling,txt=pre.textContent;
+  try{await navigator.clipboard.writeText(txt);out.textContent='已复制';}
+  catch(e){const r=document.createRange();r.selectNodeContents(pre);const s=getSelection();s.removeAllRanges();s.addRange(r);let ok=false;try{ok=document.execCommand('copy');}catch(_){}out.textContent=ok?'已复制':'已选中，按 Ctrl+C 复制';}
+  setTimeout(()=>{out.textContent='';},2500);
+});
+
+/* ---------- 启动 ---------- */
+calc3();run6();filt();
+</script>
+</html>

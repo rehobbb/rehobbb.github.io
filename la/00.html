@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>线代预备00 几何直觉</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<script>
+window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],macros:{bm:['\\boldsymbol{#1}',1]}},svg:{fontCache:'global'},options:{enableMenu:false},startup:{ready(){MathJax.startup.defaultReady();MathJax.startup.promise.then(()=>{window.__onMJ&&window.__onMJ();});}}};
+</script>
+<script src="../assets/mathjax/tex-svg-full.js" async></script>
+<style>
+/* Layout: single-column study sheet; each section = text + one interactive figure (SVG) + readout */
+:root{
+  --bg:#eef1f4; --paper:#ffffff; --ink:#18212c; --muted:#5a6675; --rule:#d3dae3; --soft:#e4e9ef; --grid:#dfe5ec; --axis:#9aa6b4;
+  --accent:#1d5b9e; --m1:#1f6fb2; --m2:#cf7a22; --m3:#a83c75; --ok:#2b7d4f; --bad:#b33a2e; --hl:#fff3c4;
+  --serif:"Noto Serif SC","Songti SC","SimSun",serif;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"JetBrains Mono",Consolas,"SFMono-Regular",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11151b; --paper:#181e26; --ink:#e2e7ed; --muted:#98a4b3; --rule:#2c3643; --soft:#212a35; --grid:#252e3a; --axis:#5d6a7a;
+  --accent:#6ea8ea; --m1:#5ba7ec; --m2:#efa352; --m3:#e07bb0; --ok:#5cc08a; --bad:#ef7b6e; --hl:#4a4220; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11151b; --paper:#181e26; --ink:#e2e7ed; --muted:#98a4b3; --rule:#2c3643; --soft:#212a35; --grid:#252e3a; --axis:#5d6a7a;
+  --accent:#6ea8ea; --m1:#5ba7ec; --m2:#efa352; --m3:#e07bb0; --ok:#5cc08a; --bad:#ef7b6e; --hl:#4a4220; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.75;padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:980px;margin:0 auto}
+header.top{padding-block:36px 16px}
+.eyebrow{font-size:12px;letter-spacing:.12em;color:var(--muted)}
+h1{font-family:var(--serif);font-size:clamp(26px,4.4vw,38px);line-height:1.25;margin:6px 0 10px;text-wrap:balance}
+h2{font-family:var(--serif);font-size:22px;line-height:1.35;margin:0;text-wrap:balance}
+h3{font-size:15.5px;margin:20px 0 6px}
+p{margin:8px 0}
+ul{margin:6px 0;padding-left:1.4em}
+.lede{max-width:46em;color:var(--muted)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.series{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;font-size:13px}
+.series span{border:1px solid var(--rule);border-radius:4px;padding:3px 10px;background:var(--paper);color:var(--muted)}
+.series span.cur{border-color:var(--accent);color:var(--accent);font-weight:500}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;font-size:13px}
+.toc a{color:var(--ink);text-decoration:none;border-bottom:1px dotted var(--axis)}
+.toc a:hover,.toc a:focus-visible{color:var(--accent)}
+section.step{background:var(--paper);border:1px solid var(--rule);border-radius:6px;margin-top:22px;padding:22px 22px 18px}
+.stephead{display:flex;gap:14px;align-items:baseline;border-bottom:1px solid var(--rule);padding-bottom:10px;margin-bottom:12px;flex-wrap:wrap}
+.stepno{font-family:var(--mono);font-size:13px;color:var(--accent);border:1px solid var(--accent);border-radius:3px;padding:0 7px;white-space:nowrap}
+.src{font-size:12px;color:var(--muted);margin-left:auto}
+.why{font-size:13.5px;color:var(--muted)}
+.note{border-left:3px solid var(--accent);padding:6px 12px;background:var(--soft);font-size:14px;margin:12px 0;border-radius:0 4px 4px 0}
+.note.warn{border-color:var(--m2)}
+.note.key{border-color:var(--ok)}
+.fig{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:18px;align-items:start;margin:12px 0}
+.fig>*{min-width:0}
+@media (max-width:720px){.fig{grid-template-columns:minmax(0,1fr)}}
+svg.plane{width:100%;max-width:420px;display:block;touch-action:none;background:var(--paper);border:1px solid var(--rule);border-radius:4px}
+svg text{fill:var(--ink);font-family:var(--sans)}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+.ctrl label{font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+input,select,button{font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:4px;padding:4px 8px}
+input[type=number]{width:4.6em;font-family:var(--mono)}
+input[type=range]{padding:0;width:150px}
+button{cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.pri{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.read{font-family:var(--sans);font-size:14px;background:var(--soft);border-radius:4px;padding:10px 12px;line-height:2;overflow-x:auto}
+.read .row{display:block}
+.read .on{background:var(--hl);border-radius:3px;padding:0 4px}
+.read .dim{opacity:.35}
+.read b{font-weight:600}
+.c1{color:var(--m1)}.c2{color:var(--m2)}.c3{color:var(--m3)}.cok{color:var(--ok)}.cbad{color:var(--bad)}
+.tbl{overflow-x:auto;margin:10px 0}
+table{border-collapse:collapse;font-size:13.5px;min-width:100%}
+.tbl table{min-width:540px}
+th:first-child,td:first-child{white-space:nowrap}
+th,td{border-bottom:1px solid var(--rule);padding:6px 10px;text-align:left;vertical-align:top}
+th{font-weight:500;color:var(--muted);font-size:12.5px}
+mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;max-width:100%;padding:2px 0}
+.mat{display:inline-grid;gap:2px 12px;vertical-align:middle;border-left:2px solid var(--ink);border-right:2px solid var(--ink);border-radius:6px;padding:4px 10px;font-family:var(--mono);text-align:center}
+.mat span{padding:1px 4px;border-radius:3px;transition:background .25s}
+.mat span.on{background:var(--hl)}
+.mat input{width:3.4em;text-align:center;padding:2px}
+.eqrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:10px 0;font-family:var(--mono)}
+.tgrid{position:relative;display:inline-block;vertical-align:middle}
+.tcell{position:absolute;width:40px;height:34px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);border-radius:4px;transition:transform .9s cubic-bezier(.4,.1,.2,1),background .3s}
+.tcell.diag{background:var(--hl)}
+.chip{display:inline-block;font-family:var(--mono);border:1px solid var(--rule);border-radius:4px;padding:1px 8px}
+.chip.ok{border-color:var(--ok);color:var(--ok)}.chip.bad{border-color:var(--bad);color:var(--bad)}
+details{border:1px solid var(--rule);border-radius:4px;padding:6px 12px;margin:10px 0}
+details summary{cursor:pointer;color:var(--accent);font-weight:500}
+.ex li{margin:6px 0}
+.check label{display:flex;gap:8px;align-items:flex-start;margin:6px 0;font-size:14.5px}
+.check input{margin-top:6px}
+footer{font-size:12.5px;color:var(--muted);margin-top:26px}
+@media (max-width:640px){section.step{padding:16px 14px}}
+a{color:var(--accent)}
+.series a{text-decoration:none}
+.series a span:hover{border-color:var(--accent)}
+.duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+@media (max-width:720px){.duo{grid-template-columns:minmax(0,1fr)}}
+svg.mini{width:100%;display:block;background:var(--paper);border:1px solid var(--rule);border-radius:4px}
+.flag{display:inline-block;font-size:12.5px;border-radius:3px;padding:0 8px;margin-left:6px;background:var(--hl);color:var(--ink)}
+.mis{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin:10px 0}
+.mis button{text-align:left;padding:10px 12px;line-height:1.6;min-height:84px;background:var(--soft);border-color:var(--rule)}
+.mis button .a{display:none;color:var(--ok)}
+.mis button.open .q{text-decoration:line-through;color:var(--muted)}
+.mis button.open .a{display:block;margin-top:4px}
+.flow{margin:10px 0;display:grid;gap:2px}
+.flow .st{display:grid;grid-template-columns:minmax(0,1fr) 6.5em minmax(0,13em);gap:10px;align-items:center;background:var(--soft);border-radius:4px;padding:6px 12px}
+.flow .sec{font-size:12.5px;color:var(--muted)}
+.flow .ar{font-size:13px;color:var(--accent);padding-left:14px}
+@media (max-width:560px){.flow .st{grid-template-columns:minmax(0,1fr)}.flow .sec{display:none}}
+pre.line{font-family:var(--mono);font-size:13px;background:var(--soft);border-radius:4px;padding:12px 14px;overflow-x:auto;line-height:1.7;margin:10px 0}
+</style>
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow"><a href="../index.html" style="color:var(--accent);text-decoration:none;letter-spacing:0">← 返回首页</a>　线性代数预备 · 面向结构动力学 · 交互版</div>
+  <h1>00 几何直觉：七张画面</h1>
+  <p class="lede">这一篇不需要动手算，目标是在脑子里留下七张画面。后面 01–04 篇的每一条公式，都能对应回这里的某张画面；遇到公式看不懂时，回来找那张画。图中带圆点的箭头都可以拖动，按钮会播放一遍动画后停住。</p>
+  <div class="series" aria-label="系列目录"><span class="cur">00 几何直觉</span><a href="01.html"><span>01 向量矩阵与基本运算 ↗</span></a><a href="02.html"><span>02 方程组、秩与可逆性 ↗</span></a><a href="03.html"><span>03 坐标、正交与二次型 ↗</span></a><a href="04.html"><span>04 特征值与解耦 ↗</span></a><a href="05.html"><span>05 速查与自诊 ↗</span></a></div>
+  <nav class="toc" aria-label="本篇目录">
+    <a href="#s1">1 位移是一支箭</a>·<a href="#s2">2 伸缩与相加</a>·<a href="#s3">3 线性组合与张成</a>·<a href="#s4">4 同一支箭两套坐标</a>·<a href="#s5">5 矩阵揉捏平面</a>·<a href="#s6">6 行列式</a>·<a href="#s7">7 det(K−ω²M)=0 在问什么</a>·<a href="#s8">8 特征向量</a>·<a href="#s9">9 结构版：Kφ=ω²Mφ</a>·<a href="#s10">10 主线与自测</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section class="step" id="s1">
+  <div class="stephead"><span class="stepno">1</span><h2>两层楼的位移，为什么能画成一支箭</h2><span class="src">笔记 §1</span></div>
+  <p>两层楼地震时每层都在<b>水平</b>方向来回晃。记一层水平位移 \(u_1\)、二层 \(u_2\)，按顺序竖着写成一列：</p>
+  \[\boldsymbol u=\begin{bmatrix}u_1\\u_2\end{bmatrix}\]
+  <p>这就是一个<b>向量</b>：不是一个数，是一组按顺序排好的数。把 \(u_1\) 当横坐标、\(u_2\) 当纵坐标，它就是平面上的一个点，从原点指向它的箭就是这个位移状态。拖动箭头，右边的楼跟着变形：</p>
+  <div class="fig">
+    <svg class="plane" id="p1" role="img" aria-label="位移向量平面"></svg>
+    <div>
+      <svg id="b1" viewBox="0 0 340 250" style="width:100%;max-width:360px" role="img" aria-label="两层楼位移示意"></svg>
+      <div class="read" id="r1"></div>
+    </div>
+  </div>
+  <div class="note warn"><b>纵轴不是“楼往上动”。</b>纵轴是二层的水平位移。两层都在水平晃，只是把两个水平位移各占一根轴画出来。平面上一个点 = 两层楼的一个完整位移状态。</div>
+  <details><summary>右上角的 \(T\) 是什么</summary>
+    <p>\(T\) 读作“转置”。向量的正式姿势是竖着的列，正文一行里竖着写太占地方，于是先横着写 \([3,2]\)，再加个 \(T\) 表示“我其实是竖的”：\([3,2]^T=\begin{bmatrix}3\\2\end{bmatrix}\)。对向量，\(T\) 只是排版妥协；对矩阵，\(T\) 会真的把行列互换（01 篇 §14）。所以一个已经摊成方块的矩阵，不需要也不能随手加 \(T\)。</p>
+  </details>
+  <p><b>三层、十层呢？</b>三层楼就是三个数，箭住在三维空间；十层楼就是十个数，箭住在十维空间。画不出来，但所有代数规则完全一样，所以先用两层楼练。</p>
+  <div class="note warn">二维箭有直观的长度。多自由度向量里若混着平动（mm）和转角（rad），分量平方和开根号得到的“长度”没有物理意义。03 篇会给出一把正确的尺子：质量矩阵。</div>
+</section>
+
+<!-- 2 -->
+<section class="step" id="s2">
+  <div class="stephead"><span class="stepno">2</span><h2>加法是首尾相接，数乘是沿直线伸缩</h2><span class="src">笔记 §2</span></div>
+  <p><b>加法</b>：第二支箭的箭尾接到第一支的箭头，从起点到终点连一支新箭；按数字算就是对应位置相加。工况一位移 \([3,2]^T\) 加工况二位移 \([-1,1]^T\) 得 \([2,3]^T\)，这就是线弹性叠加原理的向量写法。</p>
+  <p><b>数乘</b>：每个分量都乘同一个数 \(c\)。\(c&gt;1\) 拉长，\(0&lt;c&lt;1\) 缩短，\(c&lt;0\) 调头，\(c=0\) 缩成一个点。</p>
+  <div class="fig">
+    <svg class="plane" id="p2" role="img" aria-label="加法与数乘"></svg>
+    <div>
+      <div class="ctrl"><button type="button" id="b2add" class="pri">▶ 首尾相接</button></div>
+      <div class="ctrl"><label>数乘系数 \(c\) <input id="c2" type="range" min="-1.5" max="2" step="0.1" value="1.5"></label><span class="num" id="c2v">1.5</span></div>
+      <div class="read" id="r2"></div>
+    </div>
+  </div>
+  <h3>“这条直线”就是“这个方向”</h3>
+  <p>\(\boldsymbol v,\ 2\boldsymbol v,\ 0.5\boldsymbol v,\ -\boldsymbol v\) 的箭尖全落在<b>同一条过原点的直线</b>上，它们唯一共有的东西就是这条直线，也就是方向。点下面的按钮：四支箭都在同一条线上，楼的变形“形状”完全相同，只是幅值和正负不同。</p>
+  <div class="fig">
+    <svg class="plane" id="p2b" role="img" aria-label="同一方向上的不同箭"></svg>
+    <div>
+      <div class="ctrl" id="pre2b"></div>
+      <svg id="b2b" viewBox="0 0 340 250" style="width:100%;max-width:360px" role="img" aria-label="振型形状"></svg>
+      <div class="read" id="r2b"></div>
+    </div>
+  </div>
+  <div class="note key"><b>地基作用</b>：振型 \([1,2]^T\)、\([2,4]^T\)、\([-1,-2]^T\) 是同一个振型，因为它们在同一条直线上。不同软件输出的振型正负、幅值不同，不是矛盾，是同一条直线上取了不同的箭。</div>
+</section>
+
+<!-- 3 -->
+<section class="step" id="s3">
+  <div class="stephead"><span class="stepno">3</span><h2>线性组合与张成：两支箭能拼出多大的地盘</h2><span class="src">笔记 §3.1</span></div>
+  <p>手里有两支箭 \(\boldsymbol v_1,\boldsymbol v_2\)，工具只有伸缩和相加。能拼出的所有箭 \(c_1\boldsymbol v_1+c_2\boldsymbol v_2\) 叫<b>线性组合</b>；所有能到达的落点组成的集合叫<b>张成</b>（span）。调 \(c_1,c_2\) 看落点怎么走；点“撒满所有配方”，看全部落点铺成了什么。</p>
+  <div class="fig">
+    <svg class="plane" id="p3" role="img" aria-label="线性组合与张成"></svg>
+    <div>
+      <div class="ctrl"><label>\(c_1\) <input id="c31" type="range" min="-2" max="2" step="0.1" value="1"></label><span class="num" id="c31v">1</span></div>
+      <div class="ctrl"><label>\(c_2\) <input id="c32" type="range" min="-2" max="2" step="0.1" value="1"></label><span class="num" id="c32v">1</span></div>
+      <div class="ctrl"><button type="button" id="b3fill" class="pri">▶ 撒满所有配方</button><button type="button" id="b3col">让 \(\bm v_2\) 与 \(\bm v_1\) 共线</button><button type="button" id="b3rst">恢复不共线</button></div>
+      <div class="read" id="r3"></div>
+    </div>
+  </div>
+  <ul>
+    <li>两支箭不共线 → 能拼出整个平面；</li>
+    <li>两支箭共线 → 跳不出一条直线，第二支是多余的；</li>
+    <li>两支都是零箭 → 只能待在原点。</li>
+  </ul>
+  <div class="note warn"><b>分量有两个，不代表能张成二维。</b>\([1,1]^T\) 和 \([2,2]^T\) 各有两个分量，但共线，只能张成一条线。能张成多大，看有几个独立方向，不看有几个分量。02 篇会把这句话变成“秩”。</div>
+</section>
+
+<!-- 4 -->
+<section class="step" id="s4">
+  <div class="stephead"><span class="stepno">4</span><h2>坐标是配方：同一支箭，两套坐标</h2><span class="src">笔记 §3.2、§4</span></div>
+  <p>第 1 节说 \([3,2]^T\) 是“向右 3、向上 2”，好像坐标是箭自带的。其实它的真正含义是</p>
+  \[\begin{bmatrix}3\\2\end{bmatrix}=3\begin{bmatrix}1\\0\end{bmatrix}+2\begin{bmatrix}0\\1\end{bmatrix}=3\boldsymbol e_1+2\boldsymbol e_2\]
+  <p>坐标 \((3,2)\) 是一张<b>配方</b>：\(\boldsymbol e_1\) 配 3 份、\(\boldsymbol e_2\) 配 2 份。\(\boldsymbol e_1,\boldsymbol e_2\) 叫<b>标准基</b>，只是默认选了它们当配料，没有明说。换一组配料，配方数字就变，但箭没动。下图点“换配料”：网格换成新基的网格，红箭始终不动，变的只是走到箭尖的路线和份数。</p>
+  <div class="fig">
+    <svg class="plane" id="p4" role="img" aria-label="同一向量换基"></svg>
+    <div>
+      <div class="ctrl" id="pre4"></div>
+      <div class="ctrl"><button type="button" id="b4go" class="pri">▶ 换配料</button><button type="button" id="b4back">▶ 换回标准基</button></div>
+      <div class="read" id="r4"></div>
+      <p class="why">红箭可以拖动。两套份数同时更新：一套是“\(\boldsymbol e_1,\boldsymbol e_2\) 各几份”，一套是“\(\boldsymbol v_1,\boldsymbol v_2\) 各几份”。</p>
+    </div>
+  </div>
+  <div class="note key"><b>箭没有动，变的是配料表。</b>结构里：用 \(\boldsymbol e_1,\boldsymbol e_2\)（各层自由度）当配料 → 物理坐标 \(\boldsymbol u\)；用振型 \(\boldsymbol\phi_1,\boldsymbol\phi_2\) 当配料 → 振型坐标 \(\boldsymbol q\)。\(\boldsymbol u=\Phi\boldsymbol q\) 说的就是“同一个位移，两张配方”：\(\boldsymbol u\)、\(\boldsymbol q\) 不是两个位移，是同一个位移的两套坐标。选“振型基”预设可以直接看到这一点。</div>
+</section>
+
+<!-- 5 -->
+<section class="step" id="s5">
+  <div class="stephead"><span class="stepno">5</span><h2>矩阵作用：这次箭真的动了</h2><span class="src">笔记 §5</span></div>
+  <p>上一节换基时箭没动。现在反过来：<b>坐标系不动，箭动了。</b>\(\boldsymbol y=A\boldsymbol x\) 把一支输入箭变成一支输出箭。把整张网格纸交给矩阵去揉捏：可以拉伸、旋转、剪切，也可以把整个平面压成一条线。原点永远不动。</p>
+  <div class="fig">
+    <svg class="plane" id="p5" role="img" aria-label="矩阵揉捏网格"></svg>
+    <div>
+      <div class="ctrl" id="pre5"></div>
+      <div class="ctrl"><button type="button" id="b5play" class="pri">▶ 播放</button><label>进度 <input id="t5" type="range" min="0" max="1" step="0.01" value="0"></label></div>
+      <div class="read" id="r5"></div>
+      <p class="why">灰色细网格是固定的坐标纸；蓝色网格是被揉过的纸。绿色箭 \(\boldsymbol x\) 可拖动，跟着纸一起被搬到 \(A\boldsymbol x\)。</p>
+    </div>
+  </div>
+  <p>红、橙两支箭是 \(\boldsymbol e_1=[1,0]^T\)、\(\boldsymbol e_2=[0,1]^T\) 被揉过之后的落点。以 \(A=\begin{bmatrix}2&amp;0\\0&amp;0.5\end{bmatrix}\) 为例：</p>
+  \[A\boldsymbol e_1=\begin{bmatrix}2&0\\0&0.5\end{bmatrix}\begin{bmatrix}1\\0\end{bmatrix}=\begin{bmatrix}2\\0\end{bmatrix}=A\ \text{的第 1 列}\]
+  <p><b>矩阵的每一列，就是对应那根坐标轴单位箭被搬到的新位置。</b>一堆数字翻译成“轴的新落点”，矩阵就有了画面。</p>
+  <div class="tbl"><table>
+    <thead><tr><th></th><th>角色</th><th>例子</th></tr></thead>
+    <tbody>
+      <tr><td>矩阵</td><td><b>动词</b>：施加一个动作</td><td>\(A\) 把平面横向拉 2 倍、纵向压一半</td></tr>
+      <tr><td>向量</td><td><b>名词</b>：被动作的对象</td><td>\(\boldsymbol e_1\) 被搬到 \([2,0]^T\)</td></tr>
+    </tbody>
+  </table></div>
+  <p>\([2,0]^T\) 是结果，不是发出动作的手。向量不能“作用”于向量，能作用的只有矩阵。两个动作的先后顺序也不能换：先拉后转与先转后拉结果不同，这就是 \(AB\ne BA\)（01 篇 §8 有动画）。</p>
+  <div class="tbl"><table>
+    <thead><tr><th></th><th>什么不变</th><th>什么变了</th><th>公式长相</th><th>结构里</th></tr></thead>
+    <tbody>
+      <tr><td><b>换基</b>（第 4 节）</td><td>箭本身</td><td>描述箭的数字</td><td>\(\boldsymbol x=V\boldsymbol q\)</td><td>\(\boldsymbol u=\Phi\boldsymbol q\)：同一位移换套坐标</td></tr>
+      <tr><td><b>变换</b>（本节）</td><td>坐标系</td><td>箭本身</td><td>\(\boldsymbol y=A\boldsymbol x\)</td><td>\(\boldsymbol f=K\boldsymbol u\)：位移箭变成恢复力箭</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note">判断时先问一句：<b>什么保持不变？</b>箭没动是换基；箭动了是变换。两者都用矩阵乘法写，长得一样，意思不同。</div>
+</section>
+
+<!-- 6 -->
+<section class="step" id="s6">
+  <div class="stephead"><span class="stepno">6</span><h2>行列式：面积放大几倍，翻没翻面</h2><span class="src">笔记 §5.4、§6</span></div>
+  <p>把单位正方形交给矩阵去揉，它变成一个平行四边形：</p>
+  \[\boxed{\lvert\det A\rvert=\text{平行四边形面积}=\text{面积缩放倍数}}\]
+  <p>正方形里画了一个字母 F。行列式的<b>正负号</b>记录 F 有没有被翻成镜像（像一张纸被翻面）。</p>
+  <div class="fig">
+    <svg class="plane" id="p6" role="img" aria-label="行列式与面积"></svg>
+    <div>
+      <div class="ctrl" id="pre6"></div>
+      <div class="eqrow">A = <span class="mat" id="m6A" style="grid-template-columns:repeat(2,auto)"></span></div>
+      <div class="read" id="r6"></div>
+      <p class="why">选“压扁”：紫色虚线上的所有箭被一齐碾到原点。</p>
+    </div>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>\(\det A\)</th><th>面积</th><th>定向</th><th>例子</th></tr></thead>
+    <tbody>
+      <tr><td>\(5\)</td><td>放大 5 倍</td><td>不翻</td><td>拉伸</td></tr>
+      <tr><td>\(1\)</td><td>不变</td><td>不翻</td><td>旋转</td></tr>
+      <tr><td>\(-1\)</td><td>不变</td><td><b>翻了</b></td><td>镜像</td></tr>
+      <tr><td>\(0\)</td><td><b>压成 0</b></td><td>—</td><td>压扁</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note warn">面积是 \(\lvert\det A\rvert\)，始终非负；负号只记录翻面，不是“负面积”。04 篇解频率方程时，行列式会在正负之间穿过零，符号有实际用处。</div>
+  <p>压扁时，整条方向上的箭都落到原点：<b>输入不同、输出相同</b>，事后无法从输出反推输入。于是</p>
+  \[\det A=0\iff\text{面积压成 0}\iff\text{有非零箭被碾到原点}\iff\text{信息丢失}\iff\text{不可逆}\]
+  <p>这几件事本来就是同一件事，不是几条要分别背的规则。</p>
+</section>
+
+<!-- 7 -->
+<section class="step" id="s7">
+  <div class="stephead"><span class="stepno">7</span><h2>\(\det(K-\omega^2M)=0\) 在问什么</h2><span class="src">笔记 §6 预防针</span></div>
+  <p>后面求频率时会写 \(\det(K-\omega^2M)=0\)。它不是“随便令一个式子等于零”，而是在问：<b>\(\omega^2\) 取什么值，矩阵 \(K-\omega^2M\) 恰好把平面压扁？</b>只有压扁了，才会有非零的箭 \(\boldsymbol\phi\) 被压到零：</p>
+  \[(K-\omega^2M)\boldsymbol\phi=\boldsymbol 0\quad\Longleftrightarrow\quad K\boldsymbol\phi=\omega^2M\boldsymbol\phi\]
+  <p>那支活下来的非零箭就是振型。下面用 01 篇的两层楼：\(K=\begin{bmatrix}3&amp;-1\\-1&amp;1\end{bmatrix}\)、\(M=\begin{bmatrix}2&amp;0\\0&amp;1\end{bmatrix}\)（单位略）。拖动 \(\omega^2\) 或点“扫描”，看平行四边形什么时候被压成一条线：</p>
+  <div class="fig">
+    <svg class="plane" id="p7" role="img" aria-label="K减ω²M作用下的平行四边形"></svg>
+    <div>
+      <div class="ctrl"><label>\(\omega^2\) <input id="w7" type="range" min="0" max="2.6" step="0.01" value="0"></label><span class="num" id="w7v">0</span></div>
+      <div class="ctrl"><button type="button" id="b7scan" class="pri">▶ 扫描 \(\omega^2\)</button><button type="button" id="b7r1">跳到 \(\omega^2=0.5\)</button><button type="button" id="b7r2">跳到 \(\omega^2=2\)</button></div>
+      <svg class="mini" id="c7" viewBox="0 0 360 170" role="img" aria-label="det随ω²变化曲线"></svg>
+      <div class="read" id="r7"></div>
+    </div>
+  </div>
+  <div class="duo">
+    <div>
+      <p>图中绿色是一支“试探箭” \(\boldsymbol\phi=[1,\ 3-2\omega^2]^T\)：它的第二个分量专门配好，让 \((K-\omega^2M)\boldsymbol\phi\) 的第一个分量恒为零。算一下，被揉之后只剩</p>
+      \[(K-\omega^2M)\boldsymbol\phi=\begin{bmatrix}0\\ \det(K-\omega^2M)\end{bmatrix}\]
+      <p>所以只有 \(\det=0\) 时，这支非零箭才真正被压到原点。两个根 \(\omega^2=0.5\)、\(2\) 处活下来的箭分别是 \([1,2]^T\)、\([1,-1]^T\)，旁边小楼画的就是它们的形状。</p>
+    </div>
+    <div>
+      <svg id="b7" viewBox="0 0 340 250" style="width:100%;max-width:360px" role="img" aria-label="试探箭对应的楼层形状"></svg>
+    </div>
+  </div>
+  <div class="note"><b>压得多扁也有讲究。</b>压成一条线塌掉 1 个独立方向；压成一个点塌掉 2 个。塌掉几个方向，就有几个独立振型对应同一个 \(\omega^2\)，这就是 04 篇“重频”的画面，也是平面对称塔楼 X、Y 向频率相等时软件输出振型主轴“飘”的原因。</div>
+</section>
+
+<!-- 8 -->
+<section class="step" id="s8">
+  <div class="stephead"><span class="stepno">8</span><h2>特征向量：揉捏之后不转向的方向</h2><span class="src">笔记 §7.1–§7.2</span></div>
+  <p>矩阵把整张平面揉一遍，绝大多数箭都转了方向。但存在几条方向，箭揉完之后<b>还在原来那条直线上</b>，只是长度变了（可能调头）。以 \(A=\begin{bmatrix}2&amp;1\\1&amp;2\end{bmatrix}\) 为例，点“揉一遍”，看一圈 16 支箭：</p>
+  <div class="fig">
+    <svg class="plane" id="p8" role="img" aria-label="特征方向不转向"></svg>
+    <div>
+      <div class="ctrl"><button type="button" id="b8play" class="pri">▶ 揉一遍</button><button type="button" id="b8back">还原</button></div>
+      <div class="read" id="r8"></div>
+      <p class="why">拖动绿色箭 \(\boldsymbol x\)，看 \(A\boldsymbol x\)（深色）与它的夹角；夹角为 0° 或 180° 时，你就找到了一条特征方向。</p>
+    </div>
+  </div>
+  <p>沿 \([1,1]^T\) 的箭揉完变成 3 倍，沿 \([1,-1]^T\) 的箭长度不变。它们满足</p>
+  \[A\boldsymbol\phi=\lambda\boldsymbol\phi,\qquad\boldsymbol\phi\ne\boldsymbol 0\]
+  <p>\(\boldsymbol\phi\) 叫<b>特征向量</b>（方向），\(\lambda\) 叫<b>特征值</b>（沿这条方向的伸缩倍数）。\(\lambda&lt;0\) 调头，\(\lambda=0\) 被压到原点（就是第 6 节被碾掉的那条方向），所以更准确的说法是“<b>所在直线不变</b>”。单位矩阵 \(I\) 则每条方向都是特征方向。</p>
+  <h3>为什么工程上非要找这几条方向</h3>
+  <p>沿特征方向，矩阵的作用退化成一个数的乘法。如果把任意向量都用特征方向当配料来拼（第 4 节的换基），矩阵作用就变成“每份配料各乘自己的 \(\lambda\)”，互不干扰。上面的读数里已经算给你看了：\(\boldsymbol x=c_1\boldsymbol\phi_1+c_2\boldsymbol\phi_2\) 被揉之后变成 \(3c_1\boldsymbol\phi_1+1\cdot c_2\boldsymbol\phi_2\)。这就是“解耦”的几何本质，04 篇把它做完整。</p>
+</section>
+
+<!-- 9 -->
+<section class="step" id="s9">
+  <div class="stephead"><span class="stepno">9</span><h2>结构版：联合 \(K\) 和 \(M\) 找不转向的方向</h2><span class="src">笔记 §7.3</span></div>
+  <p>结构动力学不是找一个矩阵的特征方向，而是联合质量和刚度找：</p>
+  \[K\boldsymbol\phi=\omega^2M\boldsymbol\phi\]
+  <p>画面换成：同一支形状箭 \(\boldsymbol\phi\)，分别交给 \(K\) 和 \(M\)，得到恢复力箭 \(K\boldsymbol\phi\) 和惯性箭 \(M\boldsymbol\phi\)。<b>两支箭共线时</b>，\(\boldsymbol\phi\) 就是振型，长度比就是 \(\omega^2\)。转动 \(\boldsymbol\phi\) 或点“扫描”：</p>
+  <div class="fig">
+    <svg class="plane" id="p9" role="img" aria-label="Kφ与Mφ"></svg>
+    <div>
+      <div class="ctrl"><label>\(\boldsymbol\phi\) 的方向 <input id="a9" type="range" min="0" max="180" step="0.5" value="20"></label><span class="num" id="a9v">20°</span></div>
+      <div class="ctrl"><button type="button" id="b9scan" class="pri">▶ 扫描方向</button></div>
+      <div class="read" id="r9"></div>
+      <svg id="b9" viewBox="0 0 340 250" style="width:100%;max-width:300px" role="img" aria-label="φ对应的楼层形状"></svg>
+    </div>
+  </div>
+  <p>这里先知道它和特征问题是一回事；为什么带 \(M\)、推导和求解在 03、04 篇。物理上，共线意味着每层的恢复力都和该层惯性力成同一比例，整栋楼能以同一频率、同一形状一起振动。</p>
+</section>
+
+<!-- 10 -->
+<section class="step" id="s10">
+  <div class="stephead"><span class="stepno">10</span><h2>一条主线、七张画面、常见偏差</h2><span class="src">笔记 §8–§10</span></div>
+<div class="flow">
+    <div class="st"><span>向量 = 一组数 = 一支箭</span><span class="sec">第 1 节</span><span class="eq"></span></div>
+    <div class="ar">↓ 伸缩 + 相加</div>
+    <div class="st"><span>线性组合 → 张成 → 坐标是配方</span><span class="sec">第 2、3 节</span><span class="eq"></span></div>
+    <div class="ar">↓ 换一组配料</div>
+    <div class="st"><span>同一支箭、两套坐标</span><span class="sec">第 4 节</span><span class="eq">\(\bm u=\Phi\bm q\)</span></div>
+    <div class="ar">↓ 反过来：坐标系不动、箭动</div>
+    <div class="st"><span>矩阵 = 对整个平面的一次揉捏</span><span class="sec">第 5 节</span><span class="eq">\(\bm f=K\bm u\)</span></div>
+    <div class="ar">↓ 揉扁了？</div>
+    <div class="st"><span>行列式 = 面积缩放；为 0 则有箭被碾到原点</span><span class="sec">第 6、7 节</span><span class="eq">\(\det(K-\omega^2M)=0\)</span></div>
+    <div class="ar">↓ 哪些箭揉完不转向？</div>
+    <div class="st"><span>特征向量 = 不转向的方向</span><span class="sec">第 8、9 节</span><span class="eq">\(K\bm\phi=\omega^2M\bm\phi\)</span></div>
+  </div>
+  <p>从这条主线读，\(\boldsymbol u=\Phi\boldsymbol q\) 和 \(K\boldsymbol\phi=\omega^2M\boldsymbol\phi\) 不是两个孤立公式，是同一条路上的两个路标。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>#</th><th>画面</th><th>一句话</th><th>后面在哪用</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>两层楼位移 → 一支箭</td><td>向量 = 有序的一组数</td><td>01 篇全篇</td></tr>
+      <tr><td>2</td><td>首尾相接、沿线伸缩</td><td>加法与数乘</td><td>01 篇 §4</td></tr>
+      <tr><td>3</td><td>两支箭拼出整个平面</td><td>张成；坐标是配方</td><td>02 篇</td></tr>
+      <tr><td>4</td><td>同一支箭、两张配方</td><td>换基不动箭</td><td>03 篇；\(\boldsymbol u=\Phi\boldsymbol q\)</td></tr>
+      <tr><td>5</td><td>网格被揉捏</td><td>矩阵是动作；列 = 轴的新落点</td><td>01 篇 §9–10；\(\boldsymbol f=K\boldsymbol u\)</td></tr>
+      <tr><td>6</td><td>面积 / 压成一条线</td><td>行列式；奇异</td><td>02 篇；04 篇</td></tr>
+      <tr><td>7</td><td>揉完不转向的方向</td><td>特征向量</td><td>04 篇全篇</td></tr>
+    </tbody>
+  </table></div>
+  <h3>常见偏差：点一下看正确画面</h3>
+  <div class="mis" id="mis"></div>
+  <h3>自测：能不看笔记做到，再进 01 篇</h3>
+  <div class="check" id="chk">
+    <label><input type="checkbox" id="ck1"><span>说清平面上一个点为什么等于两层楼的一个位移状态，纵轴代表什么</span></label>
+    <label><input type="checkbox" id="ck2"><span>说明 \([1,2]^T\) 与 \([-2,-4]^T\) 为什么是同一个振型</span></label>
+    <label><input type="checkbox" id="ck3"><span>解释“坐标是配方”，并说清 \(\boldsymbol u=\Phi\boldsymbol q\) 里什么不变</span></label>
+    <label><input type="checkbox" id="ck4"><span>看到一个 \(2\times2\) 矩阵，说出它把 \(\boldsymbol e_1,\boldsymbol e_2\) 搬到哪</span></label>
+    <label><input type="checkbox" id="ck5"><span>用“压扁”解释 \(\det(K-\omega^2M)=0\) 为什么能求出振型</span></label>
+    <label><input type="checkbox" id="ck6"><span>说出特征向量的一句话定义，以及它为什么能解耦</span></label>
+  </div>
+</section>
+
+<footer>
+  <p>对应笔记：15-General/12-线性代数/260730-线性代数预备00-几何直觉入门.md 及其疑问解答。下一篇：<a href="01.html">01 向量、矩阵与基本运算</a>。</p>
+</footer>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const NS='http://www.w3.org/2000/svg';
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs){if(k==='text')e.textContent=attrs[k];else e.setAttribute(k,attrs[k]);}if(parent)parent.appendChild(e);return e;}
+const fm=(v,d=2)=>{const r=Math.round(v*10**d)/10**d;return (Object.is(r,-0)?0:r).toString();};
+const f2=v=>fm(v,2), f3=v=>fm(v,3);
+const vec=a=>`[${a.map(v=>fm(v,2)).join(', ')}]`;
+const paren=v=>v<0?`(${fm(v)})`:fm(v);
+function animate(dur,step,done){ // returns cancel fn
+  if(reduced){step(1);done&&done();return ()=>{};}
+  let t0=null,id=0,stop=false;
+  const loop=now=>{if(stop)return;if(t0===null)t0=now;const t=Math.min(1,(now-t0)/dur);step(t);if(t<1)id=requestAnimationFrame(loop);else done&&done();};
+  id=requestAnimationFrame(loop);return ()=>{stop=true;cancelAnimationFrame(id);};
+}
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+
+/* ---------- LaTeX 读数（MathJax 渲染，拖动时节流） ---------- */
+const TX=String.raw;
+const pn=(v,d=2)=>{const s=fm(v,d);return s.startsWith('-')?`(${s})`:s;};
+const rv=(a,d=2)=>`[${a.map(v=>fm(v,d)).join(',\\ ')}]`;
+const cv=(a,d=2)=>`\\begin{bmatrix}${a.map(v=>fm(v,d)).join('\\\\')}\\end{bmatrix}`;
+const bmx=(M,d=2)=>`\\begin{bmatrix}${M.map(r=>r.map(v=>fm(v,d)).join('&')).join('\\\\')}\\end{bmatrix}`;
+let texReady=false,texTimer=0,texLast=0;const TEXQ=new Map(),TEXPRE=new Set();
+function texRun(els){try{MathJax.typesetClear(els);MathJax.typeset(els);}catch(e){}}
+function setTex(el,html){
+  if(typeof el==='string')el=$(el);
+  if(el.__tex===html)return;el.__tex=html;
+  if(!texReady){el.innerHTML=html;TEXPRE.add(el);return;}
+  const now=performance.now();
+  if(!texTimer&&now-texLast>45){el.innerHTML=html;texRun([el]);texLast=performance.now();return;}
+  TEXQ.set(el,html);if(!texTimer)texTimer=setTimeout(flushTex,50);
+}
+function flushTex(){texTimer=0;const els=[...TEXQ.keys()];TEXQ.forEach((h,el)=>{el.innerHTML=h;});TEXQ.clear();if(els.length)texRun(els);texLast=performance.now();}
+window.__onMJ=()=>{texReady=true;const els=[...TEXPRE];TEXPRE.clear();if(els.length)texRun(els);flushTex();};
+
+/* ---------- 平面坐标系 ---------- */
+function Plane(svg,R,o={}){
+  const W=360,H=360,pad=18; svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.replaceChildren();
+  const s=(W/2-pad)/R, X=x=>W/2+x*s, Y=y=>H/2-y*s;
+  const g0=el('g',{},svg), gC=el('g',{},svg), gH=el('g',{},svg);
+  const stepG=R>7?2:1;
+  for(let i=-Math.floor(R);i<=R;i+=1){
+    if(i%stepG)continue;
+    el('line',{x1:X(i),y1:Y(-R-1),x2:X(i),y2:Y(R+1),style:`stroke:var(${i?'--grid':'--axis'});stroke-width:${i?1:1.4}`},g0);
+    el('line',{x1:X(-R-1),y1:Y(i),x2:X(R+1),y2:Y(i),style:`stroke:var(${i?'--grid':'--axis'});stroke-width:${i?1:1.4}`},g0);
+    if(i&&i%(stepG*(R>4?2:1))===0){el('text',{x:X(i),y:Y(0)+13,'text-anchor':'middle','font-size':10,style:'fill:var(--muted)',text:i},g0);el('text',{x:X(0)-5,y:Y(i)+3.5,'text-anchor':'end','font-size':10,style:'fill:var(--muted)',text:i},g0);}
+  }
+  if(o.xl)el('text',{x:W-6,y:Y(0)-6,'text-anchor':'end','font-size':11.5,style:'fill:var(--muted)',text:o.xl},g0);
+  if(o.yl)el('text',{x:X(0)+6,y:14,'font-size':11.5,style:'fill:var(--muted)',text:o.yl},g0);
+  const P={X,Y,s,R,svg,gC,gH};
+  P.clear=()=>gC.replaceChildren();
+  P.line=(x0,y0,x1,y1,st)=>el('line',{x1:X(x0),y1:Y(y0),x2:X(x1),y2:Y(y1),style:st},P.gC);
+  P.poly=(pts,st)=>el('polygon',{points:pts.map(p=>X(p[0]).toFixed(1)+','+Y(p[1]).toFixed(1)).join(' '),style:st},P.gC);
+  P.text=(x,y,t,st='',anchor='start',size=12.5)=>el('text',{x:X(x),y:Y(y),'text-anchor':anchor,'font-size':size,style:st,text:t},P.gC);
+  P.arrow=(x0,y0,x1,y1,col,op={})=>{
+    const ax=X(x0),ay=Y(y0),bx=X(x1),by=Y(y1),dx=bx-ax,dy=by-ay,L=Math.hypot(dx,dy),w=op.w||2.6;
+    const st=`stroke:${col};stroke-width:${w};stroke-linecap:round;${op.dash?'stroke-dasharray:'+op.dash+';':''}opacity:${op.op??1}`;
+    if(L<2){el('circle',{cx:bx,cy:by,r:3.5,style:`fill:${col};opacity:${op.op??1}`},P.gC);}
+    else{const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5),hw=h*.42;
+      el('line',{x1:ax,y1:ay,x2:bx-ux*h*.85,y2:by-uy*h*.85,style:st},P.gC);
+      el('polygon',{points:`${bx},${by} ${bx-ux*h-uy*hw},${by-uy*h+ux*hw} ${bx-ux*h+uy*hw},${by-uy*h-ux*hw}`,style:`fill:${col};opacity:${op.op??1}`},P.gC);}
+    if(op.label){const left=dx<-0.3*L,lx=op.lx??(L<2?8:(dx/(L||1))*10+(left?-4:4)), ly=op.ly??(L<2?-8:(dy/(L||1))*10+(dy>0?12:-4));
+      const mx=op.mid?(ax+bx)/2-bx+(L?-dy/L*14:0):0,my=op.mid?(ay+by)/2-by+(L?dx/L*14:0):0;
+      const tx=el('text',{x:bx+(op.mid?mx:lx),y:by+(op.mid?my+4:ly),'font-size':op.fs||13,'text-anchor':op.anchor||(op.mid?'middle':left?'end':'start'),style:`fill:${col};font-weight:600;paint-order:stroke;stroke:var(--paper);stroke-width:3px`,text:op.label},P.gC);
+      try{const bb=tx.getBBox();let sx=0,sy=0;if(bb.x+bb.width>W-3)sx=W-3-bb.x-bb.width;if(bb.x+sx<3)sx=3-bb.x;if(bb.y<3)sy=3-bb.y;if(bb.y+bb.height>H-3)sy=H-3-bb.y-bb.height;if(sx||sy)tx.setAttribute('transform',`translate(${sx},${sy})`);}catch(e){}}
+  };
+  P.toXY=ev=>{const pt=svg.createSVGPoint();pt.x=ev.clientX;pt.y=ev.clientY;const q=pt.matrixTransform(svg.getScreenCTM().inverse());return [(q.x-W/2)/s,(H/2-q.y)/s];};
+  P.handle=(get,set,col,step=0.5,label='拖动',lim=R)=>{
+    const c=el('circle',{r:10,tabindex:0,role:'slider','aria-label':label,style:`fill:${col};fill-opacity:.22;stroke:${col};stroke-width:1.6;cursor:grab`},gH);
+    let on=false;
+    c.addEventListener('pointerdown',e=>{on=true;c.setPointerCapture(e.pointerId);e.preventDefault();});
+    c.addEventListener('pointermove',e=>{if(!on)return;let [x,y]=P.toXY(e);x=Math.max(-lim,Math.min(lim,Math.round(x/step)*step));y=Math.max(-lim,Math.min(lim,Math.round(y/step)*step));set(x,y);});
+    const end=()=>{on=false;}; c.addEventListener('pointerup',end); c.addEventListener('pointercancel',end);
+    c.addEventListener('keydown',e=>{const [x,y]=get();const m={ArrowLeft:[-step,0],ArrowRight:[step,0],ArrowUp:[0,step],ArrowDown:[0,-step]}[e.key];if(m){e.preventDefault();set(Math.max(-lim,Math.min(lim,x+m[0])),Math.max(-lim,Math.min(lim,y+m[1])));}});
+    return {el:c,update(){const [x,y]=get();c.setAttribute('cx',X(x));c.setAttribute('cy',Y(y));}};
+  };
+  return P;
+}
+
+/* ---------- 公共 ---------- */
+function seq(steps,apply){ // steps: [from,to,ms] 或 ['hold',ms]
+  let cancelled=false,cur=()=>{},tm=0;
+  const run=i=>{if(cancelled||i>=steps.length)return;const s=steps[i];
+    if(s[0]==='hold'){tm=setTimeout(()=>run(i+1),reduced?0:s[1]);}
+    else cur=animate(s[2],t=>apply(s[0]+(s[1]-s[0])*ease(t)),()=>run(i+1));};
+  run(0);return ()=>{cancelled=true;cur();clearTimeout(tm);};
+}
+const mv=(A,[x,y])=>[A[0][0]*x+A[0][1]*y,A[1][0]*x+A[1][1]*y];
+const lerpM=(A,t)=>[[1+(A[0][0]-1)*t,A[0][1]*t],[A[1][0]*t,1+(A[1][1]-1)*t]];
+const det2=A=>A[0][0]*A[1][1]-A[0][1]*A[1][0];
+function matInputs(host,M,onchange){
+  host.replaceChildren();
+  M.forEach((row,i)=>row.forEach((v,j)=>{const sp=document.createElement('span');const inp=document.createElement('input');inp.type='number';inp.step='0.5';inp.value=v;inp.setAttribute('aria-label',`第${i+1}行第${j+1}列`);
+    inp.oninput=()=>{const n=parseFloat(inp.value);if(!isNaN(n)){M[i][j]=n;onchange();}};sp.appendChild(inp);host.appendChild(sp);}));
+}
+function drawBuilding(svg,u1,u2,o={}){
+  const sc=o.sc??14,unit=o.unit??' mm';
+  svg.replaceChildren();
+  const gy=225,y1=150,y2=75,cx=130,half=48;
+  const ink='var(--ink)',mut='var(--muted)';
+  el('line',{x1:40,y1:gy,x2:220,y2:gy,style:`stroke:${ink};stroke-width:2`},svg);
+  for(let i=0;i<12;i++)el('line',{x1:46+i*15,y1:gy,x2:38+i*15,y2:gy+8,style:`stroke:${mut}`},svg);
+  [y1,y2].forEach(y=>el('line',{x1:cx-half-6,y1:y,x2:cx+half+6,y2:y,style:`stroke:${mut};stroke-dasharray:3 3;opacity:.6`},svg));
+  const d1=u1*sc,d2=u2*sc;
+  const col=(xb,xt,yb,yt)=>`M${xb},${yb} C${xb},${(yb*2+yt)/3} ${xt},${(yb+yt*2)/3} ${xt},${yt}`;
+  for(const s of[-1,1])el('path',{d:col(cx+s*half,cx+s*half+d1,gy,y1)+' '+col(cx+s*half+d1,cx+s*half+d2,y1,y2).replace('M','L'),style:`fill:none;stroke:${ink};stroke-width:2`},svg);
+  el('rect',{x:cx-half-8+d1,y:y1-6,width:2*half+16,height:12,rx:2,style:'fill:var(--m1)'},svg);
+  el('rect',{x:cx-half-8+d2,y:y2-6,width:2*half+16,height:12,rx:2,style:'fill:var(--m2)'},svg);
+  el('text',{x:cx+half+14+Math.max(d1,0),y:y1+4,'font-size':13,style:'fill:var(--m1);font-weight:600',text:o.l1??`u₁ = ${fm(u1)}${unit}`},svg);
+  el('text',{x:cx+half+14+Math.max(d2,0),y:y2+4,'font-size':13,style:'fill:var(--m2);font-weight:600',text:o.l2??`u₂ = ${fm(u2)}${unit}`},svg);
+  el('text',{x:cx,y:gy+22,'text-anchor':'middle','font-size':11.5,style:`fill:${o.capCol||mut};font-weight:${o.capCol?600:400}`,text:o.cap??'水平位移放大显示'},svg);
+}
+const dotsPath=(pts,r)=>pts.map(([x,y])=>`M${(x-r).toFixed(1)},${y.toFixed(1)}a${r},${r} 0 1,0 ${2*r},0a${r},${r} 0 1,0 ${-2*r},0`).join('');
+
+/* ---------- 1 位移是一支箭 ---------- */
+const S1={u:[3,2]};
+const P1=Plane($('p1'),4,{xl:'u₁ (mm)',yl:'u₂ (mm)'});
+const H1=P1.handle(()=>S1.u,(x,y)=>{S1.u=[x,y];r1();},'var(--accent)',0.5,'拖动位移向量');
+function r1(){
+  const [a,b]=S1.u;P1.clear();
+  P1.line(a,0,a,b,'stroke:var(--m1);stroke-dasharray:3 3');P1.line(0,b,a,b,'stroke:var(--m2);stroke-dasharray:3 3');
+  P1.arrow(0,0,a,b,'var(--accent)',{label:`u = [${fm(a)}, ${fm(b)}]ᵀ`});
+  H1.update();drawBuilding($('b1'),a,b);
+  const d=v=>v>0?`向右 ${fm(v)} mm`:v<0?`向左 ${fm(-v)} mm`:'不动';
+  setTex('r1',TX`<span class="row">\(\bm u=${rv([a,b])}^T\)</span><span class="row"><span class="c1">一层${d(a)}</span>，<span class="c2">二层${d(b)}</span></span><span class="row">平面上一个点 = 两层楼的一个完整位移状态</span>`);
+}
+
+/* ---------- 2 加法与数乘 ---------- */
+const S2={a:[3,2],b:[-1,1],c:1.5,t:1};let stop2=()=>{};
+const P2=Plane($('p2'),6,{xl:'u₁',yl:'u₂'});
+const H2a=P2.handle(()=>S2.a,(x,y)=>{S2.a=[x,y];r2();},'var(--m1)',0.5,'工况一');
+const H2b=P2.handle(()=>S2.b,(x,y)=>{S2.b=[x,y];r2();},'var(--m2)',0.5,'工况二');
+function r2(){
+  P2.clear();const {a,b,c,t}=S2;const L=Math.hypot(...a);
+  if(L>0){const k=20/L;P2.line(-a[0]*k,-a[1]*k,a[0]*k,a[1]*k,'stroke:var(--m3);stroke-dasharray:5 4;opacity:.55');}
+  P2.arrow(0,0,c*a[0],c*a[1],'var(--m3)',{w:2,op:.85,label:`${fm(c)}a`});
+  P2.arrow(0,0,b[0],b[1],'var(--m2)',{op:t>0?.35:1,label:t>0?'':'b',mid:1});
+  const e=ease(t),ox=a[0]*e,oy=a[1]*e;
+  if(t>0)P2.arrow(ox,oy,ox+b[0],oy+b[1],'var(--m2)',{label:t>=1?'b':''});
+  P2.arrow(0,0,a[0],a[1],'var(--m1)',{label:'a',mid:1});
+  if(t>=1)P2.arrow(0,0,a[0]+b[0],a[1]+b[1],'var(--ink)',{w:3,label:'a + b'});
+  H2a.update();H2b.update();$('c2v').textContent=fm(c);
+  setTex('r2',TX`<span class="row"><span class="c1">\(\bm a=${rv(a)}^T\)（工况一）</span>　<span class="c2">\(\bm b=${rv(b)}^T\)（工况二）</span></span><span class="row">\(\bm a+\bm b=${rv([a[0]+b[0],a[1]+b[1]])}^T\)</span><span class="row c3">\(${fm(c)}\,\bm a=${rv([c*a[0],c*a[1]])}^T\)（始终在 \(\bm a\) 所在的虚线上）</span>`);
+}
+$('b2add').onclick=()=>{stop2();stop2=animate(1200,t=>{S2.t=t;r2();});};
+$('c2').oninput=e=>{S2.c=+e.target.value;r2();};
+
+const S2b={c:1};let stop2b=()=>{};
+const P2b=Plane($('p2b'),5,{xl:'u₁',yl:'u₂'});
+const PRE2b=[1,2,-1,0.5];
+function r2b(){
+  const c=S2b.c,v=[c,2*c];P2b.clear();
+  P2b.line(-2.5,-5,2.5,5,'stroke:var(--m3);stroke-width:1.4;stroke-dasharray:5 4;opacity:.7');
+  PRE2b.forEach(k=>el('circle',{cx:P2b.X(k),cy:P2b.Y(2*k),r:3.5,style:'fill:var(--m3);opacity:.5'},P2b.gC));
+  P2b.arrow(0,0,v[0],v[1],'var(--accent)',{w:3,label:`${fm(c)}·[1, 2]ᵀ`});
+  drawBuilding($('b2b'),v[0],v[1],{sc:22,unit:''});
+  setTex('r2b',TX`<span class="row">当前箭 \(=${rv(v)}^T=${fm(c)}\times[1,\ 2]^T\)</span><span class="row">\(u_2/u_1=${Math.abs(c)<1e-9?'—':fm(v[1]/v[0],3)}\)　<span class="cok">比例始终为 2：同一个形状</span></span><span class="row">${c<0?'整体调头：每层同时反向，形状不变':TX`幅值 \(\times\,${fm(c,2)}\)`}</span>`);
+}
+PRE2b.forEach(k=>{const bt=document.createElement('button');bt.type='button';setTex(bt,TX`\(${rv([k,2*k])}^T\)`);bt.onclick=()=>{stop2b();const f=S2b.c;stop2b=animate(900,t=>{S2b.c=f+(k-f)*ease(t);r2b();});};$('pre2b').appendChild(bt);});
+
+/* ---------- 3 线性组合与张成 ---------- */
+const S3={v1:[2,1],v2:[-1,1.5],c1:1,c2:1,fill:0};let stop3=()=>{},stop3f=()=>{};
+const P3=Plane($('p3'),6);
+const H31=P3.handle(()=>S3.v1,(x,y)=>{S3.v1=[x,y];r3();},'var(--m1)',0.5,'v1');
+const H32=P3.handle(()=>S3.v2,(x,y)=>{S3.v2=[x,y];r3();},'var(--m2)',0.5,'v2');
+const C3=[];for(let i=-12;i<=12;i++)for(let j=-12;j<=12;j++)C3.push([i/4,j/4]);
+C3.sort((p,q)=>Math.max(Math.abs(p[0]),Math.abs(p[1]))-Math.max(Math.abs(q[0]),Math.abs(q[1])));
+function r3(){
+  P3.clear();const {v1,v2,c1,c2,fill}=S3;
+  if(fill>0){const n=Math.round(C3.length*fill);const pts=[];for(let k=0;k<n;k++){const [a,b]=C3[k];const x=a*v1[0]+b*v2[0],y=a*v1[1]+b*v2[1];if(Math.abs(x)<6.5&&Math.abs(y)<6.5)pts.push([P3.X(x),P3.Y(y)]);}
+    el('path',{d:dotsPath(pts,2.2),style:'fill:var(--m3);opacity:.45'},P3.gC);}
+  P3.arrow(0,0,v1[0],v1[1],'var(--m1)',{op:.4,w:2,label:'v₁',mid:1});P3.arrow(0,0,v2[0],v2[1],'var(--m2)',{op:.4,w:2,label:'v₂',mid:1});
+  const p=[c1*v1[0],c1*v1[1]],q=[p[0]+c2*v2[0],p[1]+c2*v2[1]];
+  P3.arrow(0,0,p[0],p[1],'var(--m1)',{w:2.6});P3.arrow(p[0],p[1],q[0],q[1],'var(--m2)',{w:2.6});
+  el('circle',{cx:P3.X(q[0]),cy:P3.Y(q[1]),r:5,style:'fill:var(--ink)'},P3.gC);
+  H31.update();H32.update();
+  const d=det2([[v1[0],v2[0]],[v1[1],v2[1]]]),z1=Math.hypot(...v1)<1e-9,z2=Math.hypot(...v2)<1e-9;
+  const k=Math.abs(d)>1e-9?2:(z1&&z2)?0:1;
+  const span=k===2?'<b class="cok">整个平面</b>':k===1?'<b class="cbad">一条直线</b>（第二支箭是多余的）':'<b class="cbad">只有原点</b>';
+  $('c31v').textContent=fm(c1);$('c32v').textContent=fm(c2);
+  setTex('r3',TX`<span class="row"><span class="c1">\(\bm v_1=${rv(v1)}^T\)</span>　<span class="c2">\(\bm v_2=${rv(v2)}^T\)</span></span><span class="row">\(${fm(c1)}\,\bm v_1+${pn(c2)}\,\bm v_2=${rv(q)}^T\)</span><span class="row">独立方向数：\(${k}\)　→ 张成 ${span}</span>`);
+}
+$('c31').oninput=e=>{S3.c1=+e.target.value;r3();};$('c32').oninput=e=>{S3.c2=+e.target.value;r3();};
+$('b3fill').onclick=()=>{stop3f();stop3f=animate(2200,t=>{S3.fill=t;r3();});};
+const mv3=to=>{stop3();const f=S3.v2.slice();stop3=animate(1000,t=>{const e=ease(t);S3.v2=[f[0]+(to[0]-f[0])*e,f[1]+(to[1]-f[1])*e];r3();});};
+$('b3col').onclick=()=>mv3([S3.v1[0]*1.5,S3.v1[1]*1.5]);
+$('b3rst').onclick=()=>mv3([-1,1.5]);
+
+/* ---------- 4 换基 ---------- */
+const PRE4=[[String.raw`基 \(\bm v_1=[1,\ 1]^T\)、\(\bm v_2=[1,\ -1]^T\)`,[1,1],[1,-1],'v'],[String.raw`振型基 \(\bm\phi_1=[1,\ 2]^T\)、\(\bm\phi_2=[1,\ -1]^T\)`,[1,2],[1,-1],'φ']];
+const S4={x:[5,1],k:0,mode:'e',a:1,p:1};let stop4=()=>{};
+const P4=Plane($('p4'),6);
+const H4=P4.handle(()=>S4.x,(x,y)=>{S4.x=[x,y];r4();},'var(--bad)',0.5,'拖动红箭');
+const cf=c=>Math.abs(c-1)<1e-9?'':Math.abs(c+1)<1e-9?'−':fm(c,2)+'·';
+const p3=v=>v<0?`(${fm(v,3)})`:fm(v,3);
+function coords(b1,b2,x){const d=b1[0]*b2[1]-b2[0]*b1[1];return [(x[0]*b2[1]-b2[0]*x[1])/d,(b1[0]*x[1]-x[0]*b1[1])/d];}
+function drawBasis(b1,b2,alpha,prog,nm,x){
+  if(alpha<=0.01)return;
+  const g=el('g',{style:`opacity:${alpha}`},P4.gC);
+  for(let i=-12;i<=12;i++){
+    const L=(p,q,w,o)=>el('line',{x1:P4.X(p[0]),y1:P4.Y(p[1]),x2:P4.X(q[0]),y2:P4.Y(q[1]),style:`stroke:var(--accent);stroke-width:${w};opacity:${o}`},g);
+    L([i*b1[0]-12*b2[0],i*b1[1]-12*b2[1]],[i*b1[0]+12*b2[0],i*b1[1]+12*b2[1]],i?1:1.6,i?.3:.6);
+    L([i*b2[0]-12*b1[0],i*b2[1]-12*b1[1]],[i*b2[0]+12*b1[0],i*b2[1]+12*b1[1]],i?1:1.6,i?.3:.6);
+  }
+  const c=coords(b1,b2,x),s1=Math.min(1,prog*2),s2=Math.max(0,prog*2-1);
+  const p=[c[0]*b1[0]*s1,c[0]*b1[1]*s1];
+  const sv=P4.gC;P4.gC=g;
+  const showB=prog<1;
+  P4.arrow(0,0,b1[0],b1[1],'var(--m1)',{w:3.4,label:showB?nm[0]:''});P4.arrow(0,0,b2[0],b2[1],'var(--m2)',{w:3.4,label:showB?nm[1]:''});
+  if(prog>0){P4.arrow(0,0,p[0],p[1],'var(--m1)',{w:2,dash:'6 4',label:s1>=1?`${cf(c[0])}${nm[0]}`:'',mid:1});
+    if(s2>0)P4.arrow(p[0],p[1],p[0]+c[1]*b2[0]*s2,p[1]+c[1]*b2[1]*s2,'var(--m2)',{w:2,dash:'6 4',label:s2>=1?`${cf(c[1])}${nm[1]}`:'',mid:1});}
+  P4.gC=sv;
+}
+function r4(){
+  P4.clear();const [nm,v1,v2,sym]=PRE4[S4.k];const x=S4.x;
+  const ae=S4.mode==='e'?S4.a:1-S4.a, av=1-ae;
+  drawBasis([1,0],[0,1],ae,S4.mode==='e'?S4.p:1,['e₁','e₂'],x);
+  drawBasis(v1,v2,av,S4.mode==='v'?S4.p:1,[sym+'₁',sym+'₂'],x);
+  P4.arrow(0,0,x[0],x[1],'var(--bad)',{w:3.6,label:'x',anchor:'end',lx:-6,ly:-12});H4.update();
+  const c=coords(v1,v2,x);
+  const sT=sym==='φ'?'\\bm\\phi':'\\bm v';
+  setTex('r4',TX`<span class="row">红箭 \(\bm x\) 始终不动</span><span class="row">标准基配方：\(\bm x=${fm(x[0])}\,\bm e_1+${pn(x[1])}\,\bm e_2\)，坐标 \((${fm(x[0])},\ ${fm(x[1])})\)</span><span class="row">新基配方：\(\bm x=${fm(c[0],3)}\,${sT}_1+${pn(c[1],3)}\,${sT}_2\)，坐标 \((${fm(c[0],3)},\ ${fm(c[1],3)})\)</span><span class="row">验算：\(${fm(c[0],3)}\,${rv(v1)}^T+${pn(c[1],3)}\,${rv(v2)}^T=${rv([c[0]*v1[0]+c[1]*v2[0],c[0]*v1[1]+c[1]*v2[1]])}^T\)　✓</span>`+(sym==='φ'?TX`<span class="row"><b>\(\bm u=\Phi\bm q\)：\(\bm u=${rv(x)}^T\) 与 \(\bm q=[${fm(c[0],3)},\ ${fm(c[1],3)}]^T\) 是同一个位移</b></span>`:''));
+}
+PRE4.forEach(([n],k)=>{const bt=document.createElement('button');bt.type='button';setTex(bt,n);bt.onclick=()=>{S4.k=k;go4('v');};$('pre4').appendChild(bt);});
+function go4(m){stop4();if(S4.mode===m){S4.a=1;S4.p=0;}else{S4.mode=m;S4.a=0;S4.p=0;}
+  stop4=animate(2400,t=>{S4.a=Math.min(1,t*2.2);S4.p=Math.max(0,(t-0.45)/0.55);r4();});}
+$('b4go').onclick=()=>go4('v');$('b4back').onclick=()=>go4('e');
+
+/* ---------- 5 矩阵揉捏网格 ---------- */
+const PRE5=[['拉伸',[[2,0],[0,0.5]]],[String.raw`旋转 \(90^\circ\)`,[[0,-1],[1,0]]],['剪切',[[1,1],[0,1]]],['镜像',[[-1,0],[0,1]]],['压扁',[[1,2],[0.5,1]]],[String.raw`刚度 \(K\)`,[[3,-1],[-1,1]]]];
+const S5={A:[[2,0],[0,0.5]],t:1,x:[1,1.5]};let stop5=()=>{};
+const P5=Plane($('p5'),4);
+const H5=P5.handle(()=>S5.x,(x,y)=>{S5.x=[x,y];r5();},'var(--ok)',0.5,'拖动输入箭',2);
+function r5(){
+  P5.clear();const A=S5.A,t=S5.t,M=lerpM(A,t),T=p=>mv(M,p);
+  for(let i=-8;i<=8;i++){const a=T([i,-8]),b=T([i,8]),c=T([-8,i]),d=T([8,i]);
+    P5.line(a[0],a[1],b[0],b[1],`stroke:var(--accent);stroke-width:${i?1:1.6};opacity:${i?.3:.65}`);P5.line(c[0],c[1],d[0],d[1],`stroke:var(--accent);stroke-width:${i?1:1.6};opacity:${i?.3:.65}`);}
+  P5.poly([T([0,0]),T([1,0]),T([1,1]),T([0,1])],'fill:var(--m3);fill-opacity:.16;stroke:var(--m3);stroke-width:1.1');
+  const e1=T([1,0]),e2=T([0,1]),y=T(S5.x);
+  P5.arrow(0,0,S5.x[0],S5.x[1],'var(--ok)',{w:1.6,dash:'4 4',op:.7});
+  P5.arrow(0,0,e1[0],e1[1],'var(--bad)',{w:3,label:t>=1?'Ae₁':'e₁'});
+  P5.arrow(0,0,e2[0],e2[1],'var(--m2)',{w:3,label:t>=1?'Ae₂':'e₂'});
+  P5.arrow(0,0,y[0],y[1],'var(--ok)',{w:3,label:t>=1?'Ax':'x'});
+  H5.update();$('t5').value=t;
+  const Y=mv(A,S5.x);
+  setTex('r5',TX`<span class="row">\(A=${bmx(A)}\)</span><span class="row cbad">\(A\bm e_1\) = 第 1 列 = \(${rv([A[0][0],A[1][0]])}^T\)</span><span class="row c2">\(A\bm e_2\) = 第 2 列 = \(${rv([A[0][1],A[1][1]])}^T\)</span><span class="row cok">\(\bm x=${rv(S5.x)}^T\)</span><span class="row cok">\(A\bm x=${fm(S5.x[0])}\times\)第 1 列\(+\,${pn(S5.x[1])}\times\)第 2 列\(=${rv(Y)}^T\)</span>`);
+}
+function play5(){stop5();stop5=animate(1600,t=>{S5.t=t;r5();});}
+PRE5.forEach(([n,M])=>{const bt=document.createElement('button');bt.type='button';setTex(bt,n);bt.onclick=()=>{S5.A=M.map(r=>r.slice());play5();};$('pre5').appendChild(bt);});
+$('b5play').onclick=play5;$('t5').oninput=e=>{stop5();S5.t=+e.target.value;r5();};
+
+/* ---------- 6 行列式 ---------- */
+const F6=[[0,0],[0,2],[1.2,2],[1.2,1.6],[0.4,1.6],[0.4,1.2],[1,1.2],[1,0.8],[0.4,0.8],[0.4,0]].map(([x,y])=>[0.28+x*0.36,0.12+y*0.38]);
+const PRE6=[[String.raw`拉伸 \(\det=5\)`,[[2.5,0],[0,2]]],[String.raw`旋转 \(\det=1\)`,[[0,-1],[1,0]]],[String.raw`剪切 \(\det=1\)`,[[1,1],[0,1]]],[String.raw`镜像 \(\det=-1\)`,[[-1,0],[0,1]]],[String.raw`压扁 \(\det=0\)`,[[1,2],[0.5,1]]]];
+const S6={A:[[2.5,0],[0,2]],t:1};let stop6=()=>{};
+const P6=Plane($('p6'),4);
+function nullDir(A){const r=Math.hypot(A[0][0],A[0][1])>1e-9?A[0]:A[1];if(Math.hypot(...r)<1e-9)return null;const n=[-r[1],r[0]],L=Math.hypot(...n);return [n[0]/L,n[1]/L];}
+function r6(){
+  P6.clear();const A=S6.A,t=S6.t,M=lerpM(A,t),T=p=>mv(M,p);
+  P6.poly([[0,0],[1,0],[1,1],[0,1]],'fill:none;stroke:var(--muted);stroke-dasharray:3 3;stroke-width:1');
+  P6.poly([T([0,0]),T([1,0]),T([1,1]),T([0,1])],'fill:var(--m3);fill-opacity:.2;stroke:var(--m3);stroke-width:1.4');
+  P6.poly(F6.map(T),'fill:var(--accent);fill-opacity:.55;stroke:var(--accent);stroke-width:1');
+  const dA=det2(A),dt=det2(M);
+  if(Math.abs(dA)<1e-9){const n=nullDir(A);if(n){
+    P6.line(-6*n[0],-6*n[1],6*n[0],6*n[1],'stroke:var(--m3);stroke-width:1.2;stroke-dasharray:6 4;opacity:.6');
+    [-2.4,-1.6,-0.8,0.8,1.6,2.4].forEach(k=>{const p=T([k*n[0],k*n[1]]);P6.arrow(0,0,p[0],p[1],'var(--m3)',{w:2,op:.8});});}}
+  const e1=T([1,0]),e2=T([0,1]);
+  P6.arrow(0,0,e1[0],e1[1],'var(--bad)',{w:3,label:'Ae₁'});P6.arrow(0,0,e2[0],e2[1],'var(--m2)',{w:3,label:'Ae₂'});
+  setTex('r6',TX`<span class="row">\(\det A=${fm(A[0][0])}\times${pn(A[1][1])}-${pn(A[0][1])}\times${pn(A[1][0])}=${fm(dA,3)}\)（当前帧 \(${fm(dt,3)}\)）</span><span class="row">`+
+    (Math.abs(dA)<1e-9?'<b class="cbad">面积压成 0：整张平面被压成一条线。紫色虚线方向上的箭全部落到原点，不可逆</b>':
+    TX`面积放大 \(${fm(Math.abs(dA),3)}\) 倍，${dA<0?TX`<b class="cbad">F 被翻成镜像（\(\det A<0\)）</b>`:TX`<span class="cok">F 没有翻面（\(\det A>0\)）</span>`}`)+'</span>');
+}
+function set6(M){S6.A=M.map(r=>r.slice());matInputs($('m6A'),S6.A,()=>{S6.t=1;r6();});}
+function play6(){stop6();stop6=animate(1600,t=>{S6.t=t;r6();});}
+PRE6.forEach(([n,M])=>{const bt=document.createElement('button');bt.type='button';setTex(bt,n);bt.onclick=()=>{set6(M);play6();};$('pre6').appendChild(bt);});
+
+/* ---------- 7 det(K−ω²M)=0 ---------- */
+const S7={l:0};let stop7=()=>{};
+const P7=Plane($('p7'),3.5);
+const dK=l=>2*l*l-5*l+2;
+const c7=$('c7'),CX=l=>34+l/2.6*312,CY=d=>18+(2.7-d)/4.0*132;
+function r7(){
+  const l=S7.l,B=[[3-2*l,-1],[-1,1-l]],d=det2(B),root=Math.abs(d)<0.03;
+  P7.clear();
+  P7.poly([[0,0],[B[0][0],B[1][0]],[B[0][0]+B[0][1],B[1][0]+B[1][1]],[B[0][1],B[1][1]]],`fill:var(--m3);fill-opacity:${root?.45:.2};stroke:var(--m3);stroke-width:1.4`);
+  P7.arrow(0,0,B[0][0],B[1][0],'var(--bad)',{w:2.4,label:'第1列'});P7.arrow(0,0,B[0][1],B[1][1],'var(--m2)',{w:2.4,label:'第2列'});
+  const ph=[1,3-2*l],L=Math.hypot(...ph),k=1.6/L,pv=[ph[0]*k,ph[1]*k],img=[0,d*k];
+  P7.arrow(0,0,pv[0],pv[1],'var(--ok)',{w:3,dash:'6 4',label:'试探箭 φ',anchor:'start',lx:8,ly:pv[1]<0?14:-4});
+  P7.arrow(0,0,img[0],img[1],'var(--ink)',{w:3.4,label:root?'被压到原点！':'(K−ω²M)φ',anchor:'start',lx:22,ly:img[1]<0?14:2});
+  if(root)el('circle',{cx:P7.X(0),cy:P7.Y(0),r:7,style:'fill:none;stroke:var(--ink);stroke-width:2'},P7.gC);
+  // 曲线
+  c7.replaceChildren();
+  el('line',{x1:CX(0),y1:CY(0),x2:CX(2.6),y2:CY(0),style:'stroke:var(--axis);stroke-width:1.2'},c7);
+  el('line',{x1:CX(0),y1:CY(2.7),x2:CX(0),y2:CY(-1.3),style:'stroke:var(--axis);stroke-width:1.2'},c7);
+  [0.5,1,1.5,2,2.5].forEach(v=>el('text',{x:CX(v),y:CY(0)+13,'text-anchor':'middle','font-size':10,style:'fill:var(--muted)',text:v},c7));
+  [-1,1,2].forEach(v=>el('text',{x:CX(0)-4,y:CY(v)+3.5,'text-anchor':'end','font-size':10,style:'fill:var(--muted)',text:v},c7));
+  el('text',{x:CX(2.6),y:CY(0)-6,'text-anchor':'end','font-size':11,style:'fill:var(--muted)',text:'ω²'},c7);
+  el('text',{x:CX(0)+6,y:12,'font-size':11,style:'fill:var(--muted)',text:'det(K − ω²M) = 2ω⁴ − 5ω² + 2'},c7);
+  let dd='';for(let i=0;i<=130;i++){const x=i/130*2.6;dd+=(i?'L':'M')+CX(x).toFixed(1)+','+CY(dK(x)).toFixed(1);}
+  el('path',{d:dd,style:'fill:none;stroke:var(--accent);stroke-width:2'},c7);
+  [0.5,2].forEach(r=>el('circle',{cx:CX(r),cy:CY(0),r:4.5,style:'fill:var(--paper);stroke:var(--bad);stroke-width:2'},c7));
+  el('line',{x1:CX(l),y1:CY(0),x2:CX(l),y2:CY(d),style:'stroke:var(--ink);stroke-dasharray:3 3'},c7);
+  el('circle',{cx:CX(l),cy:CY(d),r:5,style:'fill:var(--ink)'},c7);
+  $('w7').value=l;$('w7v').textContent=fm(l,2);
+  const mode=Math.abs(l-0.5)<0.02?1:Math.abs(l-2)<0.02?2:0;
+  setTex('r7',TX`<span class="row">\(K-\omega^2M=${bmx(B,2)}\)</span><span class="row">\(\det(K-\omega^2M)=${pn(B[0][0])}\times${pn(B[1][1])}-(-1)\times(-1)=${fm(d,3)}\)</span><span class="row">平行四边形面积 \(=|\det|=${fm(Math.abs(d),3)}\)</span><span class="row">试探箭 \(\bm\phi=[1,\ ${fm(ph[1],2)}]^T\ \Rightarrow\ (K-\omega^2M)\bm\phi=[0,\ ${fm(d,3)}]^T\)</span><span class="row">`+
+    (root?TX`<b class="cbad">\(\det=0\)：平面被压成一条线，\(\bm\phi=[1,\ ${fm(ph[1],2)}]^T\) 活下来${mode?`，这就是第 ${mode} 振型`:''}</b>`:TX`\(\det\ne0\)：只有零向量能被揉成零，没有振型`)+'</span>');
+  const mx=Math.max(Math.abs(ph[0]),Math.abs(ph[1]));
+  drawBuilding($('b7'),ph[0]/mx,ph[1]/mx,{sc:42,l1:`φ₁ = ${fm(ph[0]/mx,2)}`,l2:`φ₂ = ${fm(ph[1]/mx,2)}`,cap:root?(mode?`第 ${mode} 振型（ω² = ${mode===1?'0.5':'2'}）`:'振型'):'试探形状：此 ω² 下不是振型',capCol:root?'var(--bad)':undefined});
+}
+$('w7').oninput=e=>{stop7();S7.l=+e.target.value;r7();};
+$('b7scan').onclick=()=>{stop7();stop7=seq([[0,0.5,2600],['hold',1500],[0.5,2,3400],['hold',1500],[2,2.6,1200]],v=>{S7.l=v;r7();});};
+const jump7=to=>{stop7();const f=S7.l;stop7=animate(900,t=>{S7.l=f+(to-f)*ease(t);r7();});};
+$('b7r1').onclick=()=>jump7(0.5);$('b7r2').onclick=()=>jump7(2);
+
+/* ---------- 8 特征向量 ---------- */
+const A8=[[2,1],[1,2]];
+const S8={t:0,x:[1,0.25]};let stop8=()=>{};
+const P8=Plane($('p8'),5);
+const H8=P8.handle(()=>S8.x,(x,y)=>{S8.x=[x,y];r8();},'var(--ok)',0.25,'拖动 x',1.5);
+function r8(){
+  P8.clear();const M=lerpM(A8,S8.t);
+  [[1,1],[1,-1]].forEach(([a,b],i)=>P8.line(-6*a,-6*b,6*a,6*b,`stroke:var(${i?'--m2':'--m1'});stroke-dasharray:5 4;opacity:.45`));
+  for(let k=0;k<16;k++){const a=k*Math.PI/8,v=[1.5*Math.cos(a),1.5*Math.sin(a)],w=mv(M,v);const eig=k%4===2;
+    const col=eig?(k%8===2?'var(--m1)':'var(--m2)'):'var(--muted)';P8.arrow(0,0,w[0],w[1],col,{w:eig?3:1.6,op:eig?1:.7});}
+  const x=S8.x,y=mv(A8,x);
+  P8.arrow(0,0,y[0],y[1],'var(--ink)',{w:2.6,label:'Ax'});P8.arrow(0,0,x[0],x[1],'var(--ok)',{w:3,label:'x'});H8.update();
+  const nx=Math.hypot(...x),ny=Math.hypot(...y);let ang=NaN;if(nx>1e-9&&ny>1e-9)ang=Math.acos(Math.max(-1,Math.min(1,(x[0]*y[0]+x[1]*y[1])/(nx*ny))))*180/Math.PI;
+  const c1=(x[0]+x[1])/2,c2=(x[0]-x[1])/2;
+  const hit=!isNaN(ang)&&(ang<0.5||ang>179.5);
+  setTex('r8',TX`<span class="row">\(\bm x=${rv(x)}^T,\quad A\bm x=${rv(y)}^T\)</span><span class="row">\(\bm x\) 与 \(A\bm x\) 的夹角：\(${isNaN(ang)?'—':fm(ang,1)+'^\\circ'}\)${hit?TX`　<b class="cok">特征方向！\(\lambda=${fm(ny/nx*(ang<90?1:-1),3)}\)</b>`:''}</span><span class="row">用特征方向当配料：\(\bm x=\class{c1}{${fm(c1,3)}\,[1,\ 1]^T}+\class{c2}{${pn(c2,3)}\,[1,\ -1]^T}\)</span><span class="row">揉之后：\(A\bm x=\class{c1}{3\times${pn(c1,3)}\,[1,\ 1]^T}+\class{c2}{1\times${pn(c2,3)}\,[1,\ -1]^T}\)</span><span class="row">每份各乘自己的 \(\lambda\)，互不干扰</span>`);
+}
+$('b8play').onclick=()=>{stop8();const f=S8.t;stop8=animate(1800,t=>{S8.t=f+(1-f)*t;r8();});};
+$('b8back').onclick=()=>{stop8();const f=S8.t;stop8=animate(900,t=>{S8.t=f*(1-t);r8();});};
+
+/* ---------- 9 Kφ = ω²Mφ ---------- */
+const K9=[[3,-1],[-1,1]],M9=[[2,0],[0,1]],MODE9=[Math.atan2(2,1)*180/Math.PI,135];
+const S9={a:20};let stop9=()=>{};
+const P9=Plane($('p9'),4);
+const H9=P9.handle(()=>{const r=S9.a*Math.PI/180;return [1.4*Math.cos(r),1.4*Math.sin(r)];},(x,y)=>{if(Math.hypot(x,y)<0.2)return;let a=Math.atan2(y,x)*180/Math.PI;if(a<0)a+=180;if(a>180)a-=180;S9.a=Math.round(a*2)/2;stop9();r9();},'var(--ok)',0.05,'φ 的方向');
+function r9(){
+  P9.clear();const r=S9.a*Math.PI/180,ph=[Math.cos(r),Math.sin(r)],kp=mv(K9,ph),mp=mv(M9,ph);
+  el('circle',{cx:P9.X(0),cy:P9.Y(0),r:1.4*P9.s,style:'fill:none;stroke:var(--grid);stroke-width:1.5'},P9.gC);
+  const cr=kp[0]*mp[1]-kp[1]*mp[0],nk=Math.hypot(...kp),nm=Math.hypot(...mp),ang=Math.acos(Math.max(-1,Math.min(1,(kp[0]*mp[0]+kp[1]*mp[1])/(nk*nm))))*180/Math.PI;
+  const hit=ang<1.2,mode=MODE9.findIndex(m=>Math.abs(m-S9.a)<1.5)+1;
+  P9.arrow(0,0,kp[0],kp[1],'var(--m1)',{w:3,label:'Kφ（恢复力）'});
+  P9.arrow(0,0,mp[0],mp[1],'var(--m2)',{w:3,label:'Mφ（惯性）'});
+  P9.arrow(0,0,1.4*ph[0],1.4*ph[1],'var(--ok)',{w:2.6,label:'φ'});H9.update();
+  $('a9').value=S9.a;$('a9v').textContent=fm(S9.a,1)+'°';
+  setTex('r9',TX`<span class="row">\(\bm\phi=${rv(ph,3)}^T\)（单位长度）</span><span class="row"><span class="c1">\(K\bm\phi=${rv(kp)}^T\)</span>　<span class="c2">\(M\bm\phi=${rv(mp)}^T\)</span></span><span class="row">两箭夹角 \(${fm(ang,1)}^\circ\)</span><span class="row">`+
+    (hit?TX`<b class="cok">共线！\(K\bm\phi=${fm(nk/nm,3)}\,M\bm\phi\ \Rightarrow\ \)${mode?`第 ${mode} 振型，`:''}\(\omega^2=${fm(nk/nm,3)}\)</b>`:'不共线：每层恢复力与惯性力比例不同，不是振型')+'</span>');
+  const mx=Math.max(Math.abs(ph[0]),Math.abs(ph[1]));
+  drawBuilding($('b9'),ph[0]/mx,ph[1]/mx,{sc:42,l1:`φ₁ = ${fm(ph[0]/mx,2)}`,l2:`φ₂ = ${fm(ph[1]/mx,2)}`,cap:hit?`第 ${mode} 振型`:'当前形状',capCol:hit?'var(--ok)':undefined});
+}
+$('a9').oninput=e=>{stop9();S9.a=+e.target.value;r9();};
+$('b9scan').onclick=()=>{stop9();const f=S9.a;stop9=seq([[f,0,600],[0,MODE9[0],2400],['hold',1500],[MODE9[0],135,2400],['hold',1500],[135,180,1000]],v=>{S9.a=v;r9();});};
+
+/* ---------- 10 常见偏差 + 自测 ---------- */
+const MIS=[
+ [String.raw`向量就是一个有方向的量，比如力`,String.raw`结构里的位移向量 \([u_1,\ u_2]^T\) 是两层楼各自位移的清单；箭是抽象出来的，不是空间里的真箭`],
+ [String.raw`坐标是箭自带的属性`,String.raw`坐标是相对于某组基的配方；换基则坐标变，箭不变`],
+ [String.raw`矩阵就是一张数表`,String.raw`矩阵是一个动作；每一列是一根坐标轴的新落点`],
+ [String.raw`行列式 = 面积`,String.raw`\(|\det A|\) 才是面积；符号记录翻面`],
+ [String.raw`特征向量是某一支特定的箭`,String.raw`是一条方向（一整条直线）；正负、长度都可任取`],
+ [String.raw`\(\bm u=\Phi\bm q\) 是把 \(\bm q\) 变成了另一个东西 \(\bm u\)`,String.raw`\(\bm u\)、\(\bm q\) 是同一个位移的两套坐标`],
+ [String.raw`\(\det(\cdot)=0\) 是随便令等式为零`,String.raw`是在问参数取何值时平面恰好被压扁`],
+];
+MIS.forEach(([q,a])=>{const b=document.createElement('button');b.type='button';b.setAttribute('aria-expanded','false');setTex(b,`<span class="q">✗ ${q}</span><span class="a">✓ ${a}</span>`);b.onclick=()=>{const o=b.classList.toggle('open');b.setAttribute('aria-expanded',o);};$('mis').appendChild(b);});
+(function(){let st={};try{st=JSON.parse(localStorage.getItem('la00-check')||'{}');}catch(e){}
+  document.querySelectorAll('#chk input').forEach(c=>{c.checked=!!st[c.id];c.onchange=()=>{st[c.id]=c.checked;try{localStorage.setItem('la00-check',JSON.stringify(st));}catch(e){}};});})();
+
+/* ---------- 启动 ---------- */
+r1();r2();r2b();r3();r4();r5();set6(S6.A);r6();r7();r8();r9();
+</script>
+</html>

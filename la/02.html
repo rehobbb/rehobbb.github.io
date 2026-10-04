@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>线代预备02 方程组与秩</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<script>
+window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],macros:{bm:['\\boldsymbol{#1}',1]}},svg:{fontCache:'global'},options:{enableMenu:false},startup:{ready(){MathJax.startup.defaultReady();MathJax.startup.promise.then(()=>{window.__onMJ&&window.__onMJ();});}}};
+</script>
+<script src="../assets/mathjax/tex-svg-full.js" async></script>
+<style>
+/* Layout: single-column study sheet; each section = text + one interactive figure (SVG) + readout */
+:root{
+  --bg:#eef1f4; --paper:#ffffff; --ink:#18212c; --muted:#5a6675; --rule:#d3dae3; --soft:#e4e9ef; --grid:#dfe5ec; --axis:#9aa6b4;
+  --accent:#1d5b9e; --m1:#1f6fb2; --m2:#cf7a22; --m3:#a83c75; --ok:#2b7d4f; --bad:#b33a2e; --hl:#fff3c4;
+  --serif:"Noto Serif SC","Songti SC","SimSun",serif;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"JetBrains Mono",Consolas,"SFMono-Regular",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11151b; --paper:#181e26; --ink:#e2e7ed; --muted:#98a4b3; --rule:#2c3643; --soft:#212a35; --grid:#252e3a; --axis:#5d6a7a;
+  --accent:#6ea8ea; --m1:#5ba7ec; --m2:#efa352; --m3:#e07bb0; --ok:#5cc08a; --bad:#ef7b6e; --hl:#4a4220; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11151b; --paper:#181e26; --ink:#e2e7ed; --muted:#98a4b3; --rule:#2c3643; --soft:#212a35; --grid:#252e3a; --axis:#5d6a7a;
+  --accent:#6ea8ea; --m1:#5ba7ec; --m2:#efa352; --m3:#e07bb0; --ok:#5cc08a; --bad:#ef7b6e; --hl:#4a4220; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.75;padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:980px;margin:0 auto}
+header.top{padding-block:36px 16px}
+.eyebrow{font-size:12px;letter-spacing:.12em;color:var(--muted)}
+h1{font-family:var(--serif);font-size:clamp(26px,4.4vw,38px);line-height:1.25;margin:6px 0 10px;text-wrap:balance}
+h2{font-family:var(--serif);font-size:22px;line-height:1.35;margin:0;text-wrap:balance}
+h3{font-size:15.5px;margin:20px 0 6px}
+p{margin:8px 0}
+ul{margin:6px 0;padding-left:1.4em}
+.lede{max-width:46em;color:var(--muted)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.series{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;font-size:13px}
+.series span{border:1px solid var(--rule);border-radius:4px;padding:3px 10px;background:var(--paper);color:var(--muted)}
+.series span.cur{border-color:var(--accent);color:var(--accent);font-weight:500}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;font-size:13px}
+.toc a{color:var(--ink);text-decoration:none;border-bottom:1px dotted var(--axis)}
+.toc a:hover,.toc a:focus-visible{color:var(--accent)}
+section.step{background:var(--paper);border:1px solid var(--rule);border-radius:6px;margin-top:22px;padding:22px 22px 18px}
+.stephead{display:flex;gap:14px;align-items:baseline;border-bottom:1px solid var(--rule);padding-bottom:10px;margin-bottom:12px;flex-wrap:wrap}
+.stepno{font-family:var(--mono);font-size:13px;color:var(--accent);border:1px solid var(--accent);border-radius:3px;padding:0 7px;white-space:nowrap}
+.src{font-size:12px;color:var(--muted);margin-left:auto}
+.why{font-size:13.5px;color:var(--muted)}
+.note{border-left:3px solid var(--accent);padding:6px 12px;background:var(--soft);font-size:14px;margin:12px 0;border-radius:0 4px 4px 0}
+.note.warn{border-color:var(--m2)}
+.note.key{border-color:var(--ok)}
+.fig{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:18px;align-items:start;margin:12px 0}
+.fig>*{min-width:0}
+@media (max-width:720px){.fig{grid-template-columns:minmax(0,1fr)}}
+svg.plane{width:100%;max-width:420px;display:block;touch-action:none;background:var(--paper);border:1px solid var(--rule);border-radius:4px}
+svg text{fill:var(--ink);font-family:var(--sans)}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+.ctrl label{font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+input,select,button{font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:4px;padding:4px 8px}
+input[type=number]{width:4.6em;font-family:var(--mono)}
+input[type=range]{padding:0;width:150px}
+button{cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.pri{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.read{font-family:var(--sans);font-size:14px;background:var(--soft);border-radius:4px;padding:10px 12px;line-height:2;overflow-x:auto}
+.read .row{display:block}
+.read .on{background:var(--hl);border-radius:3px;padding:0 4px}
+.read .dim{opacity:.35}
+.read b{font-weight:600}
+.c1{color:var(--m1)}.c2{color:var(--m2)}.c3{color:var(--m3)}.cok{color:var(--ok)}.cbad{color:var(--bad)}
+.tbl{overflow-x:auto;margin:10px 0}
+table{border-collapse:collapse;font-size:13.5px;min-width:100%}
+.tbl table{min-width:540px}
+th:first-child,td:first-child{white-space:nowrap}
+th,td{border-bottom:1px solid var(--rule);padding:6px 10px;text-align:left;vertical-align:top}
+th{font-weight:500;color:var(--muted);font-size:12.5px}
+mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;max-width:100%;padding:2px 0}
+.mat{display:inline-grid;gap:2px 12px;vertical-align:middle;border-left:2px solid var(--ink);border-right:2px solid var(--ink);border-radius:6px;padding:4px 10px;font-family:var(--mono);text-align:center}
+.mat span{padding:1px 4px;border-radius:3px;transition:background .25s}
+.mat span.on{background:var(--hl)}
+.mat input{width:3.4em;text-align:center;padding:2px}
+.eqrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:10px 0;font-family:var(--mono)}
+.tgrid{position:relative;display:inline-block;vertical-align:middle}
+.tcell{position:absolute;width:40px;height:34px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);border-radius:4px;transition:transform .9s cubic-bezier(.4,.1,.2,1),background .3s}
+.tcell.diag{background:var(--hl)}
+.chip{display:inline-block;font-family:var(--mono);border:1px solid var(--rule);border-radius:4px;padding:1px 8px}
+.chip.ok{border-color:var(--ok);color:var(--ok)}.chip.bad{border-color:var(--bad);color:var(--bad)}
+details{border:1px solid var(--rule);border-radius:4px;padding:6px 12px;margin:10px 0}
+details summary{cursor:pointer;color:var(--accent);font-weight:500}
+.ex li{margin:6px 0}
+.check label{display:flex;gap:8px;align-items:flex-start;margin:6px 0;font-size:14.5px}
+.check input{margin-top:6px}
+footer{font-size:12.5px;color:var(--muted);margin-top:26px}
+@media (max-width:640px){section.step{padding:16px 14px}}
+a{color:var(--accent)}
+.series a{text-decoration:none}
+.series a span:hover{border-color:var(--accent)}
+.duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+@media (max-width:720px){.duo{grid-template-columns:minmax(0,1fr)}}
+svg.mini{width:100%;display:block;background:var(--paper);border:1px solid var(--rule);border-radius:4px}
+.flag{display:inline-block;font-size:12.5px;border-radius:3px;padding:0 8px;margin-left:6px;background:var(--hl);color:var(--ink)}
+.mis{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin:10px 0}
+.mis button{text-align:left;padding:10px 12px;line-height:1.6;min-height:84px;background:var(--soft);border-color:var(--rule)}
+.mis button .a{display:none;color:var(--ok)}
+.mis button.open .q{text-decoration:line-through;color:var(--muted)}
+.mis button.open .a{display:block;margin-top:4px}
+.flow{margin:10px 0;display:grid;gap:2px}
+.flow .st{display:grid;grid-template-columns:minmax(0,1fr) 6.5em minmax(0,13em);gap:10px;align-items:center;background:var(--soft);border-radius:4px;padding:6px 12px}
+.flow .sec{font-size:12.5px;color:var(--muted)}
+.flow .ar{font-size:13px;color:var(--accent);padding-left:14px}
+@media (max-width:560px){.flow .st{grid-template-columns:minmax(0,1fr)}.flow .sec{display:none}}
+pre.line{font-family:var(--mono);font-size:13px;background:var(--soft);border-radius:4px;padding:12px 14px;overflow-x:auto;line-height:1.7;margin:10px 0}
+</style>
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow"><a href="../index.html" style="color:var(--accent);text-decoration:none;letter-spacing:0">← 返回首页</a>　线性代数预备 · 面向结构动力学 · 交互版</div>
+  <h1>02 方程组、秩与可逆性</h1>
+  <p class="lede">01 篇会算 \(A\boldsymbol x\)。这一篇反过来问：给定 \(\boldsymbol b\)，能不能找到 \(\boldsymbol x\) 使 \(A\boldsymbol x=\boldsymbol b\)？有几个？静力分析 \(K\boldsymbol u=\boldsymbol p\) 有没有唯一解，模型漏约束时为什么解不出来，求振型时为什么偏偏要 \((K-\omega^2M)\boldsymbol\phi=\boldsymbol 0\) 的非零解，都是这个问题。</p>
+  <div class="series" id="series" data-cur="02" aria-label="系列目录"></div>
+  <nav class="toc" aria-label="本篇目录">
+    <a href="#s1">1 张成、无关与基</a>·<a href="#s2">2 方程组 = 列的组合</a>·<a href="#s3">3 消元：两条直线</a>·<a href="#s4">4 消元计算器</a>·<a href="#s5">5 秩与零空间</a>·<a href="#s6">6 可逆的等价说法</a>·<a href="#s7">7 不显式求逆</a>·<a href="#s8">8 病态</a>·<a href="#s9">9 零刚度模式</a>·<a href="#s10">10 预告与练习</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section class="step" id="s1">
+  <div class="stephead"><span class="stepno">1</span><h2>张成、线性无关、基与维数</h2><span class="src">笔记 §2–§4</span></div>
+  <p>手里几支箭，工具只有伸缩和相加。<b>线性组合</b>是 \(c_1\boldsymbol v_1+\cdots+c_k\boldsymbol v_k\)，<b>张成</b>是全部线性组合的集合：</p>
+  \[\operatorname{span}\{\boldsymbol v_1,\ldots,\boldsymbol v_k\}=\{c_1\boldsymbol v_1+\cdots+c_k\boldsymbol v_k\mid c_i\in\mathbb R\}\]
+  <p>系数全取零就得到零向量，所以张成一定过原点。含零向量、对加法和数乘封闭的集合叫<b>子空间</b>；张成出来的一定是子空间，不过原点的直线不是。</p>
+  <p><b>线性无关</b>：\(c_1\boldsymbol v_1+\cdots+c_k\boldsymbol v_k=\boldsymbol 0\) 只有全零解。直观地说，每支箭都提供了别人给不了的新方向；线性相关就是至少有一支箭可以由其他箭拼出来，是多余的。拖动下图的 \(\boldsymbol v_1,\boldsymbol v_2\) 和目标 \(\boldsymbol x\)：</p>
+  <div class="fig">
+    <svg class="plane" id="p1" role="img" aria-label="线性无关与坐标唯一"></svg>
+    <div>
+      <div class="ctrl"><button type="button" id="b1a">无关：\([1,\ 1]^T\) 与 \([1,\ 2]^T\)</button><button type="button" id="b1b">相关：\([1,\ 1]^T\) 与 \([2,\ 2]^T\)</button></div>
+      <div class="read" id="r1"></div>
+    </div>
+  </div>
+  <p><b>基</b>：线性无关（没有多余的）且张成整个空间（够用）。<b>维数</b>：一组基里向量的个数。张成保证任意 \(\boldsymbol x\) 都能写成 \(V\boldsymbol q\)；无关保证 \(\boldsymbol q\) 唯一：若 \(V\boldsymbol q=V\boldsymbol r\)，则 \(V(\boldsymbol q-\boldsymbol r)=\boldsymbol 0\)，由无关性 \(\boldsymbol q=\boldsymbol r\)。这个唯一的 \(\boldsymbol q\) 就是 \(\boldsymbol x\) 在基 \(V\) 下的坐标（00 篇的“配方”），03 篇专门算它。</p>
+  <div class="note warn"><b>两个“维数”要分清。</b>\([1,0,0]^T,[2,0,0]^T,[3,0,0]^T\) 都住在 \(\mathbb R^3\)，但只张成 1 维。看独立方向，不看分量个数。\(\mathbb R^n\) 里最多 \(n\) 个线性无关向量，所以三个二维向量一定相关。</div>
+  <div class="note key"><b>结构里</b>：\(n\) 自由度结构的位移空间是 \(n\) 维，\(n\) 个独立振型构成它的一组基，所以任意位移都能写成振型的组合；只取前几阶振型，就是在一个更小的子空间里近似真实响应。节点数、位移分量总数不等于自由度数：刚性楼板等约束会减少独立坐标数，\(M\)、\(K\) 的尺寸对应最终保留的自由度。</div>
+</section>
+
+<!-- 2 -->
+<section class="step" id="s2">
+  <div class="stephead"><span class="stepno">2</span><h2>方程组就是列的组合：输入端与输出端</h2><span class="src">笔记 §5–§6、§12–§14</span></div>
+  <p>两层楼 \(K\boldsymbol u=\boldsymbol p\)，给定 \(\boldsymbol p=[1,1]^T\) 求位移，就是一个线性方程组。用 01 篇的列读法：</p>
+  \[A\boldsymbol x=\boldsymbol b\quad\Longleftrightarrow\quad x_1\boldsymbol a_1+x_2\boldsymbol a_2+\cdots+x_n\boldsymbol a_n=\boldsymbol b\]
+  <p>方程组在问：<b>怎样组合 \(A\) 的各列，才能拼出 \(\boldsymbol b\)</b>。各列的张成叫<b>列空间</b> \(\mathcal C(A)\)，是所有可能输出的集合；把 \(A\) 压到原点的全部输入叫<b>零空间</b> \(\mathcal N(A)=\{\boldsymbol x\mid A\boldsymbol x=\boldsymbol 0\}\)。</p>
+  \[A\boldsymbol x=\boldsymbol b\ \text{有解}\iff\boldsymbol b\in\mathcal C(A),\qquad \text{全部解}=\boldsymbol x_p+\mathcal N(A)\]
+  <p>下图左边是输入空间（\(\boldsymbol x\) 住的地方），右边是输出空间（\(\boldsymbol b\) 住的地方）。拖右图的 \(\boldsymbol b\)，左图显示全部解；拖左图的绿色 \(\boldsymbol x\)，右图显示它被送到哪里。选“奇异”预设再试：</p>
+  <div class="ctrl" id="pre2"></div>
+  <div class="duo">
+    <figure style="margin:0"><svg class="plane" id="p2a" role="img" aria-label="输入空间"></svg><figcaption class="why">输入空间：\(\boldsymbol x=[x_1,x_2]^T\)。紫色虚线为零空间，橙色为解集。</figcaption></figure>
+    <figure style="margin:0"><svg class="plane" id="p2b" role="img" aria-label="输出空间"></svg><figcaption class="why">输出空间：\(\boldsymbol b=[b_1,b_2]^T\)。蓝色为列空间。</figcaption></figure>
+  </div>
+  <div class="read" id="r2"></div>
+  <div class="note"><b>零空间在输入端，列空间在输出端。</b>两张图都画在二维纸上，但一张是输入、一张是输出，不能画到一起。奇异时，输入平面上一整条直线被送到输出原点，输出只能落在一条直线上：输入 2 维 = 输出占 1 维（秩）+ 被压没 1 维（零空间维数），这就是第 5 节的秩–零度定理。</div>
+  <div class="note key"><b>有解看列空间，唯一看零空间</b>，两件事彼此独立。零空间非平凡时，特解加上零空间里任何向量都还是解，所以有解必无穷多。结构里那个非零的零空间向量，通常是一个零刚度位移模式（第 9 节）。</div>
+</section>
+
+<!-- 3 -->
+<section class="step" id="s3">
+  <div class="stephead"><span class="stepno">3</span><h2>消元：行变换为什么不改变解</h2><span class="src">笔记 §7、§10</span></div>
+  <p>列空间回答“有没有解”，消元负责把解算出来。允许的操作（初等行变换）只有三种：交换两行；某行乘一个非零数；某行加上另一行的倍数。三种都可以做回去，所以<b>不改变解集</b>，这是消元合法的全部理由。</p>
+  <p>换成行的视角看：两元方程组的每一行是平面上的一条直线，解是交点。点“消元”，看第 2 行被换成“第 2 行 − 倍数 × 第 1 行”时，第 2 条直线绕着交点转成水平线，交点一动不动：</p>
+  <div class="fig">
+    <svg class="plane" id="p3" role="img" aria-label="两条直线与消元"></svg>
+    <div>
+      <div class="ctrl" id="pre3"></div>
+      <div class="ctrl"><button type="button" id="b3el" class="pri">▶ 消元</button><button type="button" id="b3rs">还原</button></div>
+      <div class="read" id="r3"></div>
+    </div>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>情形</th><th>消元后长什么样</th><th>几何</th></tr></thead>
+    <tbody>
+      <tr><td>唯一解</td><td>每个未知量都有主元</td><td>两线交于一点</td></tr>
+      <tr><td>无穷多解</td><td>整行变成 \(0=0\)，有自由变量</td><td>两线重合</td></tr>
+      <tr><td>无解</td><td>出现 \(0=c\ne0\) 的矛盾行</td><td>两线平行</td></tr>
+    </tbody>
+  </table></div>
+  <p>变成全零行的方程是多余的，变成 \(0=c\) 的方程是矛盾的，都不提供新的独立约束。真正独立的约束数，就是下一节的<b>秩</b>。消元把“\(\boldsymbol b\) 不在列空间里”翻译成了“出现矛盾行”。</p>
+</section>
+
+<!-- 4 -->
+<section class="step" id="s4">
+  <div class="stephead"><span class="stepno">4</span><h2>消元计算器：行阶梯形、主元、秩</h2><span class="src">笔记 §8–§9、§11、§12.1</span></div>
+  <p>先“向下消”变成上三角（行阶梯形），再“向上回代”。计算机解 \(K\boldsymbol u=\boldsymbol p\) 就是这两步（LU 分解 + 回代）。行阶梯形的判定：全零行在最下面；每个非零行第一个非零元素叫<b>主元</b>；下一行的主元比上一行更靠右，主元下方全是 0。在下面改矩阵或选预设，逐步看消元，所有数用分数精确计算：</p>
+  <div class="ctrl" id="pre4"></div>
+  <div class="ctrl"><label>行数 <select id="m4r"><option>2</option><option selected>3</option></select></label><label>列数 <select id="m4c"><option>2</option><option selected>3</option><option>4</option></select></label><label><input type="checkbox" id="m4aug" checked> 带右端 \(\boldsymbol b\)</label></div>
+  <div class="eqrow"><span class="mat" id="m4" style="grid-template-columns:repeat(4,auto)"></span></div>
+  <div class="ctrl"><button type="button" id="b4prev">◀ 上一步</button><button type="button" id="b4next" class="pri">下一步 ▶</button><button type="button" id="b4all">▶ 自动播放</button><span class="why" id="b4cnt"></span></div>
+  <div class="read" id="r4step" style="min-height:120px"></div>
+  <div class="read" id="r4sum"></div>
+  <div class="note"><b>求零空间的基不靠猜</b>：主元变量用自由变量表示，自由变量轮流取“一个 1、其余 0”，各自回代。上面汇总里的零空间基就是这样算出来的；基不唯一，单位值只是算得干净。列空间的基要取<b>原矩阵</b>中主元所在的列，不能直接拿阶梯形的列（行变换改变了列本身，但不改变列之间的线性关系）。</div>
+  <div class="note warn">计算机消元时要<b>选主元</b>：每列先把绝对值最大的元素换到主元位置，避免用很小的数作除数放大舍入误差（partial pivoting）。手算和本计算器都取第一个非零元，不影响结果。</div>
+</section>
+
+<!-- 5 -->
+<section class="step" id="s5">
+  <div class="stephead"><span class="stepno">5</span><h2>秩与秩–零度定理</h2><span class="src">笔记 §11–§14、附录</span></div>
+  \[\operatorname{rank}(A)=\text{非零行数}=\text{主元个数}=\text{线性无关列数}=\dim\mathcal C(A)\]
+  <p>秩是矩阵里真正独立的信息量：从列看，各列最多撑开几维；从行看，能给出几条独立方程。行秩等于列秩：行变换可逆，不改变列之间的线性关系，也不改变行空间，两者都等于主元数。秩是<b>消元后</b>的非零行数，\(\begin{bmatrix}1&2\\2&4\end{bmatrix}\) 两行都非零，秩却是 1。</p>
+  <p>消元后 \(n\) 个未知量分成 \(r\) 个主元变量和 \(n-r\) 个自由变量，每个自由变量给零空间贡献一个基向量：</p>
+  \[\operatorname{rank}(A)+\dim\mathcal N(A)=n\ (\text{列数})\]
+  <p><b>输入空间的每一维，要么变成输出的一维，要么被压没。</b>在上一节计算器里换不同矩阵，汇总栏会同时给出秩、零空间维数和这条等式。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>条件</th><th>\(A\boldsymbol x=\boldsymbol b\) 的解</th></tr></thead>
+    <tbody>
+      <tr><td>\(\operatorname{rank}[A\mid\boldsymbol b]>\operatorname{rank}(A)\)</td><td><b>无解</b>（出现矛盾行）</td></tr>
+      <tr><td>两个秩相等，且 \(=n\)</td><td><b>唯一解</b></td></tr>
+      <tr><td>两个秩相等，但 \(&lt;n\)</td><td><b>无穷多解</b>，\(n-r\) 个自由参数</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note warn">“方程多就唯一、未知数多就无穷”不准确：先看相容（有没有矛盾行），再数独立方程数。\(\operatorname{rank}\le\min(m,n)\)，所以 \(2\times3\) 矩阵秩最多为 2：三个二维列向量装不下三个独立方向；满秩时对任意 \(\boldsymbol b\) 有解，但必有 1 个自由变量，有解就无穷多。长方阵的“满秩”要说清是哪种：列满秩 \(r=n\)（有解时唯一），行满秩 \(r=m\)（对每个 \(\boldsymbol b\) 都有解）。</div>
+</section>
+
+<!-- 6 -->
+<section class="step" id="s6">
+  <div class="stephead"><span class="stepno">6</span><h2>方阵可逆：知道一条就知道全部</h2><span class="src">笔记 §15–§16</span></div>
+  <p>方阵 \(A\) 若存在 \(A^{-1}\) 使 \(A^{-1}A=AA^{-1}=I\)，称可逆。二阶有现成公式，直接相乘可以验证：</p>
+  \[A=\begin{bmatrix}a&b\\c&d\end{bmatrix},\qquad A^{-1}=\frac{1}{ad-bc}\begin{bmatrix}d&-b\\-c&a\end{bmatrix},\qquad ad-bc\ne0\]
+  <p>\(ad-bc\) 就是行列式。一般方法是把 \([A\mid I]\) 行化简成 \([I\mid A^{-1}]\)。改下面的矩阵，看八条说法如何同时成立或同时不成立：</p>
+  <div class="ctrl" id="pre6"></div>
+  <div class="fig" style="grid-template-columns:auto minmax(0,1fr);align-items:center">
+    <div class="eqrow">\(A=\)<span class="mat" id="m6" style="grid-template-columns:repeat(2,auto)"></span></div>
+    <div class="read" id="r6inv"></div>
+  </div>
+  <div class="tbl"><table id="t6"></table></div>
+  <p>最好用的一条是 \(\mathcal N(A)=\{\boldsymbol 0\}\)：满秩就是没有任何方向被压没。</p>
+</section>
+
+<!-- 7 -->
+<section class="step" id="s7">
+  <div class="stephead"><span class="stepno">7</span><h2>为什么工程计算不显式求逆</h2><span class="src">笔记 §17</span></div>
+  <p>公式里写 \(A^{-1}\boldsymbol b\) 完全合法，它是记号；程序里看到 <code>inv(A) @ b</code> 就该换成 <code>solve(A, b)</code>。</p>
+  <div class="tbl"><table>
+    <thead><tr><th></th><th><code>solve(A, b)</code></th><th><code>inv(A) @ b</code></th></tr></thead>
+    <tbody>
+      <tr><td>做法</td><td>LU 分解 + 回代，只算需要的 \(n\) 个数</td><td>先算出 \(n^2\) 个数的 \(A^{-1}\)，再乘</td></tr>
+      <tr><td>乘法次数</td><td>\(\approx\tfrac13n^3\)</td><td>\(\approx n^3\)，约 3 倍</td></tr>
+      <tr><td>精度</td><td>高</td><td>多一步，误差更易被病态放大</td></tr>
+      <tr><td>稀疏矩阵</td><td>分解大体保住稀疏</td><td>\(A^{-1}\) 几乎必然稠密，存不下</td></tr>
+    </tbody>
+  </table></div>
+  <div class="fig">
+    <div>
+      <div class="ctrl"><label>自由度数 \(n\) <input id="n7" type="range" min="2" max="7" step="0.1" value="4"></label><span class="num" id="n7v"></span></div>
+      <div class="read" id="r7"></div>
+    </div>
+    <div class="note" style="margin:0"><b>稀疏与稠密</b>：刚度矩阵 \(k_{ij}\ne0\) 仅当自由度 \(i,j\) 由构件直接相连，百万自由度模型的 \(K\) 非零元常不足 1%，集中在对角线附近（带状）。\(K^{-1}\) 却几乎没有零元：任一点加力，全结构都会动。YJK、ETABS、midas 能解百万自由度，靠的是稀疏求解器跳过所有零。多荷载工况时先分解一次 \(A=LU\)，每个 \(\boldsymbol b\) 只做一次回代。</div>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="step" id="s8">
+  <div class="stephead"><span class="stepno">8</span><h2>可逆不等于数值稳定：病态</h2><span class="src">笔记 §18；疑问解答 A2</span></div>
+  <p>有些矩阵理论上可逆，但非常接近奇异，输入的微小误差会引起解的巨大变化。下面两条直线 \(x+y=2\) 与 \(x+(1+\varepsilon)y=2+\varepsilon+\delta\)：\(\delta=0\) 时解永远是 \((1,1)\)。把 \(\varepsilon\) 调小（两线接近平行），再拖动右端扰动 \(\delta\)：</p>
+  <div class="fig">
+    <svg class="plane" id="p8" role="img" aria-label="病态方程组"></svg>
+    <div>
+      <div class="ctrl"><label>\(\varepsilon\)（\(\log_{10}\)）<input id="e8" type="range" min="-4" max="0" step="0.05" value="-1"></label><span class="num" id="e8v"></span></div>
+      <div class="ctrl"><label>右端扰动 \(\delta\) <input id="d8" type="range" min="-1" max="1" step="0.01" value="0"></label><span class="num" id="d8v"></span></div>
+      <div class="ctrl"><button type="button" id="b8a">笔记例题：\(\varepsilon=10^{-4},\ \delta=10^{-4}\)</button></div>
+      <div class="read" id="r8"></div>
+    </div>
+  </div>
+  <p>问题不是求解器算错，是问题本身对误差高度敏感。<b>条件数</b> \(\kappa(A)=\|A\|\,\|A^{-1}\|\)：\(\kappa\approx1\) 稳定，\(\kappa\) 很大则敏感，\(\kappa=\infty\) 就是奇异。数值上判断接近奇异要用条件数，不能用行列式：\(\mathrm{diag}(10^{-6},10^{-6})\) 的行列式是 \(10^{-12}\)，但条件数是 1，完全健康；\(\det(cA)=c^n\det A\) 还会随尺度溢出或下溢。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>结构中的病态来源</th><th>例子</th></tr></thead>
+    <tbody>
+      <tr><td>构件刚度差多个数量级</td><td>巨柱旁边一根细梁</td></tr>
+      <tr><td>人为的极大刚度</td><td>“刚臂”、惩罚刚度取 \(10^{10}\)</td></tr>
+      <tr><td>单位错误</td><td>某构件用 N，其他用 kN</td></tr>
+      <tr><td>几乎成为机构</td><td>差一个约束就能自由转动</td></tr>
+      <tr><td>节点非常接近但没合并</td><td>两个节点差 0.1 mm</td></tr>
+      <tr><td>约束重复或几乎重复</td><td>同一点两个几乎平行的约束</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note warn">病态的表现：位移异常大、反力不稳定、出现异常小的特征值、结果对参数微调高度敏感、迭代难收敛。看到这些先查模型，不要怀疑求解器。</div>
+</section>
+
+<!-- 9 -->
+<section class="step" id="s9">
+  <div class="stephead"><span class="stepno">9</span><h2>\(K\boldsymbol u=\boldsymbol 0\) 的非零解：零刚度模式</h2><span class="src">笔记 §19–§20</span></div>
+  <p>若存在非零 \(\boldsymbol u_0\) 使 \(K\boldsymbol u_0=\boldsymbol 0\)，就是存在一种非零位移方式，结构一点恢复力也不产生，此时 \(K\) 奇异。下图是三个质点、两根弹簧（刚度 \(k=1\)）。拖动质点改变位移，箭头是维持该位移所需的外力 \(\boldsymbol p=K\boldsymbol u\)：</p>
+  <div class="fig">
+    <svg id="p9" viewBox="0 0 420 210" style="width:100%;max-width:460px;display:block;touch-action:none" role="img" aria-label="三质点弹簧链"></svg>
+    <div>
+      <div class="ctrl"><label><input type="checkbox" id="g9"> 左端加一根接地弹簧</label></div>
+      <div class="ctrl"><button type="button" id="b9n" class="pri">▶ 沿零空间方向平移</button><button type="button" id="b9r">归零</button></div>
+      <div class="read" id="r9"></div>
+    </div>
+  </div>
+  <p>消元得 \(\begin{bmatrix}1&-1&0\\0&1&-1\\0&0&0\end{bmatrix}\)，秩 2、零度 1，\(\mathcal N(K)=\operatorname{span}\{[1,1,1]^T\}\)：三个质点一起平移，弹簧不伸不缩。第三行自动变零，不用事先看出来。此时 \(K\boldsymbol u=\boldsymbol p\) 有解要求荷载相容（合力为零），有解也差一个任意整体平移。</p>
+  <div class="note warn"><b>零刚度模式 ≠ 刚体模式。</b>\(\dim\mathcal N(K)\) 是独立零刚度模式的个数。它可能是整体刚体运动，也可能是内部机构（杆两端都是铰）、连接释放、孤立自由度。只有单个连通、内部稳定的三维自由体恰有 6 个零模式且全是刚体模式（二维是 3 个）；受约束的模型应为 0。</div>
+  <div class="tbl"><table>
+    <thead><tr><th>工程场景</th><th>判断</th></tr></thead>
+    <tbody>
+      <tr><td>自由–自由模态（吊装、漂浮体系）</td><td>前 6 阶频率接近 0 是对的</td></tr>
+      <tr><td>常规建筑抗震，本应固定</td><td>出现接近 0 的频率说明约束或连接漏了：查支座、节点是否连上、端部是否全释放、孤立构件、某方向有无抗侧力构件</td></tr>
+      <tr><td>接近 0 但不等于 0（如 \(10^{-4}\)）</td><td>几乎成了机构或局部极柔，是第 8 节的病态问题</td></tr>
+    </tbody>
+  </table></div>
+  <p>04 篇会讲：\(K\) 对称、\(M\) 正定时，\(K\boldsymbol\phi=\lambda M\boldsymbol\phi\) 的零特征值重数等于 \(\dim\mathcal N(K)\)。同一件事在静力里表现为“解不出来”，在动力里表现为“零频率”。</p>
+</section>
+
+<!-- 10 -->
+<section class="step" id="s10">
+  <div class="stephead"><span class="stepno">10</span><h2>预告：特征值问题在找让矩阵奇异的参数</h2><span class="src">笔记 §21–§25</span></div>
+  <p>04 篇的 \(A\boldsymbol\phi=\lambda\boldsymbol\phi\) 移项得 \((A-\lambda I)\boldsymbol\phi=\boldsymbol 0\)。若 \((A-\lambda I)\) 可逆，两边左乘逆只剩 \(\boldsymbol\phi=\boldsymbol 0\)；要非零解，\((A-\lambda I)\) 必须奇异，即 \(\det(A-\lambda I)=0\)。<b>奇异的是 \((A-\lambda I)\) 这一整块，不是 \(A\)。</b></p>
+  <div class="tbl"><table>
+    <thead><tr><th>未知量</th><th>类型</th><th>角色</th><th>怎么得到</th></tr></thead>
+    <tbody>
+      <tr><td>\(\lambda\)</td><td>标量</td><td>钥匙：调对了矩阵才奇异</td><td>解 \(\det(A-\lambda I)=0\)</td></tr>
+      <tr><td>\(\boldsymbol\phi\)</td><td>向量</td><td>非零解本身</td><td>代回求 \(\mathcal N(A-\lambda I)\)</td></tr>
+    </tbody>
+  </table></div>
+  <p>结构版 \((K-\omega^2M)\boldsymbol\phi=\boldsymbol 0\) 同构：先解 \(\det(K-\omega^2M)=0\) 得频率，再代回求振型。00 篇第 7 节有扫描 \(\omega^2\) 的动画。</p>
+  <h3>练习</h3>
+  <ol class="ex">
+    <li>用消元解 \(\begin{cases}2x_1+x_2=5\\x_1+3x_2=5\end{cases}\)，写出增广矩阵的每一步。</li>
+    <li>\(\begin{cases}x_1+2x_2=3\\2x_1+4x_2=6\end{cases}\) 与 \(\begin{cases}x_1+2x_2=3\\2x_1+4x_2=5\end{cases}\) 各有几个解？</li>
+    <li>用二阶公式求 \(\begin{bmatrix}1&1\\1&2\end{bmatrix}^{-1}\)，并解 \(c_1+c_2=5,\ c_1+2c_2=7\)。</li>
+    <li>对 \(A=\begin{bmatrix}1&2&3\\2&4&6\end{bmatrix}\) 求秩、列空间的基、零空间的基，验证秩–零度定理；说明 \([1,3]^T\) 为什么不在列空间里。</li>
+    <li>\(3\times5\) 矩阵秩最大是多少？此时零空间几维？\(A\boldsymbol x=\boldsymbol b\) 的解是什么情形？</li>
+    <li>单弹簧连两个自由质点，\(K=k\begin{bmatrix}1&-1\\-1&1\end{bmatrix}\)，荷载 \(\boldsymbol p=[1,0]^T\)，方程有解吗？物理上发生了什么？</li>
+    <li>\(K\) 奇异，能否断言“结构有一个整体刚体模式”？平面框架前 3 阶频率接近 0，可能是什么情况？</li>
+  </ol>
+  <details><summary>参考答案</summary>
+    <ol class="ex">
+      <li>\(\left[\begin{array}{cc|c}2&1&5\\1&3&5\end{array}\right]\xrightarrow{R_2-\frac12R_1}\left[\begin{array}{cc|c}2&1&5\\0&2.5&2.5\end{array}\right]\)，\(x_2=1\)，\(x_1=2\)。可以放进第 4 节的计算器核对。</li>
+      <li>前者第二行全零，无穷多解 \([3,0]^T+t[-2,1]^T\)；后者第二行 \(0=-1\)，无解。</li>
+      <li>\(ad-bc=1\)，\(A^{-1}=\begin{bmatrix}2&-1\\-1&1\end{bmatrix}\)，\(\boldsymbol c=A^{-1}[5,7]^T=[3,2]^T\)。03 篇会用别的方法再解一次。</li>
+      <li>秩 1；列空间基 \([1,2]^T\)；零空间基 \([-2,1,0]^T,[-3,0,1]^T\)；\(1+2=3\)。列空间上的点第二分量是第一分量的 2 倍，\(3\ne2\)。</li>
+      <li>最大 3；零度 \(5-3=2\)；行满秩，对任何 \(\boldsymbol b\) 都有解，且有 2 个自由参数。</li>
+      <li>无解：消元得 \(0=1\)（\(p_1+p_2\ne0\)）。合外力不为零，两个质点一起加速跑掉，没有静力平衡。</li>
+      <li>不能，只能断言存在零刚度模式，要看模式形态才能判断是刚体模式还是机构。前 3 阶接近 0：模型完全自由时正常（平面自由体 3 个刚体模式）；否则是支座漏了或某处成了机构。查零频振型：整体平移、转动是刚体模式，只有局部构件在动是机构。</li>
+    </ol>
+  </details>
+  <h3>自测：能不看笔记做到，再进 03 篇</h3>
+  <div class="check" id="chk">
+    <label><input type="checkbox" id="ck1"><span>用列读法解释 \(A\boldsymbol x=\boldsymbol b\) 何时有解</span></label>
+    <label><input type="checkbox" id="ck2"><span>独立完成一个三元方程组的消元与回代</span></label>
+    <label><input type="checkbox" id="ck3"><span>说出行阶梯形的三条判定，并从它直接读出秩和解的类型</span></label>
+    <label><input type="checkbox" id="ck4"><span>说明零空间在输入端、列空间在输出端，写出秩–零度定理</span></label>
+    <label><input type="checkbox" id="ck5"><span>系统地（不靠猜）求出一个矩阵零空间的基</span></label>
+    <label><input type="checkbox" id="ck6"><span>说明为什么 <code>solve</code> 优于 <code>inv</code></span></label>
+    <label><input type="checkbox" id="ck7"><span>区分“奇异”与“病态”，各举一个结构例子</span></label>
+    <label><input type="checkbox" id="ck8"><span>说明 \(\dim\mathcal N(K)\) 是零刚度模式数而非刚体模式数</span></label>
+    <label><input type="checkbox" id="ck9"><span>说明特征值问题为什么是在找让 \((A-\lambda I)\) 奇异的 \(\lambda\)</span></label>
+  </div>
+</section>
+
+<footer>
+  <p>对应笔记：15-General/12-线性代数/260730-线性代数预备02-线性方程组秩与可逆性.md 及其疑问解答。</p>
+</footer>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const NS='http://www.w3.org/2000/svg';
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs){if(k==='text')e.textContent=attrs[k];else e.setAttribute(k,attrs[k]);}if(parent)parent.appendChild(e);return e;}
+const fm=(v,d=2)=>{const r=Math.round(v*10**d)/10**d;return (Object.is(r,-0)?0:r).toString();};
+const f2=v=>fm(v,2), f3=v=>fm(v,3);
+const vec=a=>`[${a.map(v=>fm(v,2)).join(', ')}]`;
+const paren=v=>v<0?`(${fm(v)})`:fm(v);
+function animate(dur,step,done){ // returns cancel fn
+  if(reduced){step(1);done&&done();return ()=>{};}
+  let t0=null,id=0,stop=false;
+  const loop=now=>{if(stop)return;if(t0===null)t0=now;const t=Math.min(1,(now-t0)/dur);step(t);if(t<1)id=requestAnimationFrame(loop);else done&&done();};
+  id=requestAnimationFrame(loop);return ()=>{stop=true;cancelAnimationFrame(id);};
+}
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+
+/* ---------- LaTeX 读数（MathJax 渲染，拖动时节流） ---------- */
+const TX=String.raw;
+const pn=(v,d=2)=>{const s=fm(v,d);return s.startsWith('-')?`(${s})`:s;};
+const rv=(a,d=2)=>`[${a.map(v=>fm(v,d)).join(',\\ ')}]`;
+const cv=(a,d=2)=>`\\begin{bmatrix}${a.map(v=>fm(v,d)).join('\\\\')}\\end{bmatrix}`;
+const bmx=(M,d=2)=>`\\begin{bmatrix}${M.map(r=>r.map(v=>fm(v,d)).join('&')).join('\\\\')}\\end{bmatrix}`;
+let texReady=false,texTimer=0,texLast=0;const TEXQ=new Map(),TEXPRE=new Set();
+function texRun(els){try{MathJax.typesetClear(els);MathJax.typeset(els);}catch(e){}}
+function setTex(el,html){
+  if(typeof el==='string')el=$(el);
+  if(el.__tex===html)return;el.__tex=html;
+  if(!texReady){el.innerHTML=html;TEXPRE.add(el);return;}
+  const now=performance.now();
+  if(!texTimer&&now-texLast>45){el.innerHTML=html;texRun([el]);texLast=performance.now();return;}
+  TEXQ.set(el,html);if(!texTimer)texTimer=setTimeout(flushTex,50);
+}
+function flushTex(){texTimer=0;const els=[...TEXQ.keys()];TEXQ.forEach((h,el)=>{el.innerHTML=h;});TEXQ.clear();if(els.length)texRun(els);texLast=performance.now();}
+window.__onMJ=()=>{texReady=true;const els=[...TEXPRE];TEXPRE.clear();if(els.length)texRun(els);flushTex();};
+
+/* ---------- 平面坐标系 ---------- */
+function Plane(svg,R,o={}){
+  const W=360,H=360,pad=18; svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.replaceChildren();
+  const s=(W/2-pad)/R, X=x=>W/2+x*s, Y=y=>H/2-y*s;
+  const g0=el('g',{},svg), gC=el('g',{},svg), gH=el('g',{},svg);
+  const stepG=R>7?2:1;
+  for(let i=-Math.floor(R);i<=R;i+=1){
+    if(i%stepG)continue;
+    el('line',{x1:X(i),y1:Y(-R-1),x2:X(i),y2:Y(R+1),style:`stroke:var(${i?'--grid':'--axis'});stroke-width:${i?1:1.4}`},g0);
+    el('line',{x1:X(-R-1),y1:Y(i),x2:X(R+1),y2:Y(i),style:`stroke:var(${i?'--grid':'--axis'});stroke-width:${i?1:1.4}`},g0);
+    if(i&&i%(stepG*(R>4?2:1))===0){el('text',{x:X(i),y:Y(0)+13,'text-anchor':'middle','font-size':10,style:'fill:var(--muted)',text:i},g0);el('text',{x:X(0)-5,y:Y(i)+3.5,'text-anchor':'end','font-size':10,style:'fill:var(--muted)',text:i},g0);}
+  }
+  if(o.xl)el('text',{x:W-6,y:Y(0)-6,'text-anchor':'end','font-size':11.5,style:'fill:var(--muted)',text:o.xl},g0);
+  if(o.yl)el('text',{x:X(0)+6,y:14,'font-size':11.5,style:'fill:var(--muted)',text:o.yl},g0);
+  const P={X,Y,s,R,svg,gC,gH};
+  P.clear=()=>gC.replaceChildren();
+  P.line=(x0,y0,x1,y1,st)=>el('line',{x1:X(x0),y1:Y(y0),x2:X(x1),y2:Y(y1),style:st},P.gC);
+  P.poly=(pts,st)=>el('polygon',{points:pts.map(p=>X(p[0]).toFixed(1)+','+Y(p[1]).toFixed(1)).join(' '),style:st},P.gC);
+  P.text=(x,y,t,st='',anchor='start',size=12.5)=>el('text',{x:X(x),y:Y(y),'text-anchor':anchor,'font-size':size,style:st,text:t},P.gC);
+  P.arrow=(x0,y0,x1,y1,col,op={})=>{
+    const ax=X(x0),ay=Y(y0),bx=X(x1),by=Y(y1),dx=bx-ax,dy=by-ay,L=Math.hypot(dx,dy),w=op.w||2.6;
+    const st=`stroke:${col};stroke-width:${w};stroke-linecap:round;${op.dash?'stroke-dasharray:'+op.dash+';':''}opacity:${op.op??1}`;
+    if(L<2){el('circle',{cx:bx,cy:by,r:3.5,style:`fill:${col};opacity:${op.op??1}`},P.gC);}
+    else{const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5),hw=h*.42;
+      el('line',{x1:ax,y1:ay,x2:bx-ux*h*.85,y2:by-uy*h*.85,style:st},P.gC);
+      el('polygon',{points:`${bx},${by} ${bx-ux*h-uy*hw},${by-uy*h+ux*hw} ${bx-ux*h+uy*hw},${by-uy*h-ux*hw}`,style:`fill:${col};opacity:${op.op??1}`},P.gC);}
+    if(op.label){const left=dx<-0.3*L,lx=op.lx??(L<2?8:(dx/(L||1))*10+(left?-4:4)), ly=op.ly??(L<2?-8:(dy/(L||1))*10+(dy>0?12:-4));
+      const mx=op.mid?(ax+bx)/2-bx+(L?-dy/L*14:0):0,my=op.mid?(ay+by)/2-by+(L?dx/L*14:0):0;
+      const tx=el('text',{x:bx+(op.mid?mx:lx),y:by+(op.mid?my+4:ly),'font-size':op.fs||13,'text-anchor':op.anchor||(op.mid?'middle':left?'end':'start'),style:`fill:${col};font-weight:600;paint-order:stroke;stroke:var(--paper);stroke-width:3px`,text:op.label},P.gC);
+      try{const bb=tx.getBBox();let sx=0,sy=0;if(bb.x+bb.width>W-3)sx=W-3-bb.x-bb.width;if(bb.x+sx<3)sx=3-bb.x;if(bb.y<3)sy=3-bb.y;if(bb.y+bb.height>H-3)sy=H-3-bb.y-bb.height;if(sx||sy)tx.setAttribute('transform',`translate(${sx},${sy})`);}catch(e){}}
+  };
+  P.toXY=ev=>{const pt=svg.createSVGPoint();pt.x=ev.clientX;pt.y=ev.clientY;const q=pt.matrixTransform(svg.getScreenCTM().inverse());return [(q.x-W/2)/s,(H/2-q.y)/s];};
+  P.handle=(get,set,col,step=0.5,label='拖动',lim=R)=>{
+    const c=el('circle',{r:10,tabindex:0,role:'slider','aria-label':label,style:`fill:${col};fill-opacity:.22;stroke:${col};stroke-width:1.6;cursor:grab`},gH);
+    let on=false;
+    c.addEventListener('pointerdown',e=>{on=true;c.setPointerCapture(e.pointerId);e.preventDefault();});
+    c.addEventListener('pointermove',e=>{if(!on)return;let [x,y]=P.toXY(e);x=Math.max(-lim,Math.min(lim,Math.round(x/step)*step));y=Math.max(-lim,Math.min(lim,Math.round(y/step)*step));set(x,y);});
+    const end=()=>{on=false;}; c.addEventListener('pointerup',end); c.addEventListener('pointercancel',end);
+    c.addEventListener('keydown',e=>{const [x,y]=get();const m={ArrowLeft:[-step,0],ArrowRight:[step,0],ArrowUp:[0,step],ArrowDown:[0,-step]}[e.key];if(m){e.preventDefault();set(Math.max(-lim,Math.min(lim,x+m[0])),Math.max(-lim,Math.min(lim,y+m[1])));}});
+    return {el:c,update(){const [x,y]=get();c.setAttribute('cx',X(x));c.setAttribute('cy',Y(y));}};
+  };
+  return P;
+}
+
+/* ---------- 公共 ---------- */
+function seq(steps,apply){ // steps: [from,to,ms] 或 ['hold',ms]
+  let cancelled=false,cur=()=>{},tm=0;
+  const run=i=>{if(cancelled||i>=steps.length)return;const s=steps[i];
+    if(s[0]==='hold'){tm=setTimeout(()=>run(i+1),reduced?0:s[1]);}
+    else cur=animate(s[2],t=>apply(s[0]+(s[1]-s[0])*ease(t)),()=>run(i+1));};
+  run(0);return ()=>{cancelled=true;cur();clearTimeout(tm);};
+}
+const mv=(A,[x,y])=>[A[0][0]*x+A[0][1]*y,A[1][0]*x+A[1][1]*y];
+const lerpM=(A,t)=>[[1+(A[0][0]-1)*t,A[0][1]*t],[A[1][0]*t,1+(A[1][1]-1)*t]];
+const det2=A=>A[0][0]*A[1][1]-A[0][1]*A[1][0];
+function matInputs(host,M,onchange){
+  host.replaceChildren();
+  M.forEach((row,i)=>row.forEach((v,j)=>{const sp=document.createElement('span');const inp=document.createElement('input');inp.type='number';inp.step='0.5';inp.value=v;inp.setAttribute('aria-label',`第${i+1}行第${j+1}列`);
+    inp.oninput=()=>{const n=parseFloat(inp.value);if(!isNaN(n)){M[i][j]=n;onchange();}};sp.appendChild(inp);host.appendChild(sp);}));
+}
+function drawBuilding(svg,u1,u2,o={}){
+  const sc=o.sc??14,unit=o.unit??' mm';
+  svg.replaceChildren();
+  const gy=225,y1=150,y2=75,cx=130,half=48;
+  const ink='var(--ink)',mut='var(--muted)';
+  el('line',{x1:40,y1:gy,x2:220,y2:gy,style:`stroke:${ink};stroke-width:2`},svg);
+  for(let i=0;i<12;i++)el('line',{x1:46+i*15,y1:gy,x2:38+i*15,y2:gy+8,style:`stroke:${mut}`},svg);
+  [y1,y2].forEach(y=>el('line',{x1:cx-half-6,y1:y,x2:cx+half+6,y2:y,style:`stroke:${mut};stroke-dasharray:3 3;opacity:.6`},svg));
+  const d1=u1*sc,d2=u2*sc;
+  const col=(xb,xt,yb,yt)=>`M${xb},${yb} C${xb},${(yb*2+yt)/3} ${xt},${(yb+yt*2)/3} ${xt},${yt}`;
+  for(const s of[-1,1])el('path',{d:col(cx+s*half,cx+s*half+d1,gy,y1)+' '+col(cx+s*half+d1,cx+s*half+d2,y1,y2).replace('M','L'),style:`fill:none;stroke:${ink};stroke-width:2`},svg);
+  el('rect',{x:cx-half-8+d1,y:y1-6,width:2*half+16,height:12,rx:2,style:'fill:var(--m1)'},svg);
+  el('rect',{x:cx-half-8+d2,y:y2-6,width:2*half+16,height:12,rx:2,style:'fill:var(--m2)'},svg);
+  el('text',{x:cx+half+14+Math.max(d1,0),y:y1+4,'font-size':13,style:'fill:var(--m1);font-weight:600',text:o.l1??`u₁ = ${fm(u1)}${unit}`},svg);
+  el('text',{x:cx+half+14+Math.max(d2,0),y:y2+4,'font-size':13,style:'fill:var(--m2);font-weight:600',text:o.l2??`u₂ = ${fm(u2)}${unit}`},svg);
+  el('text',{x:cx,y:gy+22,'text-anchor':'middle','font-size':11.5,style:`fill:${o.capCol||mut};font-weight:${o.capCol?600:400}`,text:o.cap??'水平位移放大显示'},svg);
+}
+const dotsPath=(pts,r)=>pts.map(([x,y])=>`M${(x-r).toFixed(1)},${y.toFixed(1)}a${r},${r} 0 1,0 ${2*r},0a${r},${r} 0 1,0 ${-2*r},0`).join('');
+
+/* ---------- 系列条 ---------- */
+const SERIES=[
+ ['00','几何直觉','00.html'],
+ ['01','向量矩阵与基本运算','01.html'],
+ ['02','方程组、秩与可逆性','02.html'],
+ ['03','坐标、正交与二次型',''],
+ ['04','特征值与解耦',''],
+ ['05','速查与自诊','05.html'],
+];
+(function(){const h=document.getElementById('series');if(!h)return;const cur=h.dataset.cur;
+  h.innerHTML=SERIES.map(([n,t,u])=>n===cur?`<span class="cur">${n} ${t}</span>`:u?`<a href="${u}"><span>${n} ${t} ↗</span></a>`:`<span>${n} ${t}</span>`).join('');})();
+
+/* ---------- 分数 ---------- */
+const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a||1;};
+function F(n,d=1){if(d<0){n=-n;d=-d;}const g=gcd(n,d);return {n:n/g,d:d/g};}
+const Fz=x=>x.n===0;
+const Fadd=(a,b)=>F(a.n*b.d+b.n*a.d,a.d*b.d), Fsub=(a,b)=>F(a.n*b.d-b.n*a.d,a.d*b.d);
+const Fmul=(a,b)=>F(a.n*b.n,a.d*b.d), Fdiv=(a,b)=>F(a.n*b.d,a.d*b.n);
+function Fparse(v){const s=String(v).trim();if(!s||isNaN(+s))return F(0);const k=(s.split('.')[1]||'').length;const d=10**Math.min(k,6);return F(Math.round(+s*d),d);}
+const Ftex=(x)=>x.d===1?`${x.n}`:`${x.n<0?'-':''}\\tfrac{${Math.abs(x.n)}}{${x.d}}`;
+const Fcoef=(x)=>{ // 用于 R_i - c R_j 的系数
+  if(x.d===1)return x.n===1?'':`${x.n}`;return `\\tfrac{${x.n}}{${x.d}}`;};
+
+/* ---------- 1 张成、无关、坐标 ---------- */
+const S1={v1:[1,1],v2:[1,2],x:[3,4]};
+const P1=Plane($('p1'),5);
+const H1a=P1.handle(()=>S1.v1,(x,y)=>{S1.v1=[x,y];r1();},'var(--m1)',0.5,'v1');
+const H1b=P1.handle(()=>S1.v2,(x,y)=>{S1.v2=[x,y];r1();},'var(--m2)',0.5,'v2');
+const H1x=P1.handle(()=>S1.x,(x,y)=>{S1.x=[x,y];r1();},'var(--bad)',0.5,'目标 x');
+function r1(){
+  P1.clear();const {v1,v2,x}=S1,d=v1[0]*v2[1]-v2[0]*v1[1],z1=Math.hypot(...v1)<1e-9,z2=Math.hypot(...v2)<1e-9;
+  let txt='';
+  if(Math.abs(d)>1e-9){
+    el('rect',{x:0,y:0,width:360,height:360,style:'fill:var(--m3);opacity:.06'},P1.gC);
+    const c1=(x[0]*v2[1]-v2[0]*x[1])/d,c2=(v1[0]*x[1]-x[0]*v1[1])/d,p=[c1*v1[0],c1*v1[1]];
+    P1.arrow(0,0,p[0],p[1],'var(--m1)',{w:2,dash:'6 4'});P1.arrow(p[0],p[1],x[0],x[1],'var(--m2)',{w:2,dash:'6 4'});
+    txt=TX`<span class="row cok">\(\det[\bm v_1\ \bm v_2]=${fm(d,3)}\ne0\)：线性无关，张成整个平面</span><span class="row">\(\bm x=${fm(c1,3)}\,\bm v_1+${pn(c2,3)}\,\bm v_2\)：坐标 \((${fm(c1,3)},\ ${fm(c2,3)})\) 唯一</span><span class="row">验算：\(${fm(c1,3)}${rv(v1)}^T+${pn(c2,3)}${rv(v2)}^T=${rv([c1*v1[0]+c2*v2[0],c1*v1[1]+c2*v2[1]])}^T\)</span>`;
+  }else{
+    const b=!z1?v1:!z2?v2:null;
+    if(b){const L=Math.hypot(...b),u=[b[0]/L,b[1]/L];P1.line(-9*u[0],-9*u[1],9*u[0],9*u[1],'stroke:var(--m3);stroke-width:5;opacity:.25');
+      const on=Math.abs(u[0]*x[1]-u[1]*x[0])<1e-9;
+      const rel=!z1&&!z2?TX`\(\bm v_2=${fm(Math.abs(v1[0])>1e-9?v2[0]/v1[0]:v2[1]/v1[1],3)}\,\bm v_1\)，`:'';
+      txt=TX`<span class="row cbad">\(\det[\bm v_1\ \bm v_2]=0\)：线性相关，${rel}张成只是一条直线</span>`+(on?TX`<span class="row">\(\bm x\) 在这条线上：能拼出，但拼法有无穷多种（坐标不唯一）</span>`:TX`<span class="row">\(\bm x\) 不在这条线上：怎么配都拼不出来</span>`);
+    }else txt='<span class="row cbad">两支都是零箭：只能待在原点</span>';
+  }
+  P1.arrow(0,0,v1[0],v1[1],'var(--m1)',{w:3,label:'v₁'});P1.arrow(0,0,v2[0],v2[1],'var(--m2)',{w:3,label:'v₂'});
+  P1.arrow(0,0,x[0],x[1],'var(--bad)',{w:2.6,label:'x'});
+  H1a.update();H1b.update();H1x.update();setTex('r1',txt);
+}
+$('b1a').onclick=()=>{S1.v1=[1,1];S1.v2=[1,2];r1();};
+$('b1b').onclick=()=>{S1.v1=[1,1];S1.v2=[2,2];r1();};
+
+/* ---------- 2 输入端与输出端 ---------- */
+const PRE2=[['满秩 \\(\\begin{bmatrix}1&1\\\\1&2\\end{bmatrix}\\)',[[1,1],[1,2]],[5,7]],['刚度 \\(K\\)',[[3,-1],[-1,1]],[1,1]],['奇异 \\(\\begin{bmatrix}1&2\\\\2&4\\end{bmatrix}\\)',[[1,2],[2,4]],[3,6]]];
+const S2={A:[[1,1],[1,2]],b:[5,7],x:[1,1]};
+const P2a=Plane($('p2a'),6,{xl:'x₁',yl:'x₂'}),P2b=Plane($('p2b'),8,{xl:'b₁',yl:'b₂'});
+function colDir(A){const c=[[A[0][0],A[1][0]],[A[0][1],A[1][1]]].find(v=>Math.hypot(...v)>1e-9);if(!c)return null;const L=Math.hypot(...c);return [c[0]/L,c[1]/L];}
+function nullDir2(A){const r=[A[0],A[1]].find(v=>Math.hypot(...v)>1e-9);if(!r)return null;const n=[-r[1],r[0]],L=Math.hypot(...n);return [n[0]/L,n[1]/L];}
+const H2b=P2b.handle(()=>S2.b,(x,y)=>{let b=[x,y];const A=S2.A;if(Math.abs(det2(A))<1e-9){const u=colDir(A);if(u){const t=b[0]*u[0]+b[1]*u[1],q=[t*u[0],t*u[1]];if(Math.hypot(b[0]-q[0],b[1]-q[1])<0.45)b=q;}}S2.b=b;r2();},'var(--ink)',0.5,'右端 b');
+const H2x=P2a.handle(()=>S2.x,(x,y)=>{let v=[x,y];const A=S2.A;if(Math.abs(det2(A))<1e-9){const n=nullDir2(A);if(n){const t=v[0]*n[0]+v[1]*n[1],q=[t*n[0],t*n[1]];if(Math.hypot(v[0]-q[0],v[1]-q[1])<0.4)v=q;}}S2.x=v;r2();},'var(--ok)',0.5,'输入 x',6);
+function r2(){
+  const A=S2.A,b=S2.b,x=S2.x,d=det2(A),a1=[A[0][0],A[1][0]],a2=[A[0][1],A[1][1]],Ax=mv(A,x);
+  P2a.clear();P2b.clear();
+  // 输出端
+  if(Math.abs(d)>1e-9)el('rect',{x:0,y:0,width:360,height:360,style:'fill:var(--accent);opacity:.06'},P2b.gC);
+  else{const u=colDir(A);if(u)P2b.line(-12*u[0],-12*u[1],12*u[0],12*u[1],'stroke:var(--accent);stroke-width:6;opacity:.3');}
+  P2b.arrow(0,0,a1[0],a1[1],'var(--m1)',{w:2,op:.6,label:'a₁',mid:1});P2b.arrow(0,0,a2[0],a2[1],'var(--m2)',{w:2,op:.6,label:'a₂',mid:1});
+  P2b.arrow(0,0,Ax[0],Ax[1],'var(--ok)',{w:2.4,label:Math.hypot(Ax[0]-b[0],Ax[1]-b[1])<0.3?'':'Ax'});
+  P2b.arrow(0,0,b[0],b[1],'var(--ink)',{w:3,label:'b'});H2b.update();
+  // 输入端
+  let sol='';
+  if(Math.abs(d)>1e-9){const xs=[(A[1][1]*b[0]-A[0][1]*b[1])/d,(-A[1][0]*b[0]+A[0][0]*b[1])/d];
+    el('circle',{cx:P2a.X(xs[0]),cy:P2a.Y(xs[1]),r:6,style:'fill:var(--m2)'},P2a.gC);P2a.text(xs[0]+0.25,xs[1]+0.3,'唯一解','fill:var(--m2);font-weight:600','start',12);
+    sol=TX`<span class="row cok">\(\det A=${fm(d,3)}\ne0\)：零空间只有 \(\bm 0\)，对任何 \(\bm b\) 都有唯一解 \(\bm x=${rv(xs,3)}^T\)</span>`;
+  }else{const n=nullDir2(A),u=colDir(A);
+    if(n)P2a.line(-12*n[0],-12*n[1],12*n[0],12*n[1],'stroke:var(--m3);stroke-width:2;stroke-dasharray:7 5');
+    const inC=u&&Math.abs(u[0]*b[1]-u[1]*b[0])<1e-6;
+    if(inC&&n){ // 特解：最小范数解
+      const t=(b[0]*u[0]+b[1]*u[1]);const r=[A[0],A[1]].find(v=>Math.hypot(...v)>1e-9);const ri=A[0]===r?0:1;const rr=Math.hypot(...r);
+      const xp=[r[0]*b[ri]/(rr*rr),r[1]*b[ri]/(rr*rr)];
+      P2a.line(xp[0]-12*n[0],xp[1]-12*n[1],xp[0]+12*n[0],xp[1]+12*n[1],'stroke:var(--m2);stroke-width:4;opacity:.8');
+      el('circle',{cx:P2a.X(xp[0]),cy:P2a.Y(xp[1]),r:5,style:'fill:var(--m2)'},P2a.gC);
+      sol=TX`<span class="row">\(\det A=0\)，\(\bm b\) 在列空间上：<b>无穷多解</b>，全部解 \(=\bm x_p+t\,\bm n\)</span><span class="row">\(\bm x_p=${rv(xp,3)}^T,\quad \bm n=${rv(n,3)}^T\)（零空间方向）</span>`;
+    }else sol=TX`<span class="row cbad">\(\det A=0\)，\(\bm b\) 不在列空间上：<b>无解</b>，左图没有橙色解集</span>`;
+  }
+  P2a.arrow(0,0,x[0],x[1],'var(--ok)',{w:2.6,label:'x'});H2x.update();
+  const inN=Math.hypot(...Ax)<1e-9&&Math.hypot(...x)>1e-9;
+  setTex('r2',TX`<span class="row">线性组合：\(x_1${cv(a1)}+x_2${cv(a2)}=${cv(b)}\)　矩阵：\(${bmx(A)}\bm x=${cv(b)}\)　方程组：\(\begin{cases}${fm(A[0][0])}x_1${A[0][1]<0?'':'+'}${fm(A[0][1])}x_2=${fm(b[0],3)}\\${fm(A[1][0])}x_1${A[1][1]<0?'':'+'}${fm(A[1][1])}x_2=${fm(b[1],3)}\end{cases}\)</span>`+sol+
+    TX`<span class="row cok">绿色输入 \(\bm x=${rv(x,3)}^T\ \Rightarrow\ A\bm x=${rv(Ax,3)}^T\)${inN?'：落在零空间，被压到原点':''}</span>`);
+}
+PRE2.forEach(([n,A,b])=>{const bt=document.createElement('button');bt.type='button';setTex(bt,n);bt.onclick=()=>{S2.A=A.map(r=>r.slice());S2.b=b.slice();S2.x=[1,1];r2();};$('pre2').appendChild(bt);});
+
+/* ---------- 3 两条直线与消元 ---------- */
+const PRE3=[['刚度 \\(K\\boldsymbol u=[1,1]^T\\)',[[3,-1,1],[-1,1,1]]],['练习 1',[[2,1,5],[1,3,5]]],['无穷多解',[[1,2,3],[2,4,6]]],['无解',[[1,2,3],[2,4,5]]]];
+const S3={R:[[3,-1,1],[-1,1,1]],t:0};let stop3=()=>{};
+const P3=Plane($('p3'),5,{xl:'x₁',yl:'x₂'});
+function drawRow(P,[a,b,c],col,lab){
+  if(Math.abs(a)<1e-9&&Math.abs(b)<1e-9){P.text(-4.7,lab==='①'?4.3:3.6,`${lab}  0 = ${fm(c,3)}${Math.abs(c)<1e-9?'（整行为零，没有新信息）':'（矛盾！）'}`,`fill:${col};font-weight:600`,'start',12.5);return;}
+  let p,q;if(Math.abs(b)>=Math.abs(a)){p=[-6,(c+6*a)/b];q=[6,(c-6*a)/b];}else{p=[(c+6*b)/a,-6];q=[(c-6*b)/a,6];}
+  P.line(p[0],p[1],q[0],q[1],`stroke:${col};stroke-width:2.4`);
+  const lx=lab==='①'?-3.4:3.4;const m=Math.abs(b)>=Math.abs(a)?[lx,(c-lx*a)/b]:[(c-lx*b)/a,lx];
+  if(Math.abs(m[0])<4.8&&Math.abs(m[1])<4.8)P.text(m[0]+0.15,m[1]+0.25,lab,`fill:${col};font-weight:700`,'start',14);
+}
+function r3(){
+  const [r1,r2o]=S3.R,m=Math.abs(r1[0])>1e-9?r2o[0]/r1[0]:0,t=S3.t;
+  const r2=r2o.map((v,i)=>v-t*m*r1[i]);
+  P3.clear();drawRow(P3,r1,'var(--m1)','①');drawRow(P3,r2,'var(--m2)','②');
+  const d=r1[0]*r2[1]-r1[1]*r2[0];
+  if(Math.abs(d)>1e-9){const x=[(r1[2]*r2[1]-r1[1]*r2[2])/d,(r1[0]*r2[2]-r1[2]*r2[0])/d];el('circle',{cx:P3.X(x[0]),cy:P3.Y(x[1]),r:6,style:'fill:var(--ink)'},P3.gC);}
+  const aug=R=>`\\left[\\begin{array}{cc|c}${R.map(r=>r.map(v=>fm(v,3)).join('&')).join('\\\\')}\\end{array}\\right]`;
+  const R2=r2o.map((v,i)=>v-m*r1[i]);
+  let res='';
+  if(t>=1){const dd=r1[0]*R2[1]-r1[1]*R2[0];
+    if(Math.abs(R2[0])<1e-9&&Math.abs(R2[1])<1e-9)res=Math.abs(R2[2])<1e-9?TX`<span class="row">第 2 行变成 \(0=0\)：两线重合，<b>无穷多解</b>，\(x_2\) 是自由变量</span>`:TX`<span class="row cbad">第 2 行变成 \(0=${fm(R2[2],3)}\)：两线平行，<b>无解</b></span>`;
+    else{const x2=R2[2]/R2[1],x1=(r1[2]-r1[1]*x2)/r1[0];res=TX`<span class="row cok">第 2 行只剩 \(x_2\)：\(x_2=${fm(x2,3)}\)，回代第 1 行得 \(x_1=${fm(x1,3)}\)。交点没动，<b>唯一解</b></span>`;}}
+  setTex('r3',TX`<span class="row">\(${aug(S3.R)}\ \xrightarrow{R_2\leftarrow R_2${m<0?'+':'-'}${fm(Math.abs(m),3)}R_1}\ ${aug([r1,R2])}\)</span>`+(res||'<span class="row">点“消元”：第 2 条直线绕交点转动，交点（解）不变</span>'));
+}
+PRE3.forEach(([n,R])=>{const bt=document.createElement('button');bt.type='button';setTex(bt,n);bt.onclick=()=>{stop3();S3.R=R.map(r=>r.slice());S3.t=0;r3();};$('pre3').appendChild(bt);});
+$('b3el').onclick=()=>{stop3();stop3=animate(1800,t=>{S3.t=ease(t);r3();});};
+$('b3rs').onclick=()=>{stop3();S3.t=0;r3();};
+
+/* ---------- 4 消元计算器 ---------- */
+const PRE4=[['三元例题',3,3,true,[[1,1,1,6],[2,-1,1,3],[1,2,-1,2]]],['秩 2',3,3,false,[[1,2,3],[2,4,6],[0,1,1]]],[String.raw`\(2\times3\) 求零空间`,2,3,false,[[1,2,3],[2,4,6]]],[String.raw`三自由度 \(K\)（自由）`,3,3,false,[[1,-1,0],[-1,2,-1],[0,-1,1]]],['无解',2,2,true,[[1,2,3],[2,4,5]]],['无穷多解',2,2,true,[[1,2,3],[2,4,6]]]];
+const S4={r:3,c:3,aug:true,M:[[1,1,1,6],[2,-1,1,3],[1,2,-1,2]],k:0,steps:[]};let timer4=0;
+function buildInputs4(){
+  const host=$('m4'),cols=S4.c+(S4.aug?1:0);host.replaceChildren();host.style.gridTemplateColumns=`repeat(${cols},auto)`;
+  for(let i=0;i<S4.r;i++){S4.M[i]=S4.M[i]||[];for(let j=0;j<cols;j++){if(S4.M[i][j]===undefined)S4.M[i][j]=0;const sp=document.createElement('span');const inp=document.createElement('input');inp.type='number';inp.step='1';inp.value=S4.M[i][j];inp.setAttribute('aria-label',`第${i+1}行第${j+1}列`);
+    if(S4.aug&&j===S4.c)sp.style.borderLeft='2px solid var(--muted)';
+    inp.oninput=()=>{S4.M[i][j]=inp.value;compute4();};sp.appendChild(inp);host.appendChild(sp);}}
+}
+function compute4(){
+  const R=S4.r,C=S4.c,cols=C+(S4.aug?1:0);
+  let A=[];for(let i=0;i<R;i++){A.push([]);for(let j=0;j<cols;j++)A[i].push(Fparse(S4.M[i][j]));}
+  const steps=[{A:A.map(r=>r.slice()),op:'原矩阵',hl:-1,piv:[]}];
+  let row=0;const piv=[];
+  for(let col=0;col<C&&row<R;col++){
+    let p=-1;for(let i=row;i<R;i++)if(!Fz(A[i][col])){p=i;break;}
+    if(p<0){steps.push({A:A.map(r=>r.slice()),op:`第 ${col+1} 列在第 ${row+1} 行以下全为 0，无主元，\\(x_{${col+1}}\\) 是自由变量`,hl:-1,piv:piv.slice()});continue;}
+    if(p!==row){[A[p],A[row]]=[A[row],A[p]];steps.push({A:A.map(r=>r.slice()),op:`\\(R_{${row+1}}\\leftrightarrow R_{${p+1}}\\)：把非零元换到主元位置`,hl:row,piv:piv.slice()});}
+    piv.push([row,col]);
+    for(let i=row+1;i<R;i++){if(Fz(A[i][col]))continue;const f=Fdiv(A[i][col],A[row][col]);
+      A[i]=A[i].map((v,j)=>Fsub(v,Fmul(f,A[row][j])));
+      const s=f.n<0?'+':'-',fa=F(Math.abs(f.n),f.d);
+      steps.push({A:A.map(r=>r.slice()),op:`\\(R_{${i+1}}\\leftarrow R_{${i+1}}${s}${Fcoef(fa)}R_{${row+1}}\\)：消去第 ${col+1} 列主元下方的元素`,hl:i,piv:piv.slice()});}
+    row++;
+  }
+  steps.push({A:A.map(r=>r.slice()),op:'行阶梯形完成（方框为主元）',hl:-1,piv:piv.slice(),end:true});
+  S4.steps=steps;S4.pivots=piv;S4.E=A;S4.k=Math.min(S4.k,steps.length-1);
+  r4();summary4();
+}
+function texMat4(st){
+  const C=S4.c,aug=S4.aug,spec=('c'.repeat(C))+(aug?'|c':'');
+  const isP=(i,j)=>st.piv.some(([a,b])=>a===i&&b===j);
+  const rows=st.A.map((r,i)=>r.map((v,j)=>{let t=Ftex(v);if(isP(i,j))t=`\\boxed{${t}}`;if(i===st.hl)t=`\\class{c2}{${t}}`;return t;}).join('&')).join('\\\\');
+  return `\\left[\\begin{array}{${spec}}${rows}\\end{array}\\right]`;
+}
+function r4(){
+  const st=S4.steps[S4.k];$('b4cnt').textContent=`第 ${S4.k} / ${S4.steps.length-1} 步`;
+  setTex('r4step',`<span class="row">${st.op}</span><span class="row">\\(${texMat4(st)}\\)</span>`);
+}
+function rref(A0,C){ // 返回 RREF 与主元列
+  const A=A0.map(r=>r.slice()),R=A.length;let row=0;const pc=[];
+  for(let col=0;col<C&&row<R;col++){let p=-1;for(let i=row;i<R;i++)if(!Fz(A[i][col])){p=i;break;}if(p<0)continue;
+    [A[p],A[row]]=[A[row],A[p]];const pv=A[row][col];A[row]=A[row].map(v=>Fdiv(v,pv));
+    for(let i=0;i<R;i++){if(i===row||Fz(A[i][col]))continue;const f=A[i][col];A[i]=A[i].map((v,j)=>Fsub(v,Fmul(f,A[row][j])));}
+    pc.push(col);row++;}
+  return {A,pc};
+}
+function summary4(){
+  const R=S4.r,C=S4.c,aug=S4.aug;
+  const A0=[];for(let i=0;i<R;i++){A0.push([]);for(let j=0;j<C+(aug?1:0);j++)A0[i].push(Fparse(S4.M[i][j]));}
+  const coef=A0.map(r=>r.slice(0,C)),{A:RA,pc}=rref(coef,C),rank=pc.length,nul=C-rank;
+  const free=[...Array(C).keys()].filter(j=>!pc.includes(j));
+  const basis=free.map(f=>{const v=Array(C).fill(F(0));v[f]=F(1);pc.forEach((p,i)=>{v[p]=F(-RA[i][f].n,RA[i][f].d);});return v;});
+  const vtex=v=>`\\begin{bmatrix}${v.map(Ftex).join('\\\\')}\\end{bmatrix}`;
+  const colB=pc.map(j=>vtex(coef.map(r=>r[j])));
+  let out=`<span class="row">\\(\\operatorname{rank}(A)=${rank}\\)（主元列：${pc.map(j=>`第 ${j+1} 列`).join('、')||'无'}），\\(\\dim\\mathcal N(A)=${nul}\\)，\\(${rank}+${nul}=${C}=n\\) ✓</span>`;
+  out+=`<span class="row">列空间的基（取原矩阵主元列）：\\(${colB.join(',\\ ')||'\\varnothing'}\\)</span>`;
+  out+=`<span class="row">零空间的基（自由变量轮流取 1）：\\(${basis.length?basis.map(vtex).join(',\\ '):'\\{\\bm 0\\}\\ \\text{（平凡）}'}\\)</span>`;
+  if(aug){const {A:RB,pc:pcb}=rref(A0,C+1),rb=pcb.length;
+    if(pcb.includes(C))out+=`<span class="row cbad">\\(\\operatorname{rank}[A\\mid\\bm b]=${rb}>\\operatorname{rank}(A)=${rank}\\)：出现 \\(0=c\\) 矛盾行，<b>无解</b></span>`;
+    else{const xp=Array(C).fill(F(0));pcb.forEach((p,i)=>{xp[p]=RB[i][C];});
+      out+=rank===C?`<span class="row cok">两个秩相等且 \\(=n\\)：<b>唯一解</b> \\(\\bm x=${vtex(xp)}\\)</span>`:`<span class="row">两个秩相等但 \\(&lt;n\\)：<b>无穷多解</b>，\\(\\bm x=${vtex(xp)}+\\)零空间的任意组合（${nul} 个自由参数）</span>`;}
+  }
+  setTex('r4sum',out);
+}
+function setPreset4([n,r,c,aug,M]){S4.r=r;S4.c=c;S4.aug=aug;S4.M=M.map(x=>x.slice());S4.k=0;$('m4r').value=r;$('m4c').value=c;$('m4aug').checked=aug;buildInputs4();compute4();}
+PRE4.forEach(p=>{const bt=document.createElement('button');bt.type='button';setTex(bt,p[0]);bt.onclick=()=>{clearInterval(timer4);setPreset4(p);};$('pre4').appendChild(bt);});
+$('m4r').onchange=e=>{S4.r=+e.target.value;S4.k=0;buildInputs4();compute4();};
+$('m4c').onchange=e=>{S4.c=+e.target.value;S4.M=S4.M.map(r=>r.slice(0,S4.c).concat(S4.aug?[r[r.length-1]??0]:[]));S4.k=0;buildInputs4();compute4();};
+$('m4aug').onchange=e=>{S4.aug=e.target.checked;S4.M=S4.M.map(r=>S4.aug?r.slice(0,S4.c).concat([0]):r.slice(0,S4.c));S4.k=0;buildInputs4();compute4();};
+$('b4next').onclick=()=>{clearInterval(timer4);if(S4.k<S4.steps.length-1){S4.k++;r4();}};
+$('b4prev').onclick=()=>{clearInterval(timer4);if(S4.k>0){S4.k--;r4();}};
+$('b4all').onclick=()=>{clearInterval(timer4);S4.k=0;r4();if(reduced){S4.k=S4.steps.length-1;r4();return;}timer4=setInterval(()=>{S4.k++;r4();if(S4.k>=S4.steps.length-1)clearInterval(timer4);},1400);};
+
+/* ---------- 6 可逆等价 ---------- */
+const PRE6=[['刚度 \\(K\\)',[[3,-1],[-1,1]]],['奇异',[[1,2],[2,4]]],['旋转 \\(90^\\circ\\)',[[0,-1],[1,0]]],['压掉一维',[[2,0],[0,0]]]];
+const S6={A:[[3,-1],[-1,1]]};
+function r6(){
+  const A=S6.A,d=det2(A),ok=Math.abs(d)>1e-9;
+  const nz=[A[0],A[1]].filter(v=>Math.hypot(...v)>1e-9).length;
+  const rank=nz===0?0:ok?2:1;const n=ok?null:nullDir2(A);
+  const tr=A[0][0]+A[1][1],disc=tr*tr-4*d;
+  const lam=disc>=0?[(tr+Math.sqrt(disc))/2,(tr-Math.sqrt(disc))/2].map(v=>fm(v,3)).join(',\\ '):`${fm(tr/2,3)}\\pm ${fm(Math.sqrt(-disc)/2,3)}\\,\\mathrm i`;
+  const zeroEig=Math.abs(d)<1e-9;
+  const chip=b=>b?'<span class="chip ok">成立</span>':'<span class="chip bad">不成立</span>';
+  const rows=[
+    [TX`\(A\) 可逆`,ok,ok?TX`\(A^{-1}\) 见左侧`:'不存在'],
+    [TX`\(\operatorname{rank}(A)=2\)`,rank===2,TX`\(\operatorname{rank}=${rank}\)`],
+    [TX`\(\mathcal N(A)=\{\bm 0\}\)`,ok,ok?'只有零向量':n?TX`含 \(t${rv(n,3)}^T\)`:'整个平面'],
+    ['各列线性无关',ok,ok?'':'两列共线或含零列'],
+    [TX`各列构成 \(\mathbb R^2\) 的一组基`,ok,''],
+    [TX`对每个 \(\bm b\)，\(A\bm x=\bm b\) 唯一解`,ok,ok?'':'有的无解，有的无穷多'],
+    [TX`\(\det A\ne0\)`,ok,TX`\(\det A=${fm(d,3)}\)`],
+    ['所有特征值非零',!zeroEig,TX`\(\lambda=${lam}\)`],
+  ];
+  setTex('t6',`<thead><tr><th>说法</th><th>状态</th><th>当前值</th></tr></thead><tbody>${rows.map(([a,b,c])=>`<tr><td>${a}</td><td>${chip(b)}</td><td>${c}</td></tr>`).join('')}</tbody>`);
+  setTex('r6inv',ok?TX`<span class="row">\(A^{-1}=\dfrac{1}{${fm(d,3)}}${bmx([[A[1][1],-A[0][1]],[-A[1][0],A[0][0]]])}=${bmx([[A[1][1]/d,-A[0][1]/d],[-A[1][0]/d,A[0][0]/d]],3)}\)</span>`+(A[0][0]===3&&A[0][1]===-1&&A[1][1]===1?TX`<span class="row">验算：\(K^{-1}[1,\ 1]^T=[1,\ 2]^T\)，与消元结果一致</span>`:''):TX`<span class="row cbad">\(ad-bc=0\)：公式分母为零，没有逆</span>`);
+}
+function set6(M){S6.A=M.map(r=>r.slice());matInputs($('m6'),S6.A,r6);r6();}
+PRE6.forEach(([n,M])=>{const bt=document.createElement('button');bt.type='button';setTex(bt,n);bt.onclick=()=>set6(M);$('pre6').appendChild(bt);});
+
+/* ---------- 7 求逆的代价 ---------- */
+function r7(){const v=+$('n7').value,n=Math.round(10**v);$('n7v').textContent=n.toLocaleString('en-US');
+  const by=8*n*n,mem=by>=1e12?fm(by/1e12,2)+' TB':by>=1e9?fm(by/1e9,2)+' GB':by>=1e6?fm(by/1e6,2)+' MB':fm(by/1e3,2)+' KB';
+  const sc=x=>{const e=Math.floor(Math.log10(x));return `${fm(x/10**e,2)}\\times10^{${e}}`;};
+  setTex('r7',TX`<span class="row">\(n=${n.toLocaleString('en-US').replace(/,/g,'{,}')}\)</span><span class="row">LU 分解乘法次数 \(\approx\tfrac13n^3=${sc(n**3/3)}\)</span><span class="row">求逆乘法次数 \(\approx n^3=${sc(n**3)}\)</span><span class="row">稠密 \(K^{-1}\) 存储（双精度 8 字节）：\(8n^2\) = <b>${mem}</b></span>`);}
+$('n7').oninput=r7;
+
+/* ---------- 8 病态 ---------- */
+const S8={le:-1,s:0};
+const P8=Plane($('p8'),4,{xl:'x',yl:'y'});
+function r8(){
+  const e=10**S8.le,dl=S8.s*2e-4,A=[[1,1],[1,1+e]],b=[2,2+e+dl];
+  const d=det2(A),x=[(A[1][1]*b[0]-A[0][1]*b[1])/d,(-A[1][0]*b[0]+A[0][0]*b[1])/d];
+  P8.clear();
+  drawRow(P8,[1,1,2],'var(--m1)','①');drawRow(P8,[1,1+e,b[1]],'var(--m2)','②');
+  el('circle',{cx:P8.X(1),cy:P8.Y(1),r:4,style:'fill:none;stroke:var(--muted);stroke-width:1.5'},P8.gC);
+  const inside=Math.abs(x[0])<3.9&&Math.abs(x[1])<3.9;
+  if(inside)el('circle',{cx:P8.X(x[0]),cy:P8.Y(x[1]),r:6,style:'fill:var(--ink)'},P8.gC);
+  else{const L=Math.hypot(x[0]-1,x[1]-1),u=[(x[0]-1)/L,(x[1]-1)/L];P8.arrow(1,1,1+2.6*u[0],1+2.6*u[1],'var(--ink)',{w:2.6,label:'解跑出图外'});}
+  const tr=2+e,disc=Math.sqrt(tr*tr-4*e),l1=(tr+disc)/2,l2=(tr-disc)/2,kap=l1/l2;
+  const relIn=Math.abs(dl)/Math.hypot(...b),relOut=Math.hypot(x[0]-1,x[1]-1)/Math.SQRT2;
+  const ex=v=>{if(v===0)return '0';const k=Math.floor(Math.log10(Math.abs(v))+1e-9),m=v/10**k;return Math.abs(Math.abs(m)-1)<0.05?`${m<0?'-':''}10^{${k}}`:`${fm(m,1)}\\times10^{${k}}`;};setTex('e8v',`\\(\\varepsilon=${e>=0.01?fm(e,3):ex(e)}\\)`);setTex('d8v',`\\(\\delta=${ex(dl)}\\)`);
+  setTex('r8',TX`<span class="row">\(x=${fm(x[0],4)},\quad y=${fm(x[1],4)}\)（\(\delta=0\) 时为 \((1,1)\)）</span><span class="row">条件数 \(\kappa(A)\approx${kap<1e3?fm(kap,1):kap.toExponential(1).replace('e+','\\times10^{')+'}'}\)</span>`+(dl!==0?TX`<span class="row">右端相对误差 \(${(relIn).toExponential(1).replace('e-','\\times10^{-')+'}'}\) → 解的相对误差 \(${relOut<1e-3?relOut.toExponential(1).replace('e-','\\times10^{-')+'}':fm(relOut,3)}\)，放大约 \(${fm(relOut/relIn,0)}\) 倍</span>`:''));
+}
+$('e8').oninput=e=>{S8.le=+e.target.value;r8();};$('d8').oninput=e=>{S8.s=+e.target.value;r8();};
+$('b8a').onclick=()=>{S8.le=-4;S8.s=0.5;$('e8').value=-4;$('d8').value=0.5;r8();};
+
+/* ---------- 9 弹簧链 ---------- */
+const S9={u:[0,0,0],g:false};let stop9=()=>{};
+const sv9=$('p9'),X9=[100,220,340],Y9=120,SC9=36;
+function spring(x1,x2,y,col){const n=10,L=x2-x1;if(L<6){el('line',{x1,y1:y,x2,y2:y,style:`stroke:${col};stroke-width:2`},sv9);return;}
+  let d=`M${x1},${y}`;const a=L*0.12;d+=` L${x1+a},${y}`;for(let i=0;i<n;i++){d+=` L${x1+a+(L-2*a)*(i+0.5)/n},${y+(i%2?7:-7)}`;}d+=` L${x2-a},${y} L${x2},${y}`;el('path',{d,style:`fill:none;stroke:${col};stroke-width:1.8`},sv9);}
+function K9(){return [[1+(S9.g?1:0),-1,0],[-1,2,-1],[0,-1,1]];}
+function r9(){
+  sv9.replaceChildren();const u=S9.u,K=K9(),p=K.map(r=>r[0]*u[0]+r[1]*u[1]+r[2]*u[2]);
+  const xs=X9.map((x,i)=>x+u[i]*SC9);
+  el('line',{x1:20,y1:Y9+26,x2:400,y2:Y9+26,style:'stroke:var(--muted);stroke-width:1.5'},sv9);
+  if(S9.g){el('line',{x1:20,y1:Y9-34,x2:20,y2:Y9+26,style:'stroke:var(--ink);stroke-width:3'},sv9);for(let i=0;i<6;i++)el('line',{x1:20,y1:Y9-30+i*10,x2:12,y2:Y9-22+i*10,style:'stroke:var(--muted)'},sv9);
+    const st=u[0];spring(20,xs[0]-16,Y9,Math.abs(st)>1e-9?'var(--bad)':'var(--ink)');}
+  for(let i=0;i<2;i++){const st=u[i+1]-u[i];spring(xs[i]+16,xs[i+1]-16,Y9,Math.abs(st)>1e-9?'var(--bad)':'var(--ink)');}
+  xs.forEach((x,i)=>{el('line',{x1:X9[i],y1:Y9+30,x2:X9[i],y2:Y9+40,style:'stroke:var(--muted)'},sv9);
+    const r=el('rect',{x:x-16,y:Y9-16,width:32,height:32,rx:3,tabindex:0,role:'slider','aria-label':`质点${i+1}位移`,style:`fill:var(${['--m1','--m2','--m3'][i]});cursor:ew-resize`},sv9);
+    el('text',{x,y:Y9+5,'text-anchor':'middle','font-size':13,style:'fill:var(--paper);font-weight:700;pointer-events:none',text:`${i+1}`},sv9);
+    el('text',{x,y:Y9+58,'text-anchor':'middle','font-size':12,style:'fill:var(--muted)',text:`u${'₁₂₃'[i]} = ${fm(u[i],2)}`},sv9);
+    let on=false;r.addEventListener('pointerdown',e=>{on=true;stop9();r.setPointerCapture(e.pointerId);e.preventDefault();});
+    r.addEventListener('pointermove',e=>{if(!on)return;const pt=sv9.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;const q=pt.matrixTransform(sv9.getScreenCTM().inverse());let v=Math.round((q.x-X9[i])/SC9/0.1)*0.1;v=Math.max(-1.5,Math.min(1.5,v));if(v!==S9.u[i]){S9.u[i]=v;r9();}});
+    r.addEventListener('pointerup',()=>on=false);
+    r.addEventListener('keydown',e=>{const m={ArrowLeft:-0.1,ArrowRight:0.1}[e.key];if(m){e.preventDefault();S9.u[i]=Math.max(-1.5,Math.min(1.5,+(S9.u[i]+m).toFixed(2)));r9();}});
+    if(Math.abs(p[i])>1e-9){const L=p[i]*40,y=Y9-40,dir=L>0?1:-1;el('line',{x1:x,y1:y,x2:x+L-dir*8,y2:y,style:'stroke:var(--ink);stroke-width:3'},sv9);
+      el('polygon',{points:`${x+L},${y} ${x+L-dir*10},${y-6} ${x+L-dir*10},${y+6}`,style:'fill:var(--ink)'},sv9);}
+    el('text',{x,y:Y9-52,'text-anchor':'middle','font-size':12,style:'fill:var(--ink);font-weight:600',text:`p${'₁₂₃'[i]} = ${fm(p[i],2)}`},sv9);
+  });
+  const allZero=p.every(v=>Math.abs(v)<1e-9),moved=u.some(v=>Math.abs(v)>1e-9);
+  setTex('r9',TX`<span class="row">\(K=${bmx(K)}\)，\(\operatorname{rank}K=${S9.g?3:2}\)，\(\mathcal N(K)=${S9.g?'\\{\\bm 0\\}':'\\operatorname{span}\\{[1,\\ 1,\\ 1]^T\\}'}\)</span><span class="row">\(\bm p=K\bm u=${rv(p,2)}^T\)</span>`+(moved&&allZero?TX`<span class="row cok"><b>位移不为零，外力却全为零</b>：这就是零刚度模式</span>`:moved&&S9.g&&Math.abs(u[0]-u[1])<1e-9&&Math.abs(u[1]-u[2])<1e-9?TX`<span class="row cbad">接地后同样的整体平移会拉伸接地弹簧，需要外力：零空间只剩 \(\bm 0\)</span>`:''));
+}
+$('g9').onchange=e=>{S9.g=e.target.checked;r9();};
+$('b9n').onclick=()=>{stop9();S9.u=[0,0,0];r9();stop9=animate(1600,t=>{const e=ease(t);S9.u=[e,e,e];r9();});};
+$('b9r').onclick=()=>{stop9();S9.u=[0,0,0];r9();};
+
+/* ---------- 自测 ---------- */
+(function(){let st={};try{st=JSON.parse(localStorage.getItem('la02-check')||'{}');}catch(e){}
+  document.querySelectorAll('#chk input').forEach(c=>{c.checked=!!st[c.id];c.onchange=()=>{st[c.id]=c.checked;try{localStorage.setItem('la02-check',JSON.stringify(st));}catch(e){}};});})();
+
+/* ---------- 启动 ---------- */
+r1();r2();r3();buildInputs4();compute4();set6(S6.A);r7();r8();r9();
+</script>
+</html>

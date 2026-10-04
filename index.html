@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>结构工程学习与工具站</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<script>
+window.MathJax={tex:{inlineMath:[['\\(','\\)']],macros:{bm:['\\boldsymbol{#1}',1]}},svg:{fontCache:'global'},options:{enableMenu:false}};
+</script>
+<script src="assets/mathjax/tex-svg-full.js" async></script>
+<style>
+/* Layout: 一张“图纸目录”——按专题分卷，每行一张页面：图号 / 图名 / 内容 / 对应笔记 / 状态 / 日期；窄屏改为逐条卡片 */
+:root{
+  --bg:#eef1f4; --paper:#ffffff; --ink:#18212c; --muted:#5a6675; --rule:#d3dae3; --soft:#e6ebf1;
+  --accent:#1d5b9e; --ok:#2b7d4f; --plan:#8a6a2c;
+  --serif:"Noto Serif SC","Songti SC","SimSun",serif;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"JetBrains Mono",Consolas,"SFMono-Regular",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11151b; --paper:#181e26; --ink:#e2e7ed; --muted:#98a4b3; --rule:#2c3643; --soft:#202833;
+  --accent:#6ea8ea; --ok:#5cc08a; --plan:#d6b06a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11151b; --paper:#181e26; --ink:#e2e7ed; --muted:#98a4b3; --rule:#2c3643; --soft:#202833;
+  --accent:#6ea8ea; --ok:#5cc08a; --plan:#d6b06a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.7;padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:1040px;margin:0 auto}
+header{padding-block:36px 8px;display:grid;gap:8px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--muted)}
+h1{font-family:var(--serif);font-size:clamp(28px,4.6vw,40px);line-height:1.2;margin:0;text-wrap:balance}
+.lede{margin:0;max-width:44em;color:var(--muted)}
+.sheet{background:var(--paper);border:1.5px solid var(--ink);margin-top:24px}
+.vol{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;padding:12px 16px;border-bottom:1.5px solid var(--ink);background:var(--soft)}
+.vol h2{font-family:var(--serif);font-size:19px;margin:0;text-wrap:balance}
+.vol .code{font-family:var(--mono);font-size:13px;color:var(--accent);font-weight:600}
+.vol p{margin:0;font-size:13.5px;color:var(--muted);flex-basis:100%}
+.sheet + .sheet{margin-top:18px}
+table{border-collapse:collapse;width:100%;font-size:14px;table-layout:fixed;min-width:760px}
+col.c-no{width:76px}col.c-name{width:22%}col.c-note{width:200px}col.c-st{width:82px}col.c-date{width:100px}
+th,td{border-bottom:1px solid var(--rule);padding:10px 12px;text-align:left;vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font-weight:500;font-size:12px;color:var(--muted);letter-spacing:.06em;background:var(--paper)}
+td.no{font-family:var(--mono);font-weight:600;white-space:nowrap;color:var(--accent)}
+td.name a{font-family:var(--serif);font-weight:700;font-size:16px;color:var(--ink);text-decoration:none;border-bottom:1.5px solid var(--accent)}
+td.name a:hover,td.name a:focus-visible{color:var(--accent)}
+td.name .soon{font-family:var(--serif);font-weight:700;font-size:16px;color:var(--muted)}
+td.what{color:var(--ink);min-width:0}
+td.note{font-family:var(--mono);font-size:12px;color:var(--muted);word-break:break-all;max-width:15em}
+td.date{font-family:var(--mono);font-size:12.5px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.st{display:inline-block;font-size:12px;border-radius:3px;padding:0 8px;white-space:nowrap;border:1px solid}
+.st.ok{color:var(--ok);border-color:var(--ok)}
+.st.plan{color:var(--plan);border-color:var(--plan)}
+tr.planned td.what{color:var(--muted)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.foot{margin-top:22px;display:grid;gap:6px;font-size:13.5px;color:var(--muted);max-width:52em}
+.foot b{color:var(--ink);font-weight:500}
+.foot code{font-family:var(--mono);font-size:12.5px;background:var(--soft);padding:1px 6px;border-radius:3px;word-break:break-all}
+@media (max-width:760px){
+  table{min-width:0}
+  colgroup{display:none}
+  table,thead,tbody,tr,td{display:block}
+  thead{display:none}
+  tr{padding:12px 14px;border-bottom:1px solid var(--rule);display:grid;grid-template-columns:auto 1fr auto;gap:2px 10px}
+  tr:last-child{border-bottom:0}
+  td{border:0;padding:0}
+  td.no{grid-column:1;grid-row:1}
+  td.name{grid-column:2;grid-row:1;min-width:0}
+  td.state{grid-column:3;grid-row:1}
+  td.what{grid-column:1/-1;margin-top:4px}
+  td.note{grid-column:1/-1;max-width:none}
+  td.date{grid-column:1/-1}
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">图纸目录 · 学习 · 工具 · 速查</div>
+    <h1>结构工程学习与工具站</h1>
+    <p class="lede">结构动力学交互教程、结构计算小工具与指标速查表，按专题分卷编号。点图名打开对应页面；所有计算在浏览器内完成，不上传任何数据。</p>
+  </header>
+
+  <main id="vols"></main>
+
+  <div class="foot">
+    <div><b>源码</b>：<a href="https://github.com/rehobbb/rehobbb.github.io" target="_blank" rel="noopener" style="color:var(--accent)">github.com/rehobbb/rehobbb.github.io</a>，每页是一个独立 HTML 文件。</div>
+    <div><b>更新方式</b>：新页面加入对应目录并登记到本目录；推送到 main 分支后约 1 分钟生效。</div>
+  </div>
+</div>
+
+<script>
+const VOLS=[
+  {code:'LA',title:'线性代数预备',desc:'扫清理解结构动力学的数学障碍：向量、矩阵、换基、行列式、特征值。',items:[
+    {no:'LA-00',name:'几何直觉：七张画面',url:'la/00.html',what:String.raw`位移是一支箭、张成、换基、矩阵揉捏网格、行列式，以及 \(\det(K-\omega^2M)=0\) 与振型的几何含义。`,note:'15-General/12-线性代数/260730-线性代数预备00-几何直觉入门',date:'2026-10-02'},
+    {no:'LA-01',name:'向量、矩阵与基本运算',url:'la/01.html',what:'尺寸规则、点积与投影、矩阵乘向量的行/列读法、乘法次序、转置、外积，两层楼刚度矩阵。',note:'15-General/12-线性代数/260730-线性代数预备01-向量矩阵与基本运算',date:'2026-10-02'},
+    {no:'LA-02',name:'线性方程组、秩与可逆性',url:'la/02.html',what:'张成与基、方程组的输入/输出两端、分数消元计算器、秩–零度、可逆八条等价、病态与条件数、零刚度模式。',note:'15-General/12-线性代数/260730-线性代数预备02-线性方程组秩与可逆性',date:'2026-10-03'},
+    {no:'LA-03',name:'线性组合、基、坐标、正交与二次型',url:'la/03.html',what:String.raw`三种基下求坐标、正交矩阵、投影与 Gram–Schmidt、二次型等能量线、相似与合同变换、\(M\)-内积。`,note:'15-General/12-线性代数/260730-线性代数预备03-线性组合基坐标正交与二次型',date:'2026-10-03'},
+    {no:'LA-04',name:'特征值、对角化与结构动力学接口',url:'la/04.html',what:String.raw`特征值两步法、可改参数的七步广义特征值手算与振型动画、模态解耦时程、Cholesky 桥、Rayleigh 商。`,note:'15-General/12-线性代数/260730-线性代数预备04-特征值对角化与结构动力学接口',date:'2026-10-03'},
+    {no:'LA-05',name:'速查表与自诊清单',url:'la/05.html',what:'可搜索的符号、公式、常见错误速查；两自由度全套计算器；浏览器内模态核对器；总验收十题。',note:'15-General/12-线性代数/260730-线性代数预备05-速查表与自诊清单',date:'2026-10-03'},
+  ]},
+  {code:'RS',title:'振型分解反应谱法',desc:'多自由度地震作用计算：振型、参与系数、有效质量、组合方法与规范规定。',items:[
+    {no:'RS-01',name:'三层框架振型分解算例',url:'rs/01-modal.html',what:String.raw`从 \(K\)、\(M\) 到周期与振型，参与系数与有效质量，各振型地震作用，SRSS / CQC 组合与底部剪力法对比。`,note:'13-Expertise/18-地震计算/260930-振型分解反应谱法三层算例',date:'2026-10-02'},
+    {no:'RS-02',name:'CQC 与规定水平力',url:'rs/02-cqc.html',what:'规定水平力与 CQC 楼层力的区别、位移比为什么不用 CQC 位移、midas Gen 振型结果加符号后能否平衡。',note:'',date:'2026-10-02'},
+  ]},
+  {code:'TL',title:'计算工具',desc:'日常设计用的小型计算器：输入参数即得结果，附公式与规范出处。',items:[]},
+  {code:'QR',title:'指标速查',desc:'已确定的结构指标、限值与常用参数速查表，注明规范条文。',items:[]},
+];
+const host=document.getElementById('vols');
+VOLS.forEach(v=>{
+  const sec=document.createElement('section');sec.className='sheet';sec.setAttribute('aria-label',v.title);
+  const done=v.items.filter(i=>i.url).length;
+  sec.innerHTML=`<div class="vol"><span class="code">${v.code} 卷</span><h2>${v.title}</h2><span class="code" style="color:var(--muted);font-weight:400">已发布 ${done} / ${v.items.length}</span><p>${v.desc}</p></div>`;
+  const wrap=document.createElement('div');wrap.style.overflowX='auto';
+  const rows=v.items.length?v.items.map(i=>`<tr class="${i.url?'':'planned'}">
+    <td class="no">${i.no}</td>
+    <td class="name">${i.url?`<a href="${i.url}">${i.name}</a>`:`<span class="soon">${i.name}</span>`}</td>
+    <td class="what">${i.what}</td>
+    <td class="note">${i.note||'—'}</td>
+    <td class="state">${i.url?'<span class="st ok">已发布</span>':'<span class="st plan">编制中</span>'}</td>
+    <td class="date">${i.date||''}</td></tr>`).join(''):`<tr class="planned"><td class="no">—</td><td class="what" colspan="5">暂无页面，后续加入。</td></tr>`;
+  wrap.innerHTML=`<table><colgroup><col class="c-no"><col class="c-name"><col><col class="c-note"><col class="c-st"><col class="c-date"></colgroup><thead><tr><th>图号</th><th>图名</th><th>内容</th><th>对应笔记</th><th>状态</th><th>更新</th></tr></thead><tbody>${rows}</tbody></table>`;
+  sec.appendChild(wrap);host.appendChild(sec);
+});
+</script>
+</html>

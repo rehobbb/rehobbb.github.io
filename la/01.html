@@ -1,0 +1,761 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>线代预备01 向量矩阵运算</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<script>
+window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],macros:{bm:['\\boldsymbol{#1}',1]}},svg:{fontCache:'global'},options:{enableMenu:false},startup:{ready(){MathJax.startup.defaultReady();MathJax.startup.promise.then(()=>{window.__onMJ&&window.__onMJ();});}}};
+</script>
+<script src="../assets/mathjax/tex-svg-full.js" async></script>
+<style>
+/* Layout: single-column study sheet; each section = text + one interactive figure (SVG) + readout */
+:root{
+  --bg:#eef1f4; --paper:#ffffff; --ink:#18212c; --muted:#5a6675; --rule:#d3dae3; --soft:#e4e9ef; --grid:#dfe5ec; --axis:#9aa6b4;
+  --accent:#1d5b9e; --m1:#1f6fb2; --m2:#cf7a22; --m3:#a83c75; --ok:#2b7d4f; --bad:#b33a2e; --hl:#fff3c4;
+  --serif:"Noto Serif SC","Songti SC","SimSun",serif;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"JetBrains Mono",Consolas,"SFMono-Regular",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11151b; --paper:#181e26; --ink:#e2e7ed; --muted:#98a4b3; --rule:#2c3643; --soft:#212a35; --grid:#252e3a; --axis:#5d6a7a;
+  --accent:#6ea8ea; --m1:#5ba7ec; --m2:#efa352; --m3:#e07bb0; --ok:#5cc08a; --bad:#ef7b6e; --hl:#4a4220; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11151b; --paper:#181e26; --ink:#e2e7ed; --muted:#98a4b3; --rule:#2c3643; --soft:#212a35; --grid:#252e3a; --axis:#5d6a7a;
+  --accent:#6ea8ea; --m1:#5ba7ec; --m2:#efa352; --m3:#e07bb0; --ok:#5cc08a; --bad:#ef7b6e; --hl:#4a4220; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.75;padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:980px;margin:0 auto}
+header.top{padding-block:36px 16px}
+.eyebrow{font-size:12px;letter-spacing:.12em;color:var(--muted)}
+h1{font-family:var(--serif);font-size:clamp(26px,4.4vw,38px);line-height:1.25;margin:6px 0 10px;text-wrap:balance}
+h2{font-family:var(--serif);font-size:22px;line-height:1.35;margin:0;text-wrap:balance}
+h3{font-size:15.5px;margin:20px 0 6px}
+p{margin:8px 0}
+ul{margin:6px 0;padding-left:1.4em}
+.lede{max-width:46em;color:var(--muted)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.series{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;font-size:13px}
+.series span{border:1px solid var(--rule);border-radius:4px;padding:3px 10px;background:var(--paper);color:var(--muted)}
+.series span.cur{border-color:var(--accent);color:var(--accent);font-weight:500}
+.series a{text-decoration:none}
+.series a span:hover{border-color:var(--accent)}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;font-size:13px}
+.toc a{color:var(--ink);text-decoration:none;border-bottom:1px dotted var(--axis)}
+.toc a:hover,.toc a:focus-visible{color:var(--accent)}
+section.step{background:var(--paper);border:1px solid var(--rule);border-radius:6px;margin-top:22px;padding:22px 22px 18px}
+.stephead{display:flex;gap:14px;align-items:baseline;border-bottom:1px solid var(--rule);padding-bottom:10px;margin-bottom:12px;flex-wrap:wrap}
+.stepno{font-family:var(--mono);font-size:13px;color:var(--accent);border:1px solid var(--accent);border-radius:3px;padding:0 7px;white-space:nowrap}
+.src{font-size:12px;color:var(--muted);margin-left:auto}
+.why{font-size:13.5px;color:var(--muted)}
+.note{border-left:3px solid var(--accent);padding:6px 12px;background:var(--soft);font-size:14px;margin:12px 0;border-radius:0 4px 4px 0}
+.note.warn{border-color:var(--m2)}
+.note.key{border-color:var(--ok)}
+.fig{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:18px;align-items:start;margin:12px 0}
+.fig>*{min-width:0}
+@media (max-width:720px){.fig{grid-template-columns:minmax(0,1fr)}}
+svg.plane{width:100%;max-width:420px;display:block;touch-action:none;background:var(--paper);border:1px solid var(--rule);border-radius:4px}
+svg text{fill:var(--ink);font-family:var(--sans)}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+.ctrl label{font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+input,select,button{font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:4px;padding:4px 8px}
+input[type=number]{width:4.6em;font-family:var(--mono)}
+input[type=range]{padding:0;width:150px}
+button{cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.pri{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.read{font-family:var(--sans);font-size:14px;background:var(--soft);border-radius:4px;padding:10px 12px;line-height:2;overflow-x:auto}
+.read .row{display:block}
+.read .on{background:var(--hl);border-radius:3px;padding:0 4px}
+.read .dim{opacity:.35}
+.read b{font-weight:600}
+.c1{color:var(--m1)}.c2{color:var(--m2)}.c3{color:var(--m3)}.cok{color:var(--ok)}.cbad{color:var(--bad)}
+.tbl{overflow-x:auto;margin:10px 0}
+table{border-collapse:collapse;font-size:13.5px;min-width:100%}
+.tbl table{min-width:540px}
+th:first-child,td:first-child{white-space:nowrap}
+th,td{border-bottom:1px solid var(--rule);padding:6px 10px;text-align:left;vertical-align:top}
+th{font-weight:500;color:var(--muted);font-size:12.5px}
+mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;max-width:100%;padding:2px 0}
+.mat{display:inline-grid;gap:2px 12px;vertical-align:middle;border-left:2px solid var(--ink);border-right:2px solid var(--ink);border-radius:6px;padding:4px 10px;font-family:var(--mono);text-align:center}
+.mat span{padding:1px 4px;border-radius:3px;transition:background .25s}
+.mat span.on{background:var(--hl)}
+.mat input{width:3.4em;text-align:center;padding:2px}
+.eqrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:10px 0;font-family:var(--mono)}
+.tgrid{position:relative;display:inline-block;vertical-align:middle}
+.tcell{position:absolute;width:40px;height:34px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);border-radius:4px;transition:transform .9s cubic-bezier(.4,.1,.2,1),background .3s}
+.tcell.diag{background:var(--hl)}
+.chip{display:inline-block;font-family:var(--mono);border:1px solid var(--rule);border-radius:4px;padding:1px 8px}
+.chip.ok{border-color:var(--ok);color:var(--ok)}.chip.bad{border-color:var(--bad);color:var(--bad)}
+details{border:1px solid var(--rule);border-radius:4px;padding:6px 12px;margin:10px 0}
+details summary{cursor:pointer;color:var(--accent);font-weight:500}
+.ex li{margin:6px 0}
+.check label{display:flex;gap:8px;align-items:flex-start;margin:6px 0;font-size:14.5px}
+.check input{margin-top:6px}
+footer{font-size:12.5px;color:var(--muted);margin-top:26px}
+@media (max-width:640px){section.step{padding:16px 14px}}
+</style>
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow"><a href="../index.html" style="color:var(--accent);text-decoration:none;letter-spacing:0">← 返回首页</a>　线性代数预备 · 面向结构动力学 · 交互版</div>
+  <h1>01 向量、矩阵与基本运算</h1>
+  <p class="lede">结构动力学方程 \(M\ddot{\boldsymbol u}+C\dot{\boldsymbol u}+K\boldsymbol u=\boldsymbol p(t)\) 里有三种东西：矩阵 \(M,C,K\)，向量 \(\boldsymbol u,\boldsymbol p\)，标量 \(t\)。这一篇只解决一件事：它们各是什么、怎么运算。图中带圆点的箭头都可以拖动，按钮会播放动画。</p>
+  <div class="series" aria-label="系列目录"><a href="00.html"><span>00 几何直觉 ↗</span></a><span class="cur">01 向量矩阵与基本运算</span><a href="02.html"><span>02 方程组、秩与可逆性 ↗</span></a><a href="03.html"><span>03 坐标、正交与二次型 ↗</span></a><a href="04.html"><span>04 特征值与解耦 ↗</span></a><a href="05.html"><span>05 速查与自诊 ↗</span></a></div>
+  <nav class="toc" aria-label="本篇目录">
+    <a href="#s1">1 对象与尺寸</a>·<a href="#s2">2 向量是一张清单</a>·<a href="#s3">3 加法与数乘</a>·<a href="#s4">4 点积与投影</a>·<a href="#s5">5 矩阵乘向量</a>·<a href="#s6">6 列 = 坐标轴的新落点</a>·<a href="#s7">7 矩阵乘矩阵</a>·<a href="#s8">8 次序为什么重要</a>·<a href="#s9">9 转置</a>·<a href="#s10">10 点积与外积</a>·<a href="#s11">11 两层楼的 K</a>·<a href="#s12">12 单位检查</a>·<a href="#s13">13 练习与自测</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section class="step" id="s1">
+  <div class="stephead"><span class="stepno">1</span><h2>三种对象，先看尺寸</h2><span class="src">笔记 §1–§3、§7</span></div>
+  <div class="tbl"><table>
+    <thead><tr><th>对象</th><th>是什么</th><th>例子</th><th>结构里的例子</th></tr></thead>
+    <tbody>
+      <tr><td>标量</td><td>一个数</td><td>\(3,\ -0.5,\ \omega\)</td><td>频率、时间、阻尼比</td></tr>
+      <tr><td>向量</td><td>一组<b>有顺序</b>的数，默认竖着写</td><td>\(\boldsymbol u=\begin{bmatrix}u_1\\u_2\end{bmatrix}=[u_1,u_2]^T\)</td><td>各层位移、各层荷载</td></tr>
+      <tr><td>矩阵</td><td>按行、列排成的数表；\(a_{ij}\) 第一个下标是行，第二个是列</td><td>\(A_{m\times n}\)：\(m\) 行 \(n\) 列</td><td>质量、刚度、阻尼</td></tr>
+    </tbody>
+  </table></div>
+  <p>横着写的 \([3,2]^T\) 只是“竖着的列向量”的省地方写法，右上角 \(T\) 表示转置。两个对象能不能相加、相乘，<b>先看尺寸</b>：加法要求尺寸完全相同；乘法要求左边的列数等于右边的行数，像齿轮一样咬合。</p>
+  <div class="fig">
+    <div>
+      <div class="ctrl"><label>\(A\)：<input id="szm" type="number" min="1" max="9" value="3"> \(\times\) <input id="szn" type="number" min="1" max="9" value="2"></label></div>
+      <div class="ctrl"><label>\(B\)：<input id="szp" type="number" min="1" max="9" value="2"> \(\times\) <input id="szq" type="number" min="1" max="9" value="4"></label></div>
+      <p class="why">改一改行列数，看哪些运算有定义。</p>
+    </div>
+    <div class="read" id="szOut"></div>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>常见矩阵</th><th>特征</th><th>例子</th><th>结构里的对应</th></tr></thead>
+    <tbody>
+      <tr><td>单位矩阵 \(I\)</td><td>对角为 1，其余为 0</td><td>\(I\boldsymbol x=\boldsymbol x\)</td><td>“什么都不做”</td></tr>
+      <tr><td>对角矩阵</td><td>非对角全为 0</td><td>\(\mathrm{diag}(2,1)\)</td><td>集中质量矩阵</td></tr>
+      <tr><td>对称矩阵</td><td>\(A^T=A\)，即 \(a_{ij}=a_{ji}\)</td><td>\(\begin{bmatrix}3&-1\\-1&1\end{bmatrix}\)</td><td>刚度矩阵、质量矩阵</td></tr>
+      <tr><td>上 / 下三角</td><td>对角线下方 / 上方全为 0</td><td>\(\begin{bmatrix}1&2\\0&3\end{bmatrix}\)</td><td>消元结果（02 篇）、Cholesky 分解（04 篇）</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note warn"><b>自由度顺序必须全程统一。</b>\([u_1,u_2]^T\) 和 \([u_2,u_1]^T\) 是两个不同的向量。楼层顺序一旦定为“一层在前”，\(M\)、\(K\)、\(\boldsymbol p\) 的行列顺序都要跟着这个约定。手算和软件振型对不上，先查自由度编号顺序。</div>
+</section>
+
+<!-- 2 -->
+<section class="step" id="s2">
+  <div class="stephead"><span class="stepno">2</span><h2>向量是一张有顺序的清单</h2><span class="src">笔记 §2–§3；00 篇 §1</span></div>
+  <p>两层楼地震时各层都在水平方向晃。把一层位移 \(u_1\)、二层位移 \(u_2\) 按顺序排成一列，就是向量 \(\boldsymbol u=[u_1,u_2]^T\)。把 \(u_1\) 当横坐标、\(u_2\) 当纵坐标，平面上的一个点就是两层楼的一个完整位移状态，从原点指向它的箭就是这个向量。</p>
+  <div class="fig">
+    <svg class="plane" id="p2" role="img" aria-label="位移向量平面"></svg>
+    <div>
+      <svg id="b2" viewBox="0 0 340 250" style="width:100%;max-width:360px" role="img" aria-label="两层楼位移示意"></svg>
+      <div class="read" id="r2"></div>
+    </div>
+  </div>
+  <div class="note warn">纵轴是<b>二层的水平位移</b>，不是楼往上动。三层楼就是三个数、箭住在三维空间；十层楼住在十维空间，画不出来，但所有运算规则完全一样，这就是先用两层楼练习的原因。</div>
+</section>
+
+<!-- 3 -->
+<section class="step" id="s3">
+  <div class="stephead"><span class="stepno">3</span><h2>加法是首尾相接，数乘是沿直线伸缩</h2><span class="src">笔记 §4</span></div>
+  <p>同尺寸的向量才能相加，规则是<b>对应位置相加</b>；数乘是<b>每个分量乘同一个数</b>。几何上，加法把第二支箭的箭尾接到第一支的箭头；数乘让箭沿着一条过原点的直线伸缩、调头。</p>
+  <div class="fig">
+    <svg class="plane" id="p3" role="img" aria-label="向量加法与数乘"></svg>
+    <div>
+      <div class="ctrl"><button type="button" id="b3add" class="pri">▶ 首尾相接</button></div>
+      <div class="ctrl"><label>数乘系数 \(c\) <input id="c3" type="range" min="-2" max="2" step="0.25" value="1.5"><span class="num" id="c3v">1.5</span></label></div>
+      <div class="read" id="r3"></div>
+    </div>
+  </div>
+  <p><b>线弹性叠加原理就是向量加法和数乘</b>：两个荷载工况的位移直接相加，荷载放大 1.5 倍位移也放大 1.5 倍。</p>
+  <div class="note key">拖动系数 \(c\) 时，\(c\boldsymbol a\) 的箭尖始终落在同一条过原点的虚线上，这条直线就是“方向”。后面会说 \([1,2]^T\)、\([2,4]^T\)、\([-1,-2]^T\) 是<b>同一个振型</b>：它们在同一条直线上，只是取了不同的箭。软件输出的振型正负、幅值不同，原因就在这里。</div>
+  <div class="note warn"><b>矩阵记法不会取消单位。</b>\([3\,\mathrm{mm},2\,\mathrm{mm}]^T+[1\,\mathrm{kN},2\,\mathrm{kN}]^T\) 代数上“能算”，物理上毫无意义。相加的向量，每个分量的量纲必须一致。</div>
+</section>
+
+<!-- 4 -->
+<section class="step" id="s4">
+  <div class="stephead"><span class="stepno">4</span><h2>点积：对应相乘再相加，量的是“影子”</h2><span class="src">笔记 §5–§6</span></div>
+  <p>两个同尺寸向量的点积（内积）：对应位置相乘，再全部加起来，结果是一个<b>标量</b>。</p>
+  \[\boldsymbol x^T\boldsymbol y=\sum_{i=1}^{n}x_iy_i,\qquad \begin{bmatrix}1&2\end{bmatrix}\begin{bmatrix}3\\4\end{bmatrix}=1\times3+2\times4=11\]
+  <p>写法 \(\boldsymbol x^T\boldsymbol y\) 是“先把左边立成行，再行乘列”。这个<b>行乘列</b>是后面所有乘法的基本单元。它的几何含义是</p>
+  \[\boldsymbol x^T\boldsymbol y=\|\boldsymbol y\|\cdot\underbrace{\|\boldsymbol x\|\cos\theta}_{\boldsymbol x\ \text{在}\ \boldsymbol y\ \text{方向上的影子}}\]
+  <div class="fig">
+    <svg class="plane" id="p4" role="img" aria-label="点积与投影"></svg>
+    <div>
+      <div class="ctrl">
+        <button type="button" id="b4a">预设：\([1,\ 2]^T\) 与 \([1,\ -1]^T\)</button>
+        <button type="button" id="b4b">预设：正交 \([1.5,\ 2]^T\) 与 \([2,\ -1.5]^T\)</button>
+        <button type="button" id="b4n">▶ 把 \(\bm x\) 归一化</button>
+      </div>
+      <div class="read" id="r4"></div>
+      <p class="why">粗线是 \(\boldsymbol x\) 在 \(\boldsymbol y\) 方向上的影子：绿色为正（大致同向），红色为负（大致反向）；拖到垂直时影子缩成一点，点积为 0，即<b>正交</b>。</p>
+    </div>
+  </div>
+  <details><summary>为什么 \(\boldsymbol x^T\boldsymbol y=\|\boldsymbol x\|\|\boldsymbol y\|\cos\theta\)</summary>
+    <p>把 \(\boldsymbol x,\boldsymbol y,\boldsymbol x-\boldsymbol y\) 看成三角形三条边。余弦定理给出 \(\|\boldsymbol x-\boldsymbol y\|^2=\|\boldsymbol x\|^2+\|\boldsymbol y\|^2-2\|\boldsymbol x\|\|\boldsymbol y\|\cos\theta\)；按分量展开又有 \(\|\boldsymbol x-\boldsymbol y\|^2=\sum(x_i-y_i)^2=\|\boldsymbol x\|^2+\|\boldsymbol y\|^2-2\boldsymbol x^T\boldsymbol y\)。两式对比即得。</p>
+  </details>
+  <h3>长度、夹角、正交、归一化</h3>
+  \[\|\boldsymbol x\|=\sqrt{\boldsymbol x^T\boldsymbol x},\qquad \cos\theta=\frac{\boldsymbol x^T\boldsymbol y}{\|\boldsymbol x\|\,\|\boldsymbol y\|},\qquad \boldsymbol x^T\boldsymbol y=0\iff\boldsymbol x\perp\boldsymbol y,\qquad \hat{\boldsymbol x}=\frac{\boldsymbol x}{\|\boldsymbol x\|}\]
+  <ul>
+    <li>长度平方就是自己和自己的点积：\(\|\boldsymbol x\|^2=\boldsymbol x^T\boldsymbol x\)。二维是勾股定理，\(n\) 维当作“\(n\) 维勾股定理”的定义。</li>
+    <li>点积不等于投影长度，它还乘了 \(\|\boldsymbol y\|\)。比较“多同向”要看 \(\cos\theta\)。</li>
+    <li>归一化：非零向量除以自身长度，得到同方向、长度为 1 的单位向量。振型的各种“归一化”（最大分量为 1、长度为 1、质量归一）都只是在同一条直线上取了不同的箭。</li>
+    <li>预设里的 \([1,2]^T\) 与 \([1,-1]^T\) 夹角 108.4°，不正交。04 篇会看到它们正是两层楼的两个振型：在普通点积下不正交，换成质量加权的点积 \(\boldsymbol x^TM\boldsymbol y\) 就正交了（03 篇）。</li>
+  </ul>
+  <p><b>结构例</b>：力 \(\boldsymbol f\) 与位移 \(\boldsymbol u\) 的点积 \(\boldsymbol f^T\boldsymbol u=f_1u_1+f_2u_2\) 就是外力做的总功。</p>
+</section>
+
+<!-- 5 -->
+<section class="step" id="s5">
+  <div class="stephead"><span class="stepno">5</span><h2>矩阵乘向量：同一个乘法，两种读法</h2><span class="src">笔记 §8–§9</span></div>
+  <p><b>尺寸要求</b>：\(A_{m\times n}\boldsymbol x_{n\times1}\) 得到 \(m\times1\)。<b>行读法</b>：\(A\) 的每一行与 \(\boldsymbol x\) 做点积，得到结果的一个分量。<b>列读法</b>：把同一个结果按 \(x_1,x_2\) 重新分组，</p>
+  \[\begin{bmatrix}a&b\\c&d\end{bmatrix}\begin{bmatrix}x_1\\x_2\end{bmatrix}=\begin{bmatrix}ax_1+bx_2\\cx_1+dx_2\end{bmatrix}=x_1\begin{bmatrix}a\\c\end{bmatrix}+x_2\begin{bmatrix}b\\d\end{bmatrix}\]
+  <p>即<b>输出 = 矩阵的各列按 \(\boldsymbol x\) 的分量加权相加</b>：\(A\boldsymbol x=x_1\boldsymbol a_1+x_2\boldsymbol a_2+\cdots+x_n\boldsymbol a_n\)。</p>
+  <div class="fig">
+    <div>
+      <div class="eqrow"><span class="mat" id="m5A" style="grid-template-columns:repeat(2,auto)"></span><span class="mat" id="m5x" style="grid-template-columns:auto"></span><span>=</span><span class="mat" id="m5y" style="grid-template-columns:auto"></span></div>
+      <div class="ctrl"><button type="button" id="b5row">▶ 行读法逐行</button><button type="button" id="b5col" class="pri">▶ 列读法动画</button></div>
+      <div class="read" id="r5"></div>
+    </div>
+    <svg class="plane" id="p5" role="img" aria-label="列读法几何"></svg>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>读法</th><th>怎么算</th><th>适合回答</th></tr></thead>
+    <tbody>
+      <tr><td>行读法</td><td>每行与 \(\boldsymbol x\) 点积</td><td>结果的第 \(i\) 个分量是多少（手算用它）</td></tr>
+      <tr><td>列读法</td><td>各列按 \(x_j\) 加权相加</td><td>结果能落在哪些地方、\(A\boldsymbol x=\boldsymbol b\) 有没有解（理解用它，02 篇的“列空间”全靠它）</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 6 -->
+<section class="step" id="s6">
+  <div class="stephead"><span class="stepno">6</span><h2>矩阵的列 = 坐标轴单位箭的新落点</h2><span class="src">笔记 §10；00 篇 §5–§6</span></div>
+  <p>\(\boldsymbol e_j\) 是第 \(j\) 个分量为 1、其余为 0 的向量。代入列读法，权重只剩一个 1：</p>
+  \[A\boldsymbol e_j=0\cdot\boldsymbol a_1+\cdots+1\cdot\boldsymbol a_j+\cdots+0\cdot\boldsymbol a_n=\boldsymbol a_j\qquad\Longrightarrow\qquad \boxed{A\boldsymbol e_j=A\ \text{的第}\ j\ \text{列}}\]
+  <p>所以要知道一个矩阵干了什么，看它的列就够了：\(\boldsymbol e_1,\boldsymbol e_2\) 各被搬到哪，整张平面就定了。下图把整张网格纸交给矩阵“揉捏”：拖动滑块从 \(I\) 渐变到 \(A\)，红、橙两支箭从坐标轴单位箭走到 \(A\) 的两列。</p>
+  <div class="fig">
+    <svg class="plane" id="p6" role="img" aria-label="矩阵作用于网格"></svg>
+    <div>
+      <div class="eqrow">A = <span class="mat" id="m6A" style="grid-template-columns:repeat(2,auto)"></span></div>
+      <div class="ctrl" id="pre6"></div>
+      <div class="ctrl"><button type="button" id="b6play" class="pri">▶ 播放</button><label>进度 <input id="t6" type="range" min="0" max="1" step="0.01" value="1"></label></div>
+      <div class="read" id="r6"></div>
+    </div>
+  </div>
+  <div class="note warn"><b>图里有两套线，别看混</b>：<b>灰色</b>坐标轴和灰色网格始终不动，所有读数都按它们读；<b>蓝色</b>网格是“画在平面上的格线”，跟着平面一起被揉，它只显示每个点被搬到了哪里，不是新的坐标轴。所以这里变的是箭（\(\boldsymbol e_1\to A\boldsymbol e_1\)），读数用的坐标轴没变：\(A\boldsymbol e_1\) 的坐标就是在灰轴上量出来的第 1 列。<br>不要和 03 篇的换基混淆：换基时箭不动、换一套坐标轴来读，数字变了；这里坐标轴不动、箭本身动了，数字也变了。判断时先问“什么保持不变”。</div>
+  <p>阴影是单位正方形被揉成的平行四边形，面积为 \(|\det A|\)。选“压扁”预设可以看到整张平面被压成一条线：不同的输入落到同一个输出，信息丢失，这就是“奇异、不可逆”的画面，也是 04 篇 \(\det(K-\omega^2M)=0\) 的画面。</p>
+  <div class="note key"><b>结构里的对应</b>：\(K\boldsymbol e_j\) = 刚度矩阵第 \(j\) 列 = 只让第 \(j\) 个自由度产生单位位移、其余全部锁住时，各自由度处需要施加的力。第 11 节用两层楼算给你看。</div>
+</section>
+
+<!-- 7 -->
+<section class="step" id="s7">
+  <div class="stephead"><span class="stepno">7</span><h2>矩阵乘矩阵</h2><span class="src">笔记 §11、§13</span></div>
+  <p><b>尺寸要求</b>：\(A_{m\times n}B_{n\times p}=C_{m\times p}\)。<b>元素公式</b>：\(C\) 的第 \(i\) 行第 \(j\) 列 = \(A\) 的第 \(i\) 行与 \(B\) 的第 \(j\) 列做点积，\(c_{ij}=\sum_k a_{ik}b_{kj}\)。点击 \(C\) 的任一格，或逐格播放：</p>
+  <div class="eqrow"><span class="mat" id="m7A" style="grid-template-columns:repeat(2,auto)"></span><span class="mat" id="m7B" style="grid-template-columns:repeat(2,auto)"></span><span>=</span><span class="mat" id="m7C" style="grid-template-columns:repeat(2,auto)"></span></div>
+  <div class="ctrl"><button type="button" id="b7step" class="pri">▶ 逐格计算</button><button type="button" id="b7swap">交换为 \(BA\)</button><button type="button" id="b7col">按列看：\(AB\) 的第 \(j\) 列 = \(A\) 乘 \(B\) 的第 \(j\) 列</button><button type="button" id="b7row">按行看：用 \(A\) 的行给 \(B\) 的行配权重</button></div>
+  <div class="read" id="r7"></div>
+  <p>写成一般形式（\(A\) 为 \(m\times n\)，\(B=[\boldsymbol b_1\ \boldsymbol b_2\ \cdots\ \boldsymbol b_p]\)，\(\boldsymbol a_i^T\) 为 \(A\) 的第 \(i\) 行）：</p>
+  \[AB=A\,[\boldsymbol b_1\ \ \boldsymbol b_2\ \cdots\ \boldsymbol b_p]=[A\boldsymbol b_1\ \ A\boldsymbol b_2\ \cdots\ A\boldsymbol b_p],\qquad AB=\begin{bmatrix}\boldsymbol a_1^T\\ \vdots\\ \boldsymbol a_m^T\end{bmatrix}B=\begin{bmatrix}\boldsymbol a_1^TB\\ \vdots\\ \boldsymbol a_m^TB\end{bmatrix}\]
+  <p>列形式在后面最常用：04 篇的 \(K\Phi=M\Phi\Lambda\) 就是把 \(n\) 个 \(K\boldsymbol\phi_i=\lambda_iM\boldsymbol\phi_i\) 按列并排写成一个式子。两种整体读法都只是元素公式的重新分组，不是新规则。<b>要看列，站在右边看 \(B\) 的列被 \(A\) 逐个变换；要看行，站在左边看 \(A\) 的行给 \(B\) 的行配权重。</b></p>
+  <p><b>对角矩阵</b>：右乘 \(D=\mathrm{diag}(d_1,\dots,d_n)\) 把 \(A\) 的各<b>列</b>分别乘 \(d_j\)；左乘把各<b>行</b>分别乘 \(d_i\)。03 篇 \(\Phi^TM\Phi\) 中 \(M\) 为对角阵时，这条能省很多计算。</p>
+  <p><b>运算律</b>（尺寸相容时）：\(A(BC)=(AB)C\)，\(A(B+C)=AB+AC\)，\((A+B)C=AC+BC\)。结合律意味着 \(\Phi^TM\Phi\) 可以先算 \(\Phi^TM\)，也可以先算 \(M\Phi\)，结果一样。</p>
+</section>
+
+<!-- 8 -->
+<section class="step" id="s8">
+  <div class="stephead"><span class="stepno">8</span><h2>乘法次序为什么重要</h2><span class="src">笔记 §12</span></div>
+  <p>对列向量 \(\boldsymbol x\)，\(AB\boldsymbol x\) 表示<b>先作用 \(B\)，再作用 \(A\)</b>，从右往左读。取横向拉伸 2 倍 \(S=\begin{bmatrix}2&0\\0&1\end{bmatrix}\) 和逆时针转 90° \(R=\begin{bmatrix}0&-1\\1&0\end{bmatrix}\)，同一个图形按两种次序处理：</p>
+  <div class="fig" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+    <figure style="margin:0"><svg class="plane" id="p8a" role="img" aria-label="先转后拉"></svg><figcaption class="why">左：先转后拉，\(SR=\begin{bmatrix}0&-2\\1&0\end{bmatrix}\)</figcaption></figure>
+    <figure style="margin:0"><svg class="plane" id="p8b" role="img" aria-label="先拉后转"></svg><figcaption class="why">右：先拉后转，\(RS=\begin{bmatrix}0&-1\\2&0\end{bmatrix}\)</figcaption></figure>
+  </div>
+  <div class="ctrl"><button type="button" id="b8" class="pri">▶ 播放两种次序</button><span class="why" id="r8"></span></div>
+  <p>最后形状不同，所以 \(AB\ne BA\)（一般情形）。单位矩阵与任何同阶方阵、两个对角矩阵可以交换，但<b>不能默认</b>。写公式时左乘、右乘要严格分清：\(\Phi^TM\Phi\) 不能写成 \(M\Phi^T\Phi\)。</p>
+</section>
+
+<!-- 9 -->
+<section class="step" id="s9">
+  <div class="stephead"><span class="stepno">9</span><h2>转置：沿主对角线翻折</h2><span class="src">笔记 §14</span></div>
+  <p>\((A^T)_{ij}=A_{ji}\)：行变列、列变行，\(m\times n\) 变成 \(n\times m\)。主对角线上的元素不动，其余元素沿对角线翻到对面。</p>
+  <div class="eqrow"><div class="tgrid" id="tg9"></div><button type="button" id="b9" class="pri">▶ 转置</button><span class="why" id="r9">\(A\)：\(2\times 3\)</span></div>
+  \[(A^T)^T=A,\qquad (A+B)^T=A^T+B^T,\qquad (cA)^T=cA^T,\qquad \boxed{(AB)^T=B^TA^T}\]
+  <p>最后一条次序反转。从尺寸看最清楚：\(A_{m\times n}B_{n\times p}\) 转置后是 \(p\times m\)；\(B^T\) 是 \(p\times n\)、\(A^T\) 是 \(n\times m\)，只有 \(B^TA^T\) 尺寸对得上。</p>
+  <details><summary>按元素证明 \((AB)^T=B^TA^T\)</summary>
+    \[\bigl((AB)^T\bigr)_{ij}=(AB)_{ji}=\sum_k a_{jk}b_{ki}=\sum_k (B^T)_{ik}(A^T)_{kj}=(B^TA^T)_{ij}\]
+  </details>
+  <p><b>结构里用得最多的一处</b>：\(\boldsymbol\phi_i^TM\boldsymbol\phi_j\) 是 \(1\times1\) 的标量，标量的转置等于自身，所以 \(\boldsymbol\phi_i^TM\boldsymbol\phi_j=(\boldsymbol\phi_i^TM\boldsymbol\phi_j)^T=\boldsymbol\phi_j^TM^T\boldsymbol\phi_i\)。若 \(M\) 对称（\(M^T=M\)），就有 \(\boldsymbol\phi_i^TM\boldsymbol\phi_j=\boldsymbol\phi_j^TM\boldsymbol\phi_i\)，03 篇质量加权内积的对称性就靠这一步。刚度矩阵和质量矩阵都是对称阵，物理原因见 03 篇，带来的好处（实特征值、正交振型）见 04 篇。</p>
+</section>
+
+<!-- 10 -->
+<section class="step" id="s10">
+  <div class="stephead"><span class="stepno">10</span><h2>点积与外积：行乘列收缩，列乘行撑开</h2><span class="src">笔记 §15</span></div>
+  <div class="fig">
+    <div>
+      <p><b>点积</b>：\(\boldsymbol x^T\boldsymbol y\)，\((1\times n)(n\times1)=1\times1\)，收缩成一个数。</p>
+      <div class="eqrow" id="in10"></div>
+    </div>
+    <div>
+      <p><b>外积</b>：\(\boldsymbol x\boldsymbol y^T\)，\((n\times1)(1\times n)=n\times n\)，撑开成一个矩阵。</p>
+      <div class="eqrow" id="out10"></div>
+    </div>
+  </div>
+  <div class="ctrl"><button type="button" id="b10" class="pri">▶ 逐格填写</button></div>
+  <div class="note key">口诀：<b>转置在前、瘦的在外 → 收缩成一个数；转置在后、胖的在外 → 撑成一个矩阵。</b>03 篇的投影公式里 \(\boldsymbol v^T\boldsymbol x\) 必须是标量，写成 \(\boldsymbol x\boldsymbol v^T\) 就错了。叉积 \(\boldsymbol x\times\boldsymbol y\) 只存在于三维，多自由度体系在 \(n\) 维，全套不会出现。</div>
+</section>
+
+<!-- 11 -->
+<section class="step" id="s11">
+  <div class="stephead"><span class="stepno">11</span><h2>贯穿算例：两层剪切模型的刚度矩阵</h2><span class="src">笔记 §16–§17</span></div>
+  <p>两层楼，柱子当弹簧：一层与地面之间刚度 \(k_1\)，二层与一层之间刚度 \(k_2\)。层间变形分别为 \(u_1\) 和 \(u_2-u_1\)。问：要维持这组位移，每层需要施加多大的水平外力？</p>
+  \[p_2=k_2(u_2-u_1),\qquad p_1=k_1u_1-k_2(u_2-u_1)=(k_1+k_2)u_1-k_2u_2\]
+  \[\begin{bmatrix}p_1\\p_2\end{bmatrix}=\begin{bmatrix}k_1+k_2&-k_2\\-k_2&k_2\end{bmatrix}\begin{bmatrix}u_1\\u_2\end{bmatrix}\quad\Longleftrightarrow\quad \boldsymbol p=K\boldsymbol u\]
+  <p>全套算例取 \(k_1=2,\ k_2=1\)，得 \(K=\begin{bmatrix}3&-1\\-1&1\end{bmatrix}\)。这几个数字会陪你走完六篇。下面拖动楼层或点按钮，看维持该位移所需的外力：</p>
+  <div class="fig">
+    <svg id="p11" viewBox="0 0 380 330" style="width:100%;max-width:440px;touch-action:none" role="img" aria-label="两层剪切模型"></svg>
+    <div>
+      <div class="ctrl"><label>\(k_1\) <input id="k11" type="number" step="0.5" value="2"></label><label>\(k_2\) <input id="k12" type="number" step="0.5" value="1"></label></div>
+      <div class="ctrl"><label>\(u_1\) <input id="u11" type="number" step="0.25" value="0"></label><label>\(u_2\) <input id="u12" type="number" step="0.25" value="1"></label></div>
+      <div class="ctrl"><button type="button" id="b11e1">只推一层 \(\bm e_1\)</button><button type="button" id="b11e2">只推二层 \(\bm e_2\)</button><button type="button" id="b11v">\(\bm u=[1,\ 2]^T\)</button></div>
+      <div class="read" id="r11"></div>
+    </div>
+  </div>
+  \[\boxed{k_{ij}=\text{只让自由度}\ j\ \text{产生单位位移、其余全锁住时，自由度}\ i\ \text{处需要的力}}\]
+  <ul>
+    <li>对角元 \(k_{jj}\)：推自己需要多大力，叫直接刚度；</li>
+    <li>非对角元 \(k_{ij}\)：推 \(j\) 时 \(i\) 处冒出来的力，叫耦合。非零说明两个自由度在这组坐标下通过构件相连。</li>
+  </ul>
+  <p>点“只推二层 \(\boldsymbol e_2\)”：要把二层推动 1 而一层不动，二层施加 \(+1\)，一层必须施加 \(-1\) 把它顶住，这正是 \(K\) 的第 2 列 \([-1,1]^T\)。点“\(\boldsymbol u=[1,2]\)”：每层外力都是 1。04 篇会再见到它：\([1,2]^T\) 恰好是第一振型。</p>
+  <div class="note">符号约定（全套统一）：\(K\boldsymbol u\) 是“维持位移 \(\boldsymbol u\) 所需的外力”，写在动力方程左边叫弹性恢复力项；弹簧实际作用在楼层上的力是 \(-K\boldsymbol u\)。\(K\) 对称（\(k_{12}=k_{21}\)）是结构力学的互等定理，严格理由见 03 篇。</div>
+</section>
+
+<!-- 12 -->
+<section class="step" id="s12">
+  <div class="stephead"><span class="stepno">12</span><h2>单位检查：频率差 31.6 倍的陷阱</h2><span class="src">笔记 §18</span></div>
+  <p>\(K\) 用 kN/mm、\(\boldsymbol u\) 用 mm，则 \(K\boldsymbol u\) 是 kN，三处单位必须配套。动力计算更危险：</p>
+  \[\frac{\mathrm{kN/mm}}{\mathrm t}=\frac{10^3\,\mathrm N}{10^{-3}\,\mathrm m\cdot10^{3}\,\mathrm{kg}}=10^3\ \mathrm s^{-2}\]
+  <div class="fig">
+    <div class="ctrl" style="flex-direction:column;align-items:flex-start">
+      <label>刚度 \(k\) <input id="k12u" type="number" value="20" step="1"> kN/mm</label>
+      <label>质量 \(m\) <input id="m12u" type="number" value="500" step="10"> t</label>
+    </div>
+    <div class="read" id="r12"></div>
+  </div>
+  <p>只换刚度单位、不换质量单位，\(\omega^2\) 差 1000 倍，频率差 \(\sqrt{1000}\approx31.6\) 倍。推荐全程 SI（N、m、kg、s），或全程 kN、mm、t、s（此时 \(\omega^2\) 要乘 1000）。</p>
+</section>
+
+<!-- 13 -->
+<section class="step" id="s13">
+  <div class="stephead"><span class="stepno">13</span><h2>练习与自测</h2><span class="src">笔记 §19–§21</span></div>
+  <h3>基础练习</h3>
+  <ol class="ex">
+    <li>\(A\) 为 \(3\times2\)，\(B\) 为 \(2\times4\)，\(\boldsymbol x\) 为 \(2\times1\)。判断 \(AB,\ BA,\ A\boldsymbol x,\ \boldsymbol x^TA,\ B^TA^T\) 的尺寸或是否有定义。</li>
+    <li>\(\boldsymbol a=[1,2,-1]^T\)，\(\boldsymbol b=[2,0,3]^T\)。求 \(\boldsymbol a+\boldsymbol b\)、\(\boldsymbol a^T\boldsymbol b\)、\(\|\boldsymbol a\|\)，并判断是否正交。</li>
+    <li>用行读法和列读法分别计算 \(\begin{bmatrix}1&3\\2&4\end{bmatrix}\begin{bmatrix}2\\-1\end{bmatrix}\)。</li>
+    <li>计算 \(\begin{bmatrix}1&2\\3&4\end{bmatrix}\begin{bmatrix}5&6\\7&8\end{bmatrix}\) 和反过来的乘积，验证不相等。</li>
+    <li>\(\boldsymbol x=[1,2]^T\)，\(\boldsymbol y=[3,4]^T\)。分别计算 \(\boldsymbol x^T\boldsymbol y\) 和 \(\boldsymbol x\boldsymbol y^T\)。</li>
+    <li>\(A=\begin{bmatrix}1&2\\3&4\end{bmatrix}\)，\(B=\begin{bmatrix}0&1\\1&0\end{bmatrix}\)。验证 \((AB)^T=B^TA^T\)。</li>
+    <li>把 \([1,2]^T\) 和 \([1,-1]^T\) 各自归一化，并求两者夹角。</li>
+    <li>\(D=\mathrm{diag}(2,1)\)，\(A=\begin{bmatrix}1&1\\2&-1\end{bmatrix}\)。分别计算 \(DA\) 和 \(AD\)，说明各是缩放行还是缩放列。</li>
+  </ol>
+  <details><summary>参考答案</summary>
+    <ol class="ex">
+      <li>\(AB\)：\(3\times4\)；\(BA\)：无定义（\(4\ne3\)）；\(A\boldsymbol x\)：\(3\times1\)；\(\boldsymbol x^TA\)：无定义（\((1\times2)(3\times2)\)，\(2\ne3\)）；\(B^TA^T\)：\((4\times2)(2\times3)=4\times3\)，即 \((AB)^T\)。</li>
+      <li>\([3,2,2]^T\)；\(2+0-3=-1\)；\(\sqrt6\)；点积不为 0，不正交。</li>
+      <li>行读法 \([1\times2+3\times(-1),\ 2\times2+4\times(-1)]^T=[-1,0]^T\)；列读法 \(2[1,2]^T-[3,4]^T=[-1,0]^T\)。</li>
+      <li>\(AB=\begin{bmatrix}19&22\\43&50\end{bmatrix}\)，\(BA=\begin{bmatrix}23&34\\31&46\end{bmatrix}\)，不等。</li>
+      <li>\(\boldsymbol x^T\boldsymbol y=11\)；\(\boldsymbol x\boldsymbol y^T=\begin{bmatrix}3&4\\6&8\end{bmatrix}\)。</li>
+      <li>\(AB=\begin{bmatrix}2&1\\4&3\end{bmatrix}\)，\((AB)^T=\begin{bmatrix}2&4\\1&3\end{bmatrix}\)；\(B^TA^T=\begin{bmatrix}0&1\\1&0\end{bmatrix}\begin{bmatrix}1&3\\2&4\end{bmatrix}=\begin{bmatrix}2&4\\1&3\end{bmatrix}\)。</li>
+      <li>\([1,2]^T/\sqrt5\)，\([1,-1]^T/\sqrt2\)；\(\cos\theta=-1/\sqrt{10}\)，\(\theta=108.4^\circ\)。</li>
+      <li>\(DA=\begin{bmatrix}2&2\\2&-1\end{bmatrix}\)：左乘缩放行；\(AD=\begin{bmatrix}2&1\\4&-1\end{bmatrix}\)：右乘缩放列。</li>
+    </ol>
+  </details>
+  <h3>结构理解题</h3>
+  <ol class="ex">
+    <li>说明 \(K\) 的第 2 列为什么是 \([-1,1]^T\)，两个分量各对应哪一层、什么方向的力。</li>
+    <li>若自由度顺序改为“二层在前、一层在后”，\(K\) 变成什么？</li>
+    <li>三层剪切模型，各层刚度 \(k_1,k_2,k_3\)，写出 \(K\)。</li>
+    <li>为什么 \(K\) 一定对称？先用“推 \(j\) 看 \(i\) 处的力”的物理含义猜一下。</li>
+  </ol>
+  <details><summary>参考答案</summary>
+    <ol class="ex">
+      <li>令 \(u_1=0,\ u_2=1\)，得 \(p_1=-1\)（一层处向左顶住的力）、\(p_2=1\)（二层处向右推的力）。</li>
+      <li>行、列同时对换：\(K'=\begin{bmatrix}1&-1\\-1&3\end{bmatrix}\)。数值相同、位置对换，所以自由度顺序必须全程统一。</li>
+      <li>\(K=\begin{bmatrix}k_1+k_2&-k_2&0\\-k_2&k_2+k_3&-k_3\\0&-k_3&k_3\end{bmatrix}\)。\(k_{13}=0\)：一、三层没有构件直接相连，推一层时二层被锁住，三层处不需要额外的力。这就是刚度矩阵稀疏、带状的来源。</li>
+      <li>推 \(j\) 时 \(i\) 处的力等于推 \(i\) 时 \(j\) 处的力（\(k_{ij}=k_{ji}\)），即互等定理；严格来源是应变能的二阶导数可交换次序（03 篇）。</li>
+    </ol>
+  </details>
+  <h3>自测：能不看笔记做到，再进 02 篇</h3>
+  <div class="check" id="chk">
+    <label><input type="checkbox" id="ck1"><span>说出矩阵乘向量的两种读法，以及各自回答什么问题</span></label>
+    <label><input type="checkbox" id="ck2"><span>说明 \(A\boldsymbol e_j\) 为什么等于第 \(j\) 列，以及它在结构里的含义</span></label>
+    <label><input type="checkbox" id="ck3"><span>逐格算出一个 \(2\times2\) 矩阵乘法，并说明 \(AB\ne BA\) 的几何原因</span></label>
+    <label><input type="checkbox" id="ck4"><span>写出 \((AB)^T=B^TA^T\) 并说明为什么次序反转</span></label>
+    <label><input type="checkbox" id="ck5"><span>分清 \(\boldsymbol x^T\boldsymbol y\)（标量）与 \(\boldsymbol x\boldsymbol y^T\)（矩阵）</span></label>
+    <label><input type="checkbox" id="ck6"><span>从两层楼的平衡方程推出 \(K\)，并解释 \(k_{ij}\) 的物理含义</span></label>
+  </div>
+</section>
+
+<footer>
+  <p>对应笔记：15-General/12-线性代数/260730-线性代数预备01-向量矩阵与基本运算.md。上一篇：<a href="00.html" style="color:var(--accent)">00 几何直觉入门</a>；下一篇：02 线性方程组、秩与可逆性。</p>
+</footer>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const NS='http://www.w3.org/2000/svg';
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs){if(k==='text')e.textContent=attrs[k];else e.setAttribute(k,attrs[k]);}if(parent)parent.appendChild(e);return e;}
+const fm=(v,d=2)=>{const r=Math.round(v*10**d)/10**d;return (Object.is(r,-0)?0:r).toString();};
+const f2=v=>fm(v,2), f3=v=>fm(v,3);
+const vec=a=>`[${a.map(v=>fm(v,2)).join(', ')}]`;
+const paren=v=>v<0?`(${fm(v)})`:fm(v);
+function animate(dur,step,done){ // returns cancel fn
+  if(reduced){step(1);done&&done();return ()=>{};}
+  let t0=null,id=0,stop=false;
+  const loop=now=>{if(stop)return;if(t0===null)t0=now;const t=Math.min(1,(now-t0)/dur);step(t);if(t<1)id=requestAnimationFrame(loop);else done&&done();};
+  id=requestAnimationFrame(loop);return ()=>{stop=true;cancelAnimationFrame(id);};
+}
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+
+/* ---------- LaTeX 读数（MathJax 渲染，拖动时节流） ---------- */
+const TX=String.raw;
+const pn=(v,d=2)=>{const s=fm(v,d);return s.startsWith('-')?`(${s})`:s;};
+const rv=(a,d=2)=>`[${a.map(v=>fm(v,d)).join(',\\ ')}]`;
+const cv=(a,d=2)=>`\\begin{bmatrix}${a.map(v=>fm(v,d)).join('\\\\')}\\end{bmatrix}`;
+const bmx=(M,d=2)=>`\\begin{bmatrix}${M.map(r=>r.map(v=>fm(v,d)).join('&')).join('\\\\')}\\end{bmatrix}`;
+let texReady=false,texTimer=0,texLast=0;const TEXQ=new Map(),TEXPRE=new Set();
+function texRun(els){try{MathJax.typesetClear(els);MathJax.typeset(els);}catch(e){}}
+function setTex(el,html){
+  if(typeof el==='string')el=$(el);
+  if(el.__tex===html)return;el.__tex=html;
+  if(!texReady){el.innerHTML=html;TEXPRE.add(el);return;}
+  const now=performance.now();
+  if(!texTimer&&now-texLast>45){el.innerHTML=html;texRun([el]);texLast=performance.now();return;}
+  TEXQ.set(el,html);if(!texTimer)texTimer=setTimeout(flushTex,50);
+}
+function flushTex(){texTimer=0;const els=[...TEXQ.keys()];TEXQ.forEach((h,el)=>{el.innerHTML=h;});TEXQ.clear();if(els.length)texRun(els);texLast=performance.now();}
+window.__onMJ=()=>{texReady=true;const els=[...TEXPRE];TEXPRE.clear();if(els.length)texRun(els);flushTex();};
+
+
+/* ---------- 平面坐标系 ---------- */
+function Plane(svg,R,o={}){
+  const W=360,H=360,pad=18; svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.replaceChildren();
+  const s=(W/2-pad)/R, X=x=>W/2+x*s, Y=y=>H/2-y*s;
+  const g0=el('g',{},svg), gC=el('g',{},svg), gH=el('g',{},svg);
+  const stepG=R>7?2:1;
+  for(let i=-Math.floor(R);i<=R;i+=1){
+    if(i%stepG)continue;
+    el('line',{x1:X(i),y1:Y(-R-1),x2:X(i),y2:Y(R+1),style:`stroke:var(${i?'--grid':'--axis'});stroke-width:${i?1:1.4}`},g0);
+    el('line',{x1:X(-R-1),y1:Y(i),x2:X(R+1),y2:Y(i),style:`stroke:var(${i?'--grid':'--axis'});stroke-width:${i?1:1.4}`},g0);
+    if(i&&i%(stepG*(R>4?2:1))===0){el('text',{x:X(i),y:Y(0)+13,'text-anchor':'middle','font-size':10,style:'fill:var(--muted)',text:i},g0);el('text',{x:X(0)-5,y:Y(i)+3.5,'text-anchor':'end','font-size':10,style:'fill:var(--muted)',text:i},g0);}
+  }
+  if(o.xl)el('text',{x:W-6,y:Y(0)-6,'text-anchor':'end','font-size':11.5,style:'fill:var(--muted)',text:o.xl},g0);
+  if(o.yl)el('text',{x:X(0)+6,y:14,'font-size':11.5,style:'fill:var(--muted)',text:o.yl},g0);
+  const P={X,Y,s,R,svg,gC,gH};
+  P.clear=()=>gC.replaceChildren();
+  P.line=(x0,y0,x1,y1,st)=>el('line',{x1:X(x0),y1:Y(y0),x2:X(x1),y2:Y(y1),style:st},gC);
+  P.poly=(pts,st)=>el('polygon',{points:pts.map(p=>X(p[0]).toFixed(1)+','+Y(p[1]).toFixed(1)).join(' '),style:st},gC);
+  P.text=(x,y,t,st='',anchor='start',size=12.5)=>el('text',{x:X(x),y:Y(y),'text-anchor':anchor,'font-size':size,style:st,text:t},gC);
+  P.arrow=(x0,y0,x1,y1,col,op={})=>{
+    const ax=X(x0),ay=Y(y0),bx=X(x1),by=Y(y1),dx=bx-ax,dy=by-ay,L=Math.hypot(dx,dy),w=op.w||2.6;
+    const st=`stroke:${col};stroke-width:${w};stroke-linecap:round;${op.dash?'stroke-dasharray:'+op.dash+';':''}opacity:${op.op??1}`;
+    if(L<2){el('circle',{cx:bx,cy:by,r:3.5,style:`fill:${col};opacity:${op.op??1}`},gC);}
+    else{const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5),hw=h*.42;
+      el('line',{x1:ax,y1:ay,x2:bx-ux*h*.85,y2:by-uy*h*.85,style:st},gC);
+      el('polygon',{points:`${bx},${by} ${bx-ux*h-uy*hw},${by-uy*h+ux*hw} ${bx-ux*h+uy*hw},${by-uy*h-ux*hw}`,style:`fill:${col};opacity:${op.op??1}`},gC);}
+    if(op.label){const left=dx<-0.3*L,lx=op.lx??(L<2?8:(dx/(L||1))*10+(left?-4:4)), ly=op.ly??(L<2?-8:(dy/(L||1))*10+(dy>0?12:-4));
+      const mx=op.mid?(ax+bx)/2-bx+(L?-dy/L*14:0):0,my=op.mid?(ay+by)/2-by+(L?dx/L*14:0):0;
+      const tx=el('text',{x:bx+(op.mid?mx:lx),y:by+(op.mid?my+4:ly),'font-size':op.fs||13,'text-anchor':op.anchor||(op.mid?'middle':left?'end':'start'),style:`fill:${col};font-weight:600;paint-order:stroke;stroke:var(--paper);stroke-width:3px`,text:op.label},gC);
+      try{const bb=tx.getBBox();let sx=0,sy=0;if(bb.x+bb.width>W-3)sx=W-3-bb.x-bb.width;if(bb.x+sx<3)sx=3-bb.x;if(bb.y<3)sy=3-bb.y;if(bb.y+bb.height>H-3)sy=H-3-bb.y-bb.height;if(sx||sy)tx.setAttribute('transform',`translate(${sx},${sy})`);}catch(e){}}
+  };
+  P.toXY=ev=>{const pt=svg.createSVGPoint();pt.x=ev.clientX;pt.y=ev.clientY;const q=pt.matrixTransform(svg.getScreenCTM().inverse());return [(q.x-W/2)/s,(H/2-q.y)/s];};
+  P.handle=(get,set,col,step=0.5,label='拖动')=>{
+    const c=el('circle',{r:10,tabindex:0,role:'slider','aria-label':label,style:`fill:${col};fill-opacity:.22;stroke:${col};stroke-width:1.6;cursor:grab`},gH);
+    let on=false;
+    c.addEventListener('pointerdown',e=>{on=true;c.setPointerCapture(e.pointerId);e.preventDefault();});
+    c.addEventListener('pointermove',e=>{if(!on)return;let [x,y]=P.toXY(e);x=Math.max(-R,Math.min(R,Math.round(x/step)*step));y=Math.max(-R,Math.min(R,Math.round(y/step)*step));set(x,y);});
+    const end=()=>{on=false;}; c.addEventListener('pointerup',end); c.addEventListener('pointercancel',end);
+    c.addEventListener('keydown',e=>{const [x,y]=get();const m={ArrowLeft:[-step,0],ArrowRight:[step,0],ArrowUp:[0,step],ArrowDown:[0,-step]}[e.key];if(m){e.preventDefault();set(Math.max(-R,Math.min(R,x+m[0])),Math.max(-R,Math.min(R,y+m[1])));}});
+    return {update(){const [x,y]=get();c.setAttribute('cx',X(x));c.setAttribute('cy',Y(y));}};
+  };
+  return P;
+}
+
+/* ---------- 1 尺寸检查 ---------- */
+function s1(){
+  const g=id=>Math.max(1,Math.min(9,parseInt($(id).value)||1));
+  const m=g('szm'),n=g('szn'),p=g('szp'),q=g('szq');
+  const chip=(ok,t)=>`<span class="chip ${ok?'ok':'bad'}">${t}</span>`;
+  const row=(X,Y,a,b,c,d)=>{const ok=b===c,k=ok?'cok':'cbad';return TX`<span class="row">\(${X}_{${a}\times\class{${k}}{${b}}}\,${Y}_{\class{${k}}{${c}}\times ${d}}\)　→ ${ok?chip(true,TX`\(${a}\times ${d}\)`):chip(false,'无定义')}</span>`;};
+  setTex('szOut',[
+    row('A','B',m,n,p,q),
+    row('B','A',p,q,m,n),
+    TX`<span class="row">\(A+B\)：${m===p&&n===q?chip(true,TX`\(${m}\times ${n}\)`):chip(false,'尺寸不同，无定义')}</span>`,
+    TX`<span class="row">\(A^T\)：${chip(true,TX`\(${n}\times ${m}\)`)}　\(B^TA^T\)：${p===n?chip(true,TX`\(${q}\times ${m}\)`):chip(false,'无定义')}</span>`,
+    `<span class="row" style="color:var(--muted)">规则：左边列数 = 右边行数（中间两个数咬合），结果取两头。</span>`
+  ].join(''));
+}
+['szm','szn','szp','szq'].forEach(id=>$(id).addEventListener('input',s1));
+
+/* ---------- 楼房示意（2 节） ---------- */
+function drawBuilding(svg,u1,u2,sc=14){
+  svg.replaceChildren();
+  const gy=225,y1=150,y2=75,cx=130,half=48;
+  const ink='var(--ink)',mut='var(--muted)';
+  el('line',{x1:40,y1:gy,x2:220,y2:gy,style:`stroke:${ink};stroke-width:2`},svg);
+  for(let i=0;i<12;i++)el('line',{x1:46+i*15,y1:gy,x2:38+i*15,y2:gy+8,style:`stroke:${mut}`},svg);
+  [[0,y1],[0,y2]].forEach(([_,y])=>el('line',{x1:cx-half-6,y1:y,x2:cx+half+6,y2:y,style:`stroke:${mut};stroke-dasharray:3 3;opacity:.6`},svg));
+  const d1=u1*sc,d2=u2*sc;
+  const col=(xb,xt,yb,yt)=>`M${xb},${yb} C${xb},${(yb*2+yt)/3} ${xt},${(yb+yt*2)/3} ${xt},${yt}`;
+  for(const s of[-1,1]){
+    el('path',{d:col(cx+s*half,cx+s*half+d1,gy,y1)+' '+col(cx+s*half+d1,cx+s*half+d2,y1,y2).replace('M','L'),style:`fill:none;stroke:${ink};stroke-width:2`},svg);
+  }
+  el('rect',{x:cx-half-8+d1,y:y1-6,width:2*half+16,height:12,rx:2,style:'fill:var(--m1)'},svg);
+  el('rect',{x:cx-half-8+d2,y:y2-6,width:2*half+16,height:12,rx:2,style:'fill:var(--m2)'},svg);
+  el('text',{x:cx+half+14+Math.max(d1,0),y:y1+4,'font-size':13,style:'fill:var(--m1);font-weight:600',text:`u₁ = ${fm(u1)} mm`},svg);
+  el('text',{x:cx+half+14+Math.max(d2,0),y:y2+4,'font-size':13,style:'fill:var(--m2);font-weight:600',text:`u₂ = ${fm(u2)} mm`},svg);
+  el('text',{x:cx,y:gy+24,'text-anchor':'middle','font-size':11,style:`fill:${mut}`,text:'水平位移放大显示'},svg);
+}
+
+/* ---------- 2 向量 = 楼层位移 ---------- */
+const S2={u:[3,2]};
+const P2=Plane($('p2'),4,{xl:'u₁ (mm)',yl:'u₂ (mm)'});
+const H2=P2.handle(()=>S2.u,(x,y)=>{S2.u=[x,y];r2();},'var(--accent)',0.5,'拖动位移向量');
+function r2(){
+  P2.clear();
+  const [a,b]=S2.u;
+  P2.line(a,0,a,b,'stroke:var(--m1);stroke-dasharray:3 3');P2.line(0,b,a,b,'stroke:var(--m2);stroke-dasharray:3 3');
+  P2.arrow(0,0,a,b,'var(--accent)',{label:`u = [${fm(a)}, ${fm(b)}]ᵀ`});
+  H2.update(); drawBuilding($('b2'),a,b);
+  const d=v=>v>0?`向右 ${fm(v)} mm`:v<0?`向左 ${fm(-v)} mm`:'不动';
+  setTex('r2',TX`<span class="row">\(\bm u=${rv([a,b])}^T\)</span><span class="row"><span class="c1">一层${d(a)}</span>，<span class="c2">二层${d(b)}</span></span><span class="row">平面上一个点 = 两层楼的一个完整位移状态</span>`);
+}
+
+/* ---------- 3 加法与数乘 ---------- */
+const S3={a:[3,2],b:[-1,1],c:1.5,t:1};let stop3=()=>{};
+const P3=Plane($('p3'),6,{xl:'u₁',yl:'u₂'});
+const H3a=P3.handle(()=>S3.a,(x,y)=>{S3.a=[x,y];r3();},'var(--m1)',0.5,'工况一');
+const H3b=P3.handle(()=>S3.b,(x,y)=>{S3.b=[x,y];r3();},'var(--m2)',0.5,'工况二');
+function r3(){
+  P3.clear();const {a,b,c,t}=S3;
+  const L=Math.hypot(...a);
+  if(L>0){const k=20/L;P3.line(-a[0]*k,-a[1]*k,a[0]*k,a[1]*k,'stroke:var(--m3);stroke-dasharray:5 4;opacity:.55');}
+  P3.arrow(0,0,c*a[0],c*a[1],'var(--m3)',{w:2,op:.85,label:`${fm(c)}a`});
+  P3.arrow(0,0,b[0],b[1],'var(--m2)',{op:t>0?.35:1,label:t>0?'':'b',mid:1});
+  const e=ease(t),ox=a[0]*e,oy=a[1]*e;
+  if(t>0)P3.arrow(ox,oy,ox+b[0],oy+b[1],'var(--m2)',{label:t>=1?'b':''});
+  P3.arrow(0,0,a[0],a[1],'var(--m1)',{label:'a',mid:1});
+  if(t>=1)P3.arrow(0,0,a[0]+b[0],a[1]+b[1],'var(--ink)',{w:3,label:'a + b'});
+  H3a.update();H3b.update();
+  $('c3v').textContent=fm(c);
+  setTex('r3',TX`<span class="row"><span class="c1">\(\bm a=${rv(a)}^T\)（工况一）</span>　<span class="c2">\(\bm b=${rv(b)}^T\)（工况二）</span></span><span class="row">\(\bm a+\bm b=[${fm(a[0])}+${pn(b[0])},\ ${fm(a[1])}+${pn(b[1])}]^T=${rv([a[0]+b[0],a[1]+b[1]])}^T\)</span><span class="row c3">\(${fm(c)}\,\bm a=${rv([c*a[0],c*a[1]])}^T\)（始终在 \(\bm a\) 所在的直线上）</span>`);
+}
+$('b3add').onclick=()=>{stop3();stop3=animate(1200,t=>{S3.t=t;r3();});};
+$('c3').oninput=e=>{S3.c=+e.target.value;r3();};
+
+/* ---------- 4 点积 ---------- */
+const S4={x:[1,2],y:[3,1],unit:false};let stop4=()=>{};
+const P4=Plane($('p4'),5);
+const H4x=P4.handle(()=>S4.x,(x,y)=>{S4.x=[x,y];S4.unit=false;r4();},'var(--m1)',0.5,'向量 x');
+const H4y=P4.handle(()=>S4.y,(x,y)=>{S4.y=[x,y];r4();},'var(--m2)',0.5,'向量 y');
+function r4(){
+  P4.clear();const [x1,x2]=S4.x,[y1,y2]=S4.y;
+  const dot=x1*y1+x2*y2,nx=Math.hypot(x1,x2),ny=Math.hypot(y1,y2);
+  if(S4.unit){el('circle',{cx:P4.X(0),cy:P4.Y(0),r:P4.s,style:'fill:none;stroke:var(--muted);stroke-dasharray:4 4'},P4.gC);}
+  if(ny>0){const k=12/ny;P4.line(-y1*k,-y2*k,y1*k,y2*k,'stroke:var(--m2);stroke-dasharray:5 4;opacity:.45');
+    const pr=dot/(ny*ny),px=pr*y1,py=pr*y2;
+    P4.line(x1,x2,px,py,'stroke:var(--muted);stroke-dasharray:2 3');
+    P4.line(0,0,px,py,`stroke:var(${dot>=0?'--ok':'--bad'});stroke-width:7;stroke-linecap:round;opacity:.55`);
+    if(nx>0){const a1=Math.atan2(x2,x1),a2=Math.atan2(y2,y1);let da=a1-a2;while(da>Math.PI)da-=2*Math.PI;while(da<-Math.PI)da+=2*Math.PI;
+      const r=0.7,N=24;let pts=[];for(let i=0;i<=N;i++){const a=a2+da*i/N;pts.push(P4.X(r*Math.cos(a))+','+P4.Y(r*Math.sin(a)));}
+      el('polyline',{points:pts.join(' '),style:'fill:none;stroke:var(--ink);stroke-width:1.3'},P4.gC);
+      const am=a2+da/2;P4.text(1.05*Math.cos(am),1.05*Math.sin(am)-0.1,'θ','fill:var(--ink)','middle',13);}
+  }
+  P4.arrow(0,0,y1,y2,'var(--m2)',{label:'y'});
+  P4.arrow(0,0,x1,x2,'var(--m1)',{label:'x'});
+  H4x.update();H4y.update();
+  const cos=nx&&ny?dot/(nx*ny):NaN,th=Math.acos(Math.max(-1,Math.min(1,cos)))*180/Math.PI;
+  const tag=Math.abs(dot)<1e-9?'<b class="cok">= 0，正交</b>':dot>0?'<span class="cok">&gt; 0，大致同向</span>':'<span class="cbad">&lt; 0，大致反向</span>';
+  setTex('r4',TX`<span class="row">\(\bm x=${rv(S4.x,3)}^T,\quad \bm y=${rv(S4.y,3)}^T\)</span><span class="row">\(\bm x^T\bm y=${fm(x1,3)}\times${pn(y1,3)}+${fm(x2,3)}\times${pn(y2,3)}=${fm(dot,3)}\)　${tag}</span><span class="row">\(\lVert\bm x\rVert=\sqrt{\bm x^T\bm x}=${fm(nx,3)},\quad \lVert\bm y\rVert=\sqrt{\bm y^T\bm y}=${fm(ny,3)}\)</span><span class="row">\(\cos\theta=\dfrac{\bm x^T\bm y}{\lVert\bm x\rVert\,\lVert\bm y\rVert}=${isNaN(cos)?'—':fm(cos,4)},\quad \theta=${isNaN(cos)?'—':fm(th,1)+'^\\circ'}\)</span><span class="row">影子长度 \(=\dfrac{\bm x^T\bm y}{\lVert\bm y\rVert}=${ny?fm(dot/ny,3):'—'}\)</span>${S4.unit?TX`<span class="row c1">\(\bm x\) 已归一化：\(\lVert\bm x\rVert=1\)，方向不变</span>`:''}`);
+}
+$('b4a').onclick=()=>{S4.x=[1,2];S4.y=[1,-1];S4.unit=false;r4();};
+$('b4b').onclick=()=>{stop4();S4.x=[1.5,2];S4.y=[2,-1.5];S4.unit=false;r4();};
+$('b4n').onclick=()=>{const [a,b]=S4.x,n=Math.hypot(a,b);if(!n)return;stop4();const from=[a,b],to=[a/n,b/n];S4.unit=true;
+  stop4=animate(900,t=>{const e=ease(t);S4.x=[from[0]+(to[0]-from[0])*e,from[1]+(to[1]-from[1])*e];r4();});};
+
+/* ---------- 5 矩阵乘向量 ---------- */
+const S5={A:[[1,3],[2,4]],x:[2,-1],step:0,t:2};let stop5=()=>{},timer5=0;
+function matInputs(host,M,onchange,cls=''){
+  host.replaceChildren();
+  M.forEach((row,i)=>row.forEach((v,j)=>{const sp=document.createElement('span');const inp=document.createElement('input');inp.type='number';inp.step='0.5';inp.value=v;inp.id=`${host.id}_${i}${j}`;inp.setAttribute('aria-label',`第${i+1}行第${j+1}列`);
+    inp.oninput=()=>{const n=parseFloat(inp.value);if(!isNaN(n)){M[i][j]=n;onchange();}};sp.appendChild(inp);sp.dataset.r=i;sp.dataset.c=j;host.appendChild(sp);}));
+}
+function matShow(host,M,fmt=v=>fm(v)){host.replaceChildren();host.style.gridTemplateColumns=`repeat(${M[0].length},auto)`;M.forEach((row,i)=>row.forEach((v,j)=>{const sp=document.createElement('span');sp.textContent=fmt(v);sp.dataset.r=i;sp.dataset.c=j;host.appendChild(sp);}));}
+function hl(host,f){[...host.children].forEach(sp=>sp.classList.toggle('on',!!f(+sp.dataset.r,+sp.dataset.c)));}
+const X5=[[2],[-1]];
+matInputs($('m5A'),S5.A,()=>{S5.step=0;S5.t=2;r5();});
+(function(){const h=$('m5x');h.replaceChildren();[0,1].forEach(i=>{const sp=document.createElement('span');const inp=document.createElement('input');inp.type='number';inp.step='0.5';inp.value=S5.x[i];inp.id='m5x_'+i;inp.setAttribute('aria-label',`x${i+1}`);inp.oninput=()=>{const n=parseFloat(inp.value);if(!isNaN(n)){S5.x[i]=n;S5.step=0;S5.t=2;r5();}};sp.appendChild(inp);sp.dataset.r=i;sp.dataset.c=0;h.appendChild(sp);});})();
+const P5=Plane($('p5'),6);
+function r5(){
+  const A=S5.A,x=S5.x,y=[A[0][0]*x[0]+A[0][1]*x[1],A[1][0]*x[0]+A[1][1]*x[1]];
+  matShow($('m5y'),[[y[0]],[y[1]]]);
+  const st=S5.step;
+  hl($('m5A'),(r,c)=>st&&r===st-1); hl($('m5x'),()=>!!st); hl($('m5y'),r=>st&&r===st-1);
+  const a1=[A[0][0],A[1][0]],a2=[A[0][1],A[1][1]];
+  let txt='<span class="row">行读法：</span>';
+  for(let i=0;i<2;i++){const r=TX`第 ${i+1} 行：\(${rv(A[i])}\cdot${rv(x)}^T=${fm(A[i][0])}\times${pn(x[0])}+${fm(A[i][1])}\times${pn(x[1])}=${fm(y[i])}\)`;txt+=`<span class="row">${st===i+1?`<span class="on">${r}</span>`:st&&st<i+1?`<span class="dim">${r}</span>`:r}</span>`;}
+  txt+=TX`<span class="row">列读法：\(${pn(x[0])}\class{c1}{${cv(a1)}}+${pn(x[1])}\class{c2}{${cv(a2)}}=${cv(y)}\)</span>`;
+  setTex('r5',txt);
+  // plane
+  P5.clear();const t=S5.t;
+  const cf=c=>c===1?'':c===-1?'−':fm(c);
+  P5.arrow(0,0,a1[0],a1[1],'var(--m1)',{op:.35,w:2,label:'a₁',mid:1});P5.arrow(0,0,a2[0],a2[1],'var(--m2)',{op:.35,w:2,label:'a₂',mid:1});
+  const s1=Math.min(1,t),s2=Math.max(0,Math.min(1,t-1));
+  const p1=[x[0]*a1[0]*ease(s1),x[0]*a1[1]*ease(s1)];
+  P5.arrow(0,0,p1[0],p1[1],'var(--m1)',{label:s1>=1?`${cf(x[0])}a₁`:'',anchor:'end',lx:-10,ly:-6});
+  if(t>1){const q=[p1[0]+x[1]*a2[0]*ease(s2),p1[1]+x[1]*a2[1]*ease(s2)];P5.arrow(p1[0],p1[1],q[0],q[1],'var(--m2)',{label:s2>=1?`${cf(x[1])}a₂`:'',mid:1});}
+  if(t>=2)P5.arrow(0,0,y[0],y[1],'var(--ink)',{w:3,label:`Ax = [${fm(y[0])}, ${fm(y[1])}]`,anchor:'middle',lx:0,ly:22});
+}
+$('b5row').onclick=()=>{clearInterval(timer5);S5.step=1;r5();if(reduced)return;timer5=setInterval(()=>{S5.step++;if(S5.step>2){clearInterval(timer5);}r5();},1400);};
+$('b5col').onclick=()=>{stop5();S5.step=0;stop5=animate(2400,t=>{S5.t=t*2;r5();});};
+
+/* ---------- 6 网格变换 ---------- */
+const S6={A:[[2,0],[0,0.5]],t:1};let stop6=()=>{};
+const PRE6=[['拉伸',[[2,0],[0,0.5]]],['旋转 90°',[[0,-1],[1,0]]],['剪切',[[1,1],[0,1]]],['镜像',[[-1,0],[0,1]]],['压扁',[[1,2],[0.5,1]]],['刚度 K',[[3,-1],[-1,1]]]];
+const P6=Plane($('p6'),4);
+function setA6(M){S6.A=M.map(r=>r.slice());matInputs($('m6A'),S6.A,()=>r6());r6();}
+PRE6.forEach(([n,M])=>{const b=document.createElement('button');b.type='button';b.textContent=n;b.onclick=()=>{setA6(M);play6();};$('pre6').appendChild(b);});
+function r6(){
+  P6.clear();const A=S6.A,t=S6.t;
+  const M=[[1+(A[0][0]-1)*t,A[0][1]*t],[A[1][0]*t,1+(A[1][1]-1)*t]];
+  const T=([x,y])=>[M[0][0]*x+M[0][1]*y,M[1][0]*x+M[1][1]*y];
+  for(let i=-8;i<=8;i++){const a=T([i,-8]),b=T([i,8]),c=T([-8,i]),d=T([8,i]);
+    P6.line(a[0],a[1],b[0],b[1],`stroke:var(--accent);stroke-width:1;opacity:${i?.28:.5};${i?'':'stroke-dasharray:5 4'}`);P6.line(c[0],c[1],d[0],d[1],`stroke:var(--accent);stroke-width:1;opacity:${i?.28:.5};${i?'':'stroke-dasharray:5 4'}`);}
+  P6.poly([T([0,0]),T([1,0]),T([1,1]),T([0,1])],'fill:var(--m3);fill-opacity:.18;stroke:var(--m3);stroke-width:1.2');
+  const e1=T([1,0]),e2=T([0,1]);
+  P6.arrow(0,0,e1[0],e1[1],'var(--bad)',{w:3,label:t>=1?'Ae₁':'e₁'});
+  P6.arrow(0,0,e2[0],e2[1],'var(--m2)',{w:3,label:t>=1?'Ae₂':'e₂'});
+  const det=M[0][0]*M[1][1]-M[0][1]*M[1][0], detA=A[0][0]*A[1][1]-A[0][1]*A[1][0];
+  $('t6').value=t;
+  setTex('r6',TX`<span class="row cbad">\(A\bm e_1\) = 第 1 列 = \(${rv([A[0][0],A[1][0]])}^T\)</span><span class="row c2">\(A\bm e_2\) = 第 2 列 = \(${rv([A[0][1],A[1][1]])}^T\)</span><span class="row">\(\det A=${fm(A[0][0])}\times${pn(A[1][1])}-${pn(A[0][1])}\times${pn(A[1][0])}=${fm(detA,3)}\)（当前帧 \(${fm(det,3)}\)）</span><span class="row">${Math.abs(detA)<1e-9?TX`<b class="cbad">\(\det A=0\)：整张平面被压成一条线，不可逆</b>`:detA<0?TX`\(\det A<0\)：面积放大 \(${fm(Math.abs(detA),3)}\) 倍，且图形翻面`:TX`面积放大 \(${fm(detA,3)}\) 倍`}</span>`);
+}
+function play6(){stop6();stop6=animate(1600,t=>{S6.t=ease(t);r6();});}
+$('b6play').onclick=play6;
+$('t6').oninput=e=>{stop6();S6.t=+e.target.value;r6();};
+
+/* ---------- 7 矩阵乘矩阵 ---------- */
+const S7={A:[[1,2],[3,4]],B:[[5,6],[7,8]],swap:false,cell:-1,mode:'cell'};let timer7=0;
+function mm(A,B){return A.map((r,i)=>B[0].map((_,j)=>r.reduce((s,v,k)=>s+v*B[k][j],0)));}
+function r7(){
+  const L=S7.swap?S7.B:S7.A,Rm=S7.swap?S7.A:S7.B,C=mm(L,Rm),nL=S7.swap?'B':'A',nR=S7.swap?'A':'B';
+  matShow($('m7A'),L);matShow($('m7B'),Rm);matShow($('m7C'),C);
+  [...$('m7C').children].forEach(sp=>{sp.style.cursor='pointer';sp.onclick=()=>{clearInterval(timer7);S7.mode='cell';S7.cell=(+sp.dataset.r)*2+(+sp.dataset.c);r7();};});
+  let txt=TX`<span class="row">\(${nL}${nR}=${bmx(C)}\)</span>`;
+  if(S7.mode==='cell'&&S7.cell>=0){const i=Math.floor(S7.cell/2),j=S7.cell%2;
+    hl($('m7A'),r=>r===i);hl($('m7B'),(r,c)=>c===j);hl($('m7C'),(r,c)=>r===i&&c===j);
+    txt=TX`<span class="row">\(c_{${i+1}${j+1}}\) = \(${nL}\) 第 ${i+1} 行 × \(${nR}\) 第 ${j+1} 列 \(=${rv(L[i])}${cv([Rm[0][j],Rm[1][j]])}=${L[i][0]}\times${pn(Rm[0][j])}+${L[i][1]}\times${pn(Rm[1][j])}=${C[i][j]}\)</span>`+txt;}
+  else if(S7.mode==='col'){hl($('m7A'),()=>true);hl($('m7B'),(r,c)=>c===0);hl($('m7C'),(r,c)=>c===0);
+    txt=TX`<span class="row">一般形式：\(${nL}${nR}=${nL}\,[\bm ${nR.toLowerCase()}_1\ \bm ${nR.toLowerCase()}_2\ \cdots\ \bm ${nR.toLowerCase()}_p]=[${nL}\bm ${nR.toLowerCase()}_1\ \ ${nL}\bm ${nR.toLowerCase()}_2\ \cdots\ ${nL}\bm ${nR.toLowerCase()}_p]\)</span><span class="row">第 1 列：\(${nL}${cv([Rm[0][0],Rm[1][0]])}=${cv([C[0][0],C[1][0]])}\)；第 2 列：\(${nL}${cv([Rm[0][1],Rm[1][1]])}=${cv([C[0][1],C[1][1]])}\)</span>`+txt;}
+  else if(S7.mode==='row'){hl($('m7A'),r=>r===0);hl($('m7B'),()=>true);hl($('m7C'),r=>r===0);
+    txt=TX`<span class="row">一般形式：\(${nL}${nR}=\begin{bmatrix}\bm ${nL.toLowerCase()}_1^T\\\vdots\\\bm ${nL.toLowerCase()}_m^T\end{bmatrix}${nR}=\begin{bmatrix}\bm ${nL.toLowerCase()}_1^T${nR}\\\vdots\\\bm ${nL.toLowerCase()}_m^T${nR}\end{bmatrix}\)，\(\bm ${nL.toLowerCase()}_i^T\) 为 \(${nL}\) 的第 \(i\) 行</span><span class="row">第 1 行：\(${pn(L[0][0])}\times${rv(Rm[0])}+${pn(L[0][1])}\times${rv(Rm[1])}=${rv(C[0])}\)</span><span class="row">第 2 行：\(${pn(L[1][0])}\times${rv(Rm[0])}+${pn(L[1][1])}\times${rv(Rm[1])}=${rv(C[1])}\)</span>`+txt;}
+  else{hl($('m7A'),()=>false);hl($('m7B'),()=>false);hl($('m7C'),()=>false);}
+  if(S7.swap)txt+=TX`<span class="row"><b class="cbad">\(BA\ne AB\)</b>：\(AB=${bmx(mm(S7.A,S7.B))}\)</span>`;
+  setTex('r7',txt);
+}
+$('b7step').onclick=()=>{clearInterval(timer7);S7.mode='cell';S7.cell=0;r7();if(reduced)return;timer7=setInterval(()=>{S7.cell++;if(S7.cell>3){clearInterval(timer7);S7.cell=3;}r7();},1500);};
+$('b7swap').onclick=()=>{S7.swap=!S7.swap;setTex('b7swap',S7.swap?TX`换回 \(AB\)`:TX`交换为 \(BA\)`);r7();};
+$('b7col').onclick=()=>{clearInterval(timer7);S7.mode='col';r7();};
+$('b7row').onclick=()=>{clearInterval(timer7);S7.mode='row';r7();};
+
+/* ---------- 8 次序 ---------- */
+const F8=[[0,0],[0,2],[1.2,2],[1.2,1.6],[0.4,1.6],[0.4,1.2],[1,1.2],[1,0.8],[0.4,0.8],[0.4,0]];
+const P8a=Plane($('p8a'),4.5),P8b=Plane($('p8b'),4.5);let stop8=()=>{};
+const rot=s=>{const a=s*Math.PI/2;return [[Math.cos(a),-Math.sin(a)],[Math.sin(a),Math.cos(a)]];};
+const str=s=>[[1+s,0],[0,1]];
+const mul=(A,B)=>A.map(r=>B[0].map((_,j)=>r[0]*B[0][j]+r[1]*B[1][j]));
+function drawF(P,M,stage){P.clear();P.poly(F8,'fill:none;stroke:var(--muted);stroke-dasharray:3 3;stroke-width:1.2');
+  const pts=F8.map(([x,y])=>[M[0][0]*x+M[0][1]*y,M[1][0]*x+M[1][1]*y]);
+  P.poly(pts,'fill:var(--accent);fill-opacity:.28;stroke:var(--accent);stroke-width:1.6');
+  const tip=pts[1];el('circle',{cx:P.X(tip[0]),cy:P.Y(tip[1]),r:4,style:'fill:var(--m2)'},P.gC);
+  P.text(-2.85,2.6,stage,'fill:var(--muted)','start',12);}
+function r8(t){
+  const s1=Math.min(1,t),s2=Math.max(0,t-1);
+  drawF(P8a,mul(str(ease(s2)),rot(ease(s1))),t<1?'① 转 90°':t<2?'② 横向拉 2 倍':'完成：SR');
+  drawF(P8b,mul(rot(ease(s2)),str(ease(s1))),t<1?'① 横向拉 2 倍':t<2?'② 转 90°':'完成：RS');
+  $('r8').textContent=t>=2?'两种次序的结果形状不同。':'';
+}
+$('b8').onclick=()=>{stop8();stop8=animate(3200,t=>r8(t*2));};
+
+/* ---------- 9 转置 ---------- */
+const A9=[[1,2,3],[4,5,6]];let tr9=false;
+(function(){const g=$('tg9');g.style.width='132px';g.style.height='114px';g.style.borderLeft='2px solid var(--ink)';g.style.borderRight='2px solid var(--ink)';g.style.borderRadius='6px';
+  A9.forEach((r,i)=>r.forEach((v,j)=>{const c=document.createElement('div');c.className='tcell'+(i===j?' diag':'');c.textContent=v;c.dataset.i=i;c.dataset.j=j;g.appendChild(c);}));})();
+function r9(){const g=$('tg9');[...g.children].forEach(c=>{const i=+c.dataset.i,j=+c.dataset.j;const [r,col]=tr9?[j,i]:[i,j];c.style.transform=`translate(${4+col*42}px,${4+r*36}px)`;});
+  g.style.width=(tr9?2:3)*42+8+'px';g.style.height=(tr9?3:2)*36+8+'px';setTex('r9',tr9?TX`\(A^T\)：\(3\times 2\)（黄色为主对角线，位置不变）`:TX`\(A\)：\(2\times 3\)`);$('b9').textContent=tr9?'▶ 再转置回去':'▶ 转置';}
+$('b9').onclick=()=>{tr9=!tr9;r9();};
+
+/* ---------- 10 点积与外积 ---------- */
+let n10=4,timer10=0;
+function r10(){
+  const x=[1,2],y=[3,4];
+  const cell=(v,on)=>`<span${on?' class="on"':''}>${v}</span>`;
+  const inner=n10>=2?11:n10===1?'3 + …':'?';
+  setTex('in10',`<span class="mat" style="grid-template-columns:repeat(2,auto)">${cell(1,n10===1)}${cell(2,n10===2)}</span><span class="mat" style="grid-template-columns:auto">${cell(3,n10===1)}${cell(4,n10===2)}</span>=<span class="mat" style="grid-template-columns:auto">${cell(inner,n10<=2&&n10>0)}</span><span class="why">${n10>=2?TX`\(1\times3+2\times4=11\)`:''}</span>`);
+  const o=[[3,4],[6,8]];let k=0,g='';for(let i=0;i<2;i++)for(let j=0;j<2;j++){const idx=i*2+j;g+=cell(idx<n10?o[i][j]:'·',idx===n10-1);}
+  const ii=Math.floor((n10-1)/2),jj=(n10-1)%2;
+  $('out10').innerHTML=`<span class="mat" style="grid-template-columns:auto">${cell(1,n10>0&&ii===0)}${cell(2,n10>0&&ii===1)}</span><span class="mat" style="grid-template-columns:repeat(2,auto)">${cell(3,n10>0&&jj===0)}${cell(4,n10>0&&jj===1)}</span>=<span class="mat" style="grid-template-columns:repeat(2,auto)">${g}</span>`;
+}
+$('b10').onclick=()=>{clearInterval(timer10);n10=0;r10();if(reduced){n10=4;r10();return;}timer10=setInterval(()=>{n10++;r10();if(n10>=4)clearInterval(timer10);},900);};
+
+/* ---------- 11 两层楼 ---------- */
+const S11={k1:2,k2:1,u:[0,1]};
+const sv11=$('p11');
+function r11(){
+  const {k1,k2,u}=S11,[u1,u2]=u;
+  const K=[[k1+k2,-k2],[-k2,k2]],p=[K[0][0]*u1+K[0][1]*u2,K[1][0]*u1+K[1][1]*u2];
+  sv11.replaceChildren();
+  const gy=300,y1=195,y2=90,cx=170,half=60,sc=42,fs=26;
+  el('line',{x1:40,y1:gy,x2:300,y2:gy,style:'stroke:var(--ink);stroke-width:2'},sv11);
+  for(let i=0;i<17;i++)el('line',{x1:46+i*15,y1:gy,x2:38+i*15,y2:gy+8,style:'stroke:var(--muted)'},sv11);
+  for(const y of[y1,y2])el('line',{x1:cx-half-10,y1:y,x2:cx+half+10,y2:y,style:'stroke:var(--muted);stroke-dasharray:3 3;opacity:.6'},sv11);
+  const d1=u1*sc,d2=u2*sc,col=(xb,xt,yb,yt)=>`M${xb},${yb} C${xb},${(yb*2+yt)/3} ${xt},${(yb+yt*2)/3} ${xt},${yt}`;
+  for(const s of[-1,1])el('path',{d:col(cx+s*half,cx+s*half+d1,gy,y1)+' '+col(cx+s*half+d1,cx+s*half+d2,y1,y2).replace('M','L'),style:'fill:none;stroke:var(--ink);stroke-width:2.2'},sv11);
+  el('text',{x:cx-half-16,y:(gy+y1)/2+4,'text-anchor':'end','font-size':12,style:'fill:var(--muted)',text:`k₁=${fm(k1)}，变形 ${fm(u1)}`},sv11);
+  el('text',{x:cx-half-16,y:(y1+y2)/2+4,'text-anchor':'end','font-size':12,style:'fill:var(--muted)',text:`k₂=${fm(k2)}，变形 ${fm(u2-u1)}`},sv11);
+  const slab=(y,d,colr,i)=>{const r=el('rect',{x:cx-half-10+d,y:y-7,width:2*half+20,height:14,rx:2,tabindex:0,role:'slider','aria-label':`第${i+1}层位移`,style:`fill:${colr};cursor:ew-resize`},sv11);
+    let on=false;r.addEventListener('pointerdown',e=>{on=true;r.setPointerCapture(e.pointerId);e.preventDefault();});
+    r.addEventListener('pointermove',e=>{if(!on)return;const pt=sv11.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;const q=pt.matrixTransform(sv11.getScreenCTM().inverse());let v=Math.round(((q.x-cx)/sc)/0.25)*0.25;v=Math.max(-2.5,Math.min(2.5,v));if(v!==S11.u[i]){S11.u[i]=v;$('u1'+(i+1)).value=v;r11();}});
+    r.addEventListener('pointerup',()=>on=false);
+    r.addEventListener('keydown',e=>{const m={ArrowLeft:-0.25,ArrowRight:0.25}[e.key];if(m){e.preventDefault();S11.u[i]=Math.max(-2.5,Math.min(2.5,S11.u[i]+m));$('u1'+(i+1)).value=S11.u[i];r11();}});};
+  slab(y1,d1,'var(--m1)',0);slab(y2,d2,'var(--m2)',1);
+  const arrowF=(y,d,pv,colr,name)=>{if(Math.abs(pv)<1e-9){el('text',{x:cx+half+20+Math.max(d,0),y:y+4,'font-size':12.5,style:`fill:${colr}`,text:`${name} = 0`},sv11);return;}
+    const x0=pv>0?cx-half-14+d-pv*fs:cx+half+14+d-pv*fs,x1=pv>0?cx-half-14+d:cx+half+14+d; // arrow pushes toward slab
+    const dir=pv>0?1:-1;el('line',{x1:x0,y1:y,x2:x1-dir*8,y2:y,style:`stroke:${colr};stroke-width:3`},sv11);
+    el('polygon',{points:`${x1},${y} ${x1-dir*10},${y-6} ${x1-dir*10},${y+6}`,style:`fill:${colr}`},sv11);
+    el('text',{x:x0-dir*6,y:y-10,'text-anchor':pv>0?'end':'start','font-size':12.5,style:`fill:${colr};font-weight:600`,text:`${name} = ${fm(pv)}`},sv11);};
+  arrowF(y1,d1,p[0],'var(--m1)','p₁');arrowF(y2,d2,p[1],'var(--m2)','p₂');
+  el('text',{x:190,y:gy+22,'text-anchor':'middle','font-size':11,style:'fill:var(--muted)',text:'拖动楼板改变位移；箭头为维持该位移所需的外力'},sv11);
+  setTex('r11',TX`<span class="row">\(K=${bmx(K)},\quad \bm u=${rv([u1,u2])}^T\)</span><span class="row">行读法：</span><span class="row c1">\(p_1=${fm(K[0][0])}\times${pn(u1)}+${pn(K[0][1])}\times${pn(u2)}=${fm(p[0])}\)</span><span class="row c2">\(p_2=${pn(K[1][0])}\times${pn(u1)}+${fm(K[1][1])}\times${pn(u2)}=${fm(p[1])}\)</span><span class="row">列读法：\(${pn(u1)}${cv([K[0][0],K[1][0]])}+${pn(u2)}${cv([K[0][1],K[1][1]])}=${cv(p)}\)</span>`+
+    (u1===1&&u2===0?TX`<span class="row"><b>\(\bm u=\bm e_1\)：外力恰为 \(K\) 的第 1 列</b></span>`:u1===0&&u2===1?TX`<span class="row"><b>\(\bm u=\bm e_2\)：外力恰为 \(K\) 的第 2 列——二层推 \(+1\)，一层要用 \(-1\) 顶住</b></span>`:''));
+}
+['k11','k12'].forEach((id,i)=>$(id).oninput=e=>{const v=parseFloat(e.target.value);if(!isNaN(v)){S11['k'+(i+1)]=v;r11();}});
+['u11','u12'].forEach((id,i)=>$(id).oninput=e=>{const v=parseFloat(e.target.value);if(!isNaN(v)){S11.u[i]=Math.max(-2.5,Math.min(2.5,v));r11();}});
+const setU=(a,b)=>{S11.u=[a,b];$('u11').value=a;$('u12').value=b;r11();};
+$('b11e1').onclick=()=>setU(1,0);$('b11e2').onclick=()=>setU(0,1);$('b11v').onclick=()=>setU(1,2);
+
+/* ---------- 12 单位 ---------- */
+function r12(){const k=parseFloat($('k12u').value),m=parseFloat($('m12u').value);if(!(k>0&&m>0)){setTex('r12','请输入正数');return;}
+  const w2n=k/m,w2=k/m*1000,w=Math.sqrt(w2),wn=Math.sqrt(w2n);
+  setTex('r12',TX`<span class="row cbad">直接相除：\(\omega^2=\dfrac{${fm(k)}}{${fm(m)}}=${fm(w2n,4)}\)</span><span class="row cbad">\(\omega=${fm(wn,3)}\ \text{rad/s},\quad T=\dfrac{2\pi}{\omega}=${fm(2*Math.PI/wn,3)}\ \text{s}\)　✗</span><span class="row cok">换算到 SI：\(k=${fm(k)}\times10^6\ \text{N/m},\ m=${fm(m)}\times10^3\ \text{kg}\)</span><span class="row cok">\(\omega^2=\dfrac{${fm(k)}\times10^6}{${fm(m)}\times10^3}=${fm(w2,3)}\ \text{s}^{-2}\)</span><span class="row cok">\(\omega=${fm(w,3)}\ \text{rad/s},\quad T=\dfrac{2\pi}{\omega}=${fm(2*Math.PI/w,4)}\ \text{s}\)　✓</span><span class="row">周期相差 \(\sqrt{1000}\approx31.6\) 倍</span>`);}
+['k12u','m12u'].forEach(id=>$(id).oninput=r12);
+
+/* ---------- 13 自测 ---------- */
+(function(){let st={};try{st=JSON.parse(localStorage.getItem('la01-check')||'{}');}catch(e){}
+  document.querySelectorAll('#chk input').forEach(c=>{c.checked=!!st[c.id];c.onchange=()=>{st[c.id]=c.checked;try{localStorage.setItem('la01-check',JSON.stringify(st));}catch(e){}};});})();
+
+/* ---------- 启动 ---------- */
+s1();r2();r3();r4();r5();setA6(S6.A);r7();r8(2);r9();r10();r11();r12();
+</script>
+</html>

@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>线代预备03 坐标与正交</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<script>
+window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],macros:{bm:['\\boldsymbol{#1}',1]}},svg:{fontCache:'global'},options:{enableMenu:false},startup:{ready(){MathJax.startup.defaultReady();MathJax.startup.promise.then(()=>{window.__onMJ&&window.__onMJ();});}}};
+</script>
+<script src="../assets/mathjax/tex-svg-full.js" async></script>
+<style>
+/* Layout: single-column study sheet; each section = text + one interactive figure (SVG) + readout */
+:root{
+  --bg:#eef1f4; --paper:#ffffff; --ink:#18212c; --muted:#5a6675; --rule:#d3dae3; --soft:#e4e9ef; --grid:#dfe5ec; --axis:#9aa6b4;
+  --accent:#1d5b9e; --m1:#1f6fb2; --m2:#cf7a22; --m3:#a83c75; --ok:#2b7d4f; --bad:#b33a2e; --hl:#fff3c4;
+  --serif:"Noto Serif SC","Songti SC","SimSun",serif;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"JetBrains Mono",Consolas,"SFMono-Regular",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11151b; --paper:#181e26; --ink:#e2e7ed; --muted:#98a4b3; --rule:#2c3643; --soft:#212a35; --grid:#252e3a; --axis:#5d6a7a;
+  --accent:#6ea8ea; --m1:#5ba7ec; --m2:#efa352; --m3:#e07bb0; --ok:#5cc08a; --bad:#ef7b6e; --hl:#4a4220; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11151b; --paper:#181e26; --ink:#e2e7ed; --muted:#98a4b3; --rule:#2c3643; --soft:#212a35; --grid:#252e3a; --axis:#5d6a7a;
+  --accent:#6ea8ea; --m1:#5ba7ec; --m2:#efa352; --m3:#e07bb0; --ok:#5cc08a; --bad:#ef7b6e; --hl:#4a4220; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.75;padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:980px;margin:0 auto}
+header.top{padding-block:36px 16px}
+.eyebrow{font-size:12px;letter-spacing:.12em;color:var(--muted)}
+h1{font-family:var(--serif);font-size:clamp(26px,4.4vw,38px);line-height:1.25;margin:6px 0 10px;text-wrap:balance}
+h2{font-family:var(--serif);font-size:22px;line-height:1.35;margin:0;text-wrap:balance}
+h3{font-size:15.5px;margin:20px 0 6px}
+p{margin:8px 0}
+ul{margin:6px 0;padding-left:1.4em}
+.lede{max-width:46em;color:var(--muted)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.series{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;font-size:13px}
+.series span{border:1px solid var(--rule);border-radius:4px;padding:3px 10px;background:var(--paper);color:var(--muted)}
+.series span.cur{border-color:var(--accent);color:var(--accent);font-weight:500}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;font-size:13px}
+.toc a{color:var(--ink);text-decoration:none;border-bottom:1px dotted var(--axis)}
+.toc a:hover,.toc a:focus-visible{color:var(--accent)}
+section.step{background:var(--paper);border:1px solid var(--rule);border-radius:6px;margin-top:22px;padding:22px 22px 18px}
+.stephead{display:flex;gap:14px;align-items:baseline;border-bottom:1px solid var(--rule);padding-bottom:10px;margin-bottom:12px;flex-wrap:wrap}
+.stepno{font-family:var(--mono);font-size:13px;color:var(--accent);border:1px solid var(--accent);border-radius:3px;padding:0 7px;white-space:nowrap}
+.src{font-size:12px;color:var(--muted);margin-left:auto}
+.why{font-size:13.5px;color:var(--muted)}
+.note{border-left:3px solid var(--accent);padding:6px 12px;background:var(--soft);font-size:14px;margin:12px 0;border-radius:0 4px 4px 0}
+.note.warn{border-color:var(--m2)}
+.note.key{border-color:var(--ok)}
+.fig{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:18px;align-items:start;margin:12px 0}
+.fig>*{min-width:0}
+@media (max-width:720px){.fig{grid-template-columns:minmax(0,1fr)}}
+svg.plane{width:100%;max-width:420px;display:block;touch-action:none;background:var(--paper);border:1px solid var(--rule);border-radius:4px}
+svg text{fill:var(--ink);font-family:var(--sans)}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+.ctrl label{font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+input,select,button{font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:4px;padding:4px 8px}
+input[type=number]{width:4.6em;font-family:var(--mono)}
+input[type=range]{padding:0;width:150px}
+button{cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.pri{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.read{font-family:var(--sans);font-size:14px;background:var(--soft);border-radius:4px;padding:10px 12px;line-height:2;overflow-x:auto}
+.read .row{display:block}
+.read .on{background:var(--hl);border-radius:3px;padding:0 4px}
+.read .dim{opacity:.35}
+.read b{font-weight:600}
+.c1{color:var(--m1)}.c2{color:var(--m2)}.c3{color:var(--m3)}.cok{color:var(--ok)}.cbad{color:var(--bad)}
+.tbl{overflow-x:auto;margin:10px 0}
+table{border-collapse:collapse;font-size:13.5px;min-width:100%}
+.tbl table{min-width:540px}
+th:first-child,td:first-child{white-space:nowrap}
+th,td{border-bottom:1px solid var(--rule);padding:6px 10px;text-align:left;vertical-align:top}
+th{font-weight:500;color:var(--muted);font-size:12.5px}
+mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;max-width:100%;padding:2px 0}
+.mat{display:inline-grid;gap:2px 12px;vertical-align:middle;border-left:2px solid var(--ink);border-right:2px solid var(--ink);border-radius:6px;padding:4px 10px;font-family:var(--mono);text-align:center}
+.mat span{padding:1px 4px;border-radius:3px;transition:background .25s}
+.mat span.on{background:var(--hl)}
+.mat input{width:3.4em;text-align:center;padding:2px}
+.eqrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:10px 0;font-family:var(--mono)}
+.tgrid{position:relative;display:inline-block;vertical-align:middle}
+.tcell{position:absolute;width:40px;height:34px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);border-radius:4px;transition:transform .9s cubic-bezier(.4,.1,.2,1),background .3s}
+.tcell.diag{background:var(--hl)}
+.chip{display:inline-block;font-family:var(--mono);border:1px solid var(--rule);border-radius:4px;padding:1px 8px}
+.chip.ok{border-color:var(--ok);color:var(--ok)}.chip.bad{border-color:var(--bad);color:var(--bad)}
+details{border:1px solid var(--rule);border-radius:4px;padding:6px 12px;margin:10px 0}
+details summary{cursor:pointer;color:var(--accent);font-weight:500}
+.ex li{margin:6px 0}
+.check label{display:flex;gap:8px;align-items:flex-start;margin:6px 0;font-size:14.5px}
+.check input{margin-top:6px}
+footer{font-size:12.5px;color:var(--muted);margin-top:26px}
+@media (max-width:640px){section.step{padding:16px 14px}}
+a{color:var(--accent)}
+.series a{text-decoration:none}
+.series a span:hover{border-color:var(--accent)}
+.duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+@media (max-width:720px){.duo{grid-template-columns:minmax(0,1fr)}}
+svg.mini{width:100%;display:block;background:var(--paper);border:1px solid var(--rule);border-radius:4px}
+.flag{display:inline-block;font-size:12.5px;border-radius:3px;padding:0 8px;margin-left:6px;background:var(--hl);color:var(--ink)}
+.mis{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin:10px 0}
+.mis button{text-align:left;padding:10px 12px;line-height:1.6;min-height:84px;background:var(--soft);border-color:var(--rule)}
+.mis button .a{display:none;color:var(--ok)}
+.mis button.open .q{text-decoration:line-through;color:var(--muted)}
+.mis button.open .a{display:block;margin-top:4px}
+.flow{margin:10px 0;display:grid;gap:2px}
+.flow .st{display:grid;grid-template-columns:minmax(0,1fr) 6.5em minmax(0,13em);gap:10px;align-items:center;background:var(--soft);border-radius:4px;padding:6px 12px}
+.flow .sec{font-size:12.5px;color:var(--muted)}
+.flow .ar{font-size:13px;color:var(--accent);padding-left:14px}
+@media (max-width:560px){.flow .st{grid-template-columns:minmax(0,1fr)}.flow .sec{display:none}}
+pre.line{font-family:var(--mono);font-size:13px;background:var(--soft);border-radius:4px;padding:12px 14px;overflow-x:auto;line-height:1.7;margin:10px 0}
+</style>
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow"><a href="../index.html" style="color:var(--accent);text-decoration:none;letter-spacing:0">← 返回首页</a>　线性代数预备 · 面向结构动力学 · 交互版</div>
+  <h1>03 坐标、正交与二次型</h1>
+  <p class="lede">这一篇是全套的枢纽。\(\boldsymbol u=\Phi\boldsymbol q\) 如果只当一次矩阵乘法，永远理解不了“解耦”。它的本质是：同一个位移可以换一套坐标来描述，换对了，方程就拆开了。本篇分四块：坐标变换、正交与投影、二次型与正定、质量加权内积。贯穿算例仍是 \(K=\begin{bmatrix}3&-1\\-1&1\end{bmatrix}\)，引入 \(M=\begin{bmatrix}2&0\\0&1\end{bmatrix}\)，并借用 04 篇会算出的振型 \(\boldsymbol\phi_1=[1,2]^T\)、\(\boldsymbol\phi_2=[1,-1]^T\)。</p>
+  <div class="series" id="series" data-cur="03" aria-label="系列目录"></div>
+  <nav class="toc" aria-label="本篇目录">
+    <a href="#s1">1 换基与三种基</a>·<a href="#s2">2 正交与正交矩阵</a>·<a href="#s3">3 投影</a>·<a href="#s4">4 Gram–Schmidt</a>·<a href="#s5">5 二次型与正定</a>·<a href="#s6">6 相似与合同</a>·<a href="#s7">7 质量加权内积</a>·<a href="#s8">8 解耦与练习</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section class="step" id="s1">
+  <div class="stephead"><span class="stepno">1</span><h2>换基：同一支箭，三种基下怎么求坐标</h2><span class="src">笔记 §2–§4</span></div>
+  <p>向量是那支真实的箭，坐标是它在<b>某组基下</b>的一串数字：前者不变，后者随基改变。把新基向量按列排成矩阵 \(V=[\boldsymbol v_1\ \boldsymbol v_2]\)，列读法给出</p>
+  \[\boldsymbol x=V\boldsymbol q\quad(\text{新坐标}\to\text{原坐标}),\qquad \boldsymbol q=V^{-1}\boldsymbol x\quad(\text{原坐标}\to\text{新坐标})\]
+  <p>\(V\) 是一本字典：每一列是一个新基向量<b>用原坐标写出来</b>的样子，方向错了公式就反了。对任何可逆的 \(V\)，都能这样解方程求坐标；如果基向量互相正交，还有捷径：每个坐标单独用投影公式 \(c_i=\dfrac{\boldsymbol v_i^T\boldsymbol x}{\boldsymbol v_i^T\boldsymbol v_i}\) 算。下图选不同的基，打开“套用投影公式”看它什么时候对、什么时候错：</p>
+  <div class="fig">
+    <svg class="plane" id="p1" role="img" aria-label="三种基下求坐标"></svg>
+    <div>
+      <div class="ctrl" id="pre1"></div>
+      <div class="ctrl"><label><input type="checkbox" id="c1p"> 套用投影公式（红色）</label></div>
+      <div class="read" id="r1"></div>
+      <p class="why">红色目标 \(\boldsymbol x\) 可拖动。蓝橙虚线是正确配方 \(c_1\boldsymbol v_1+c_2\boldsymbol v_2\)。</p>
+    </div>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>基类型</th><th>求 \(c_i\)</th><th>代价</th><th>各坐标独立？</th></tr></thead>
+    <tbody>
+      <tr><td>一般基</td><td>\(\boldsymbol c=V^{-1}\boldsymbol x\)</td><td>解 \(n\) 元方程组，\(O(n^3)\)</td><td>否，互相牵扯</td></tr>
+      <tr><td>正交基</td><td>\(c_i=\dfrac{\boldsymbol v_i^T\boldsymbol x}{\boldsymbol v_i^T\boldsymbol v_i}\)</td><td>每个一次点积一次除法</td><td>是</td></tr>
+      <tr><td>正交归一基</td><td>\(c_i=\hat{\boldsymbol e}_i^T\boldsymbol x\)</td><td>每个一次点积</td><td>是</td></tr>
+    </tbody>
+  </table></div>
+  <p><b>投影公式不是另一个公式。</b>把 \(V\boldsymbol c=\boldsymbol x\) 两边左乘 \(V^T\) 得 \(V^TV\boldsymbol c=V^T\boldsymbol x\)。列两两正交时 \(V^TV\) 是对角阵，方程组自动拆成 \(n\) 个一元方程 \((\boldsymbol v_i^T\boldsymbol v_i)c_i=\boldsymbol v_i^T\boldsymbol x\)，就是投影公式；一般基的 \(V^TV\) 有非对角项，单独用投影公式等于把非对角项当成零，所以错。读数里同时给出了 \(V^TV\)。</p>
+  <div class="note key"><b>这张表是全套的核心动机之一</b>：正交基下，只算某一阶坐标可行，其他阶看都不用看，这是振型截断的数值基础。第 7 节把“正交”换成“\(M\)-正交”，结论原样成立。选“振型基”预设：\(\boldsymbol u=[1.5,1.5]^T\) 的振型坐标是 \((1,\ 0.5)\)，即 1 份第一振型加 0.5 份第二振型；\(\boldsymbol u\) 和 \(\boldsymbol q\) 是同一个位移的两套坐标。</div>
+</section>
+
+<!-- 2 -->
+<section class="step" id="s2">
+  <div class="stephead"><span class="stepno">2</span><h2>正交 ⟹ 无关；正交矩阵只转不拉</h2><span class="src">笔记 §6–§7</span></div>
+  <p><b>非零、两两正交的向量必线性无关。</b>设 \(\sum c_i\boldsymbol v_i=\boldsymbol 0\)，两边左乘 \(\boldsymbol v_j^T\)：</p>
+  \[\sum_i c_i\,\boldsymbol v_j^T\boldsymbol v_i=c_j\,\boldsymbol v_j^T\boldsymbol v_j=c_j\lVert\boldsymbol v_j\rVert^2=0\ \Rightarrow\ c_j=0\]
+  <p>交叉项因正交消失（用到“两两正交”），\(\lVert\boldsymbol v_j\rVert^2>0\)（用到“非零”）。反过来不成立：\([1,0]^T,[1,1]^T\) 无关却不正交。所以 \(n\) 个非零、两两正交的 \(n\) 维向量自动构成基，不必另外验证独立性。第 7 节换成 \(M\)-正交后，这就是“\(n\) 个振型必然构成基、\(\Phi\) 必然可逆”的证明。</p>
+  <p>列是正交归一组的方阵叫<b>正交矩阵</b>：\(Q^TQ=I\)，所以 \(Q^{-1}=Q^T\)，求逆退化成转置。它不改变长度和夹角：\(\lVert Q\boldsymbol x\rVert^2=\boldsymbol x^TQ^TQ\boldsymbol x=\lVert\boldsymbol x\rVert^2\)，几何上就是旋转加反射：</p>
+  <div class="fig">
+    <svg class="plane" id="p2" role="img" aria-label="正交矩阵作用"></svg>
+    <div>
+      <div class="ctrl"><label>旋转角 \(\theta\) <input id="a2" type="range" min="0" max="360" step="1" value="45"></label><span class="num" id="a2v"></span></div>
+      <div class="ctrl"><label><input type="checkbox" id="f2"> 先镜像（\(\det Q=-1\)）</label><label><input type="checkbox" id="s2s"> 改成非正交的拉伸（对照）</label></div>
+      <div class="read" id="r2"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="step" id="s3">
+  <div class="stephead"><span class="stepno">3</span><h2>投影：\(\boldsymbol x\) 里含有多少 \(\boldsymbol v\)</h2><span class="src">笔记 §8–§10</span></div>
+  <p>把 \(\boldsymbol x\) 拆成沿 \(\boldsymbol v\) 的分量加垂直于 \(\boldsymbol v\) 的余量：\(\boldsymbol x=c\boldsymbol v+\boldsymbol e\)，\(\boldsymbol v^T\boldsymbol e=0\)。两边左乘 \(\boldsymbol v^T\)，余量项消失：</p>
+  \[c=\frac{\boldsymbol v^T\boldsymbol x}{\boldsymbol v^T\boldsymbol v},\qquad \operatorname{proj}_{\boldsymbol v}\boldsymbol x=\frac{\boldsymbol v^T\boldsymbol x}{\boldsymbol v^T\boldsymbol v}\,\boldsymbol v\]
+  <p>分子是同向程度，分母消掉 \(\boldsymbol v\) 自身长度的影响，乘回 \(\boldsymbol v\) 把系数还原成向量。分子必须是标量 \(\boldsymbol v^T\boldsymbol x\)，写成 \(\boldsymbol x\boldsymbol v^T\) 就成了矩阵（外积）。拖动 \(\boldsymbol x\)、\(\boldsymbol v\)，再点“\(\boldsymbol v\) 放大 2 倍”：</p>
+  <div class="fig">
+    <svg class="plane" id="p3" role="img" aria-label="投影"></svg>
+    <div>
+      <div class="ctrl"><button type="button" id="b3d">▶ \(\boldsymbol v\) 放大 2 倍</button><button type="button" id="b3r">还原为 \([1,\ 1]^T\)</button></div>
+      <div class="read" id="r3"></div>
+      <p class="why">投影只认方向，不认幅值：\(\boldsymbol v\) 换成 \(2\boldsymbol v\)，系数减半，投影向量不变。</p>
+    </div>
+  </div>
+  <p><b>正交归一基下，坐标就是投影</b>：\(\boldsymbol x=c_1\hat{\boldsymbol e}_1+c_2\hat{\boldsymbol e}_2\) 两边左乘 \(\hat{\boldsymbol e}_1^T\)，交叉项因正交消失，自身项因归一为 1，\(c_1=\hat{\boldsymbol e}_1^T\boldsymbol x\) 单独蹦出来。振型坐标 \(q_i=\boldsymbol\phi_i^TM\boldsymbol u/\boldsymbol\phi_i^TM\boldsymbol\phi_i\) 是同一招，只是点积换成了 \(M\)-内积（第 7 节）。</p>
+  <p><b>投影到子空间</b>：要求误差与 \(V\) 的每一列都垂直，\(V^T(\boldsymbol x-V\boldsymbol q)=\boldsymbol 0\)，即 \((V^TV)\boldsymbol q=V^T\boldsymbol x\)，这也是最小二乘的解。只取前 \(k\) 阶振型时，\(\boldsymbol u\approx\Phi_k\boldsymbol q_k\) 就是把真实位移投影到前 \(k\) 阶振型张成的子空间，这是振型截断的几何含义。</p>
+</section>
+
+<!-- 4 -->
+<section class="step" id="s4">
+  <div class="stephead"><span class="stepno">4</span><h2>Gram–Schmidt：从斜基造正交基</h2><span class="src">笔记 §11–§12</span></div>
+  <p>手里是一组不正交的基，就逐个减掉沿前面方向的投影：</p>
+  \[\boldsymbol w_j=\boldsymbol v_j-\sum_{i&lt;j}\frac{\boldsymbol w_i^T\boldsymbol v_j}{\boldsymbol w_i^T\boldsymbol w_i}\boldsymbol w_i\]
+  <p>用第 1 节的一般基 \(\boldsymbol v_1=[1,1]^T,\boldsymbol v_2=[1,2]^T\)、目标 \(\boldsymbol x=[5,7]^T\)，全程不解方程、不求逆。点“播放流水线”：</p>
+  <div class="fig">
+    <svg class="plane" id="p4" role="img" aria-label="Gram-Schmidt流水线"></svg>
+    <div>
+      <div class="ctrl"><button type="button" id="b4" class="pri">▶ 播放流水线</button><button type="button" id="b4r">回到开头</button></div>
+      <div class="read" id="r4"></div>
+      <p class="why">\(\boldsymbol v_1,\boldsymbol v_2,\boldsymbol x\) 都可拖动；拖动后再播放。</p>
+    </div>
+  </div>
+  <p>造正交基只做一次，之后每换一个 \(\boldsymbol x\) 只需重做投影和换回两步。对同一系数矩阵反复求解（时程分析成千上万个时步）尤其划算，这正是振型分解的原型思想。\(V=QR\) 分解就是这条流水线的矩阵化打包。</p>
+  <div class="note warn"><b>正交化不是特征分解。</b>Gram–Schmidt 造出的正交基只保证 \(Q^TQ=I\)，不保证 \(Q^TKQ\) 对角。要同时对角化 \(M\)、\(K\)，需要 04 篇的广义特征值问题。</div>
+  <h3>换基的两个陷阱</h3>
+  <ul>
+    <li><b>必须换回原基。</b>工程师要的是层间位移角、构件内力这些物理量，振型坐标 \(q_i(t)\) 是中间变量。\(\boldsymbol u=\Phi\boldsymbol q\) 在振型分解里用两次：先代入原方程得解耦方程，各阶 \(q_i(t)\) 解出后再乘 \(\Phi\) 合成物理位移。</li>
+    <li><b>不能用标准基偷懒。</b>问题指定了配料：问的是“在 \(\{\boldsymbol v_1,\boldsymbol v_2\}\) 下的坐标”，答“标准基下是 \((5,7)\)”就像问“5 元和 10 元各几张凑 25 元”答“25 张 1 元”。结构里的加强版：物理基 \(\boldsymbol e_i\) 几何上正交归一，但在 \(M\) 意义下一般不正交，<b>几何正交 ≠ 动力学解耦</b>。</li>
+  </ul>
+</section>
+
+<!-- 5 -->
+<section class="step" id="s5">
+  <div class="stephead"><span class="stepno">5</span><h2>二次型：用一个位移算出一个能量</h2><span class="src">笔记 §13–§15</span></div>
+  <p>\(q(\boldsymbol x)=\boldsymbol x^TA\boldsymbol x\) 是标量。对 \(A=\begin{bmatrix}a&b\\c&d\end{bmatrix}\) 展开为 \(ax_1^2+(b+c)x_1x_2+dx_2^2\)：交叉项只看到 \(b+c\)，所以<b>二次型只看得见对称部分</b> \(S=\tfrac12(A+A^T)\)。但这推不出“\(A\) 一定对称”，用 \(S\) 替换 \(A\) 也会改变力：\(A=\begin{bmatrix}1&2\\0&1\end{bmatrix}\)、\(\boldsymbol x=[1,2]^T\) 时 \(A\boldsymbol x=[5,2]^T\)，\(S\boldsymbol x=[3,3]^T\)。</p>
+  <p><b>\(K\)、\(M\) 对称的真正理由</b>：线弹性保守体系的应变能 \(U(\boldsymbol u)\) 是位移的势函数，刚度是能量的二阶导数 \(k_{ij}=\dfrac{\partial^2U}{\partial u_j\partial u_i}\)，二阶偏导可交换次序，所以 \(k_{ij}=k_{ji}\)，这就是互等定理。两层楼：</p>
+  \[U=\tfrac12\bigl[k_1u_1^2+k_2(u_2-u_1)^2\bigr]=\tfrac12\boldsymbol u^T\begin{bmatrix}k_1+k_2&-k_2\\-k_2&k_2\end{bmatrix}\boldsymbol u\]
+  <p>下图画的是能量 \(U\) 的等值线：拖动 \(\boldsymbol u\) 看能量值，调 \(k_1\) 看等值线从椭圆（正定）变成平行线（半正定）再变成双曲线（不定）：</p>
+  <div class="fig">
+    <svg class="plane" id="p5" role="img" aria-label="应变能等值线"></svg>
+    <div>
+      <div class="ctrl" id="pre5"></div>
+      <div class="ctrl"><label>\(k_1\) <input id="k5a" type="range" min="-1" max="3" step="0.05" value="2"></label><span class="num" id="k5av"></span><label>\(k_2\) <input id="k5b" type="range" min="0.2" max="2" step="0.05" value="1"></label><span class="num" id="k5bv"></span></div>
+      <div class="read" id="r5"></div>
+      <p class="why">蓝线：\(U>0\) 的等值线；红线：\(U&lt;0\)；紫色虚线：\(U=0\) 的非零方向。</p>
+    </div>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>名称</th><th>定义（实对称）</th><th>能量含义</th><th>两层楼</th></tr></thead>
+    <tbody>
+      <tr><td>正定</td><td>\(\boldsymbol x\ne\boldsymbol 0\Rightarrow\boldsymbol x^TA\boldsymbol x>0\)</td><td>任何非零变形都储存正能量</td><td>\(k_1=2\)</td></tr>
+      <tr><td>半正定</td><td>\(\boldsymbol x^TA\boldsymbol x\ge0\)</td><td>某些非零变形能量为零</td><td>\(k_1=0\)：整体平移 \([1,1]^T\) 不变形</td></tr>
+      <tr><td>不定</td><td>有正有负</td><td>某些方向“负刚度”，失稳</td><td>\(k_1&lt;0\)：几何刚度抵消弹性刚度</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note warn"><b>说准三件事的关系。</b>存在零能量的非零方向 ⟹ 矩阵奇异且不正定，但推不出半正定：半正定还要求其他所有方向能量非负。二阶判据：对称 \(\begin{bmatrix}a&b\\b&d\end{bmatrix}\) 正定 \(\iff a>0\) 且 \(ad-b^2>0\)。一般用顺序主子式全为正（Sylvester）；半正定不能简单把 \(>\) 改成 \(\ge\)，工程上最可靠的是算特征值（04 篇）。随动力、陀螺项、某些非保守阻尼会给出不对称矩阵，不在本套范围内。</div>
+</section>
+
+<!-- 6 -->
+<section class="step" id="s6">
+  <div class="stephead"><span class="stepno">6</span><h2>换坐标：动作用相似变换，能量用合同变换</h2><span class="src">笔记 §5、§16</span></div>
+  <p><b>动作</b>换坐标：\(\boldsymbol y=A\boldsymbol x\) 的输入、输出都改用基 \(V\)：\(\boldsymbol x=V\boldsymbol q\)，\(\boldsymbol y=V\boldsymbol r\)，得 \(\boldsymbol r=V^{-1}AV\,\boldsymbol q\)。从右往左读：先把新坐标翻译成原坐标，做动作，再翻译回新坐标。</p>
+  <p><b>能量</b>换坐标：把 \(\boldsymbol u=V\boldsymbol q\) 代入 \(U=\tfrac12\boldsymbol u^TK\boldsymbol u\)，\(\boldsymbol u\) 出现两次，左边的转置自然产生 \(V^T\)：</p>
+  \[U=\tfrac12\boldsymbol q^T(V^TKV)\boldsymbol q,\qquad T=\tfrac12\dot{\boldsymbol q}^T(V^TMV)\dot{\boldsymbol q}\]
+  <div class="ctrl" id="pre6"></div>
+  <div class="read" id="r6"></div>
+  <div class="tbl"><table>
+      <thead><tr><th></th><th>相似 \(V^{-1}AV\)</th><th>合同 \(V^TAV\)</th></tr></thead>
+      <tbody>
+        <tr><td>保持什么</td><td>特征值</td><td>正、负、零特征值的个数</td></tr>
+        <tr><td>用在</td><td>同一动作换记账坐标</td><td>能量、\(\Phi^TM\Phi\)、\(\Phi^TK\Phi\)</td></tr>
+        <tr><td>何时相同</td><td colspan="2">\(V\) 正交（\(V^T=V^{-1}\)）时一致</td></tr>
+      </tbody>
+    </table></div>
+  <p>结构里的 \(\Phi^TM\Phi\)、\(\Phi^TK\Phi\) 全是合同变换，因为它们来自能量。这是 04 篇代入运动方程后“左乘 \(\Phi^T\) 而不是 \(\Phi^{-1}\)”的第一层理由。选“振型基 \(\Phi\)”预设：\(\Phi^TK\Phi\) 和 \(\Phi^TM\Phi\) 同时变成对角阵，这就是解耦。</p>
+</section>
+
+<!-- 7 -->
+<section class="step" id="s7">
+  <div class="stephead"><span class="stepno">7</span><h2>质量加权内积：换一把尺子量“垂直”</h2><span class="src">笔记 §17–§22</span></div>
+  <p>普通点积问的是几何问题：两支箭垂直吗？结构动力学关心的是力学问题：第 \(j\) 阶振型振动时，会不会带动第 \(i\) 阶？结构以第 \(j\) 阶振型运动，惯性力项是 \(M\boldsymbol\phi_j\ddot q_j\)，它在第 \(i\) 阶振型虚位移 \(\boldsymbol\phi_i\delta q_i\) 上做的虚功为</p>
+  \[\delta W=\delta q_i\,\ddot q_j\;\boldsymbol\phi_i^TM\boldsymbol\phi_j\]
+  <p>任意运动下这份虚功为零，当且仅当 \(\boldsymbol\phi_i^TM\boldsymbol\phi_j=0\)：惯性通道上两阶振型不交换能量。于是把它当作新的“点积”：</p>
+  \[\langle\boldsymbol x,\boldsymbol y\rangle_M=\boldsymbol x^TM\boldsymbol y,\qquad\lVert\boldsymbol x\rVert_M=\sqrt{\boldsymbol x^TM\boldsymbol x}\]
+  <p>\(M\) 对称正定时，它满足内积的三条性质：对称（靠 \(M^T=M\)）、线性（矩阵乘法分配律）、正定（靠 \(M\) 正定）。于是长度、夹角、正交、投影、归一化、“正交 ⟹ 无关”整套工具原封不动搬过来，只是换了一把按质量加权的尺子。\(M\) 半正定（有无质量自由度）时这把尺子失效。</p>
+  <p>下图固定 \(\boldsymbol\phi_1=[1,2]^T\)、\(\boldsymbol\phi_2=[1,-1]^T\)。它们普通意义下不垂直（夹角 \(108.4^\circ\)），但 \(\boldsymbol\phi_1\) 与 \(M\boldsymbol\phi_2\)（振型 2 惯性力的分布模式）垂直。调 \(m_1\)，看什么时候 \(M\)-正交：</p>
+  <div class="fig">
+    <svg class="plane" id="p7" role="img" aria-label="质量正交"></svg>
+    <div>
+      <div class="ctrl"><label>\(m_1\) <input id="m7a" type="range" min="0.5" max="4" step="0.05" value="2"></label><span class="num" id="m7av"></span><label>\(m_2\) <input id="m7b" type="range" min="0.5" max="2" step="0.05" value="1"></label><span class="num" id="m7bv"></span></div>
+      <div class="ctrl"><label><input type="checkbox" id="w7"> 用普通投影求坐标（错误示范）</label></div>
+      <div class="read" id="r7"></div>
+      <p class="why">红色 \(\boldsymbol u\) 可拖动；紫色椭圆是“\(M\) 尺子”下与 \(\boldsymbol\phi_1\) 等长的点 \(\boldsymbol x^TM\boldsymbol x=\boldsymbol\phi_1^TM\boldsymbol\phi_1\)。这里固定 \(\boldsymbol\phi\) 只为演示尺子，真实振型会随 \(M\) 改变（04 篇）。</p>
+    </div>
+  </div>
+  \[\text{“}M\text{-正交”}=\text{“}\boldsymbol\phi_i\text{ 与 }M\boldsymbol\phi_j\text{ 普通垂直”}\]
+  <p><b>动能里消掉了什么</b>：\(\boldsymbol u=\boldsymbol\phi_1q_1+\boldsymbol\phi_2q_2\) 代入 \(T=\tfrac12\dot{\boldsymbol u}^TM\dot{\boldsymbol u}\)，交叉项系数正是 \(\boldsymbol\phi_1^TM\boldsymbol\phi_2\)；它为零时 \(T=3\dot q_1^2+\tfrac32\dot q_2^2\)，动能拆成两个独立部分，\(m_i^*=\boldsymbol\phi_i^TM\boldsymbol\phi_i\) 叫广义质量。质量归一化 \(\hat{\boldsymbol\phi}_i=\boldsymbol\phi_i/\lVert\boldsymbol\phi_i\rVert_M\) 只选尺度、不改形状。</p>
+  <p><b>为什么是 \(\Phi^TM\) 而不是 \(\Phi^{-1}\)</b>：\(\boldsymbol u=q_1\boldsymbol\phi_1+q_2\boldsymbol\phi_2\) 两边左乘 \(\boldsymbol\phi_1^TM\)，交叉项因 \(M\)-正交消失：</p>
+  \[q_i=\frac{\boldsymbol\phi_i^TM\boldsymbol u}{\boldsymbol\phi_i^TM\boldsymbol\phi_i},\qquad \boldsymbol q=(\Phi^TM\Phi)^{-1}\Phi^TM\boldsymbol u\]
+  <p>\((\Phi^TM\Phi)^{-1}\Phi^TM=\begin{bmatrix}1/3&1/3\\2/3&-1/3\end{bmatrix}=\Phi^{-1}\)：两条路算出同一个矩阵，但左边只用了转置和对角阵求逆。</p>
+  <div class="note warn"><b>质量正交只管动能。</b>任取一组 \(M\)-正交向量，\(\boldsymbol\phi_i^TK\boldsymbol\phi_j\) 一般不为零。04 篇会证明：由广义特征值问题算出的振型同时满足 \(M\)-正交和 \(K\)-正交；阻尼要另查 \(\Phi^TC\Phi\) 是否对角。</div>
+</section>
+
+<!-- 8 -->
+<section class="step" id="s8">
+  <div class="stephead"><span class="stepno">8</span><h2>耦合到底指什么；练习与自测</h2><span class="src">笔记 §23–§27</span></div>
+  <p>耦合就是一个方程里混进了别的未知量，几个方程拆不开、必须联立。罪魁是系数矩阵的非对角项：</p>
+  \[m_1\ddot u_1+k_{11}u_1+\underbrace{k_{12}u_2}_{\text{非对角项}}=p_1,\qquad m_2\ddot u_2+\underbrace{k_{21}u_1}_{\text{非对角项}}+k_{22}u_2=p_2\]
+  <p><b>解耦就是换到一组坐标，让 \(\Phi^TM\Phi\) 和 \(\Phi^TK\Phi\) 同时对角。</b>本篇证明了 \(M\)-正交能对角化 \(M\) 那一半；04 篇证明广义特征向量能同时对角化 \(K\) 那一半。真实结构没有拆开，拆开的是方程。</p>
+  <h3>练习</h3>
+  <ol class="ex">
+    <li>\(\boldsymbol x=[4,2]^T\) 在基 \([1,1]^T,[1,-1]^T\) 下的坐标？分别用 \(V^{-1}\) 和投影公式算。</li>
+    <li>对 \(\boldsymbol v_1=[1,1]^T,\boldsymbol v_2=[1,0]^T\) 做 Gram–Schmidt，写出正交基和换算式。</li>
+    <li>写出三层剪切模型（刚度 \(k_1,k_2,k_3\)）的应变能，核对与 01 篇第 3 道结构题的 \(K\) 一致。</li>
+    <li>\(\begin{bmatrix}2&3\\3&2\end{bmatrix}\) 正定吗？找一个使二次型为负的向量。</li>
+    <li>\(M=\mathrm{diag}(2,1)\)，\(\boldsymbol u=[3,0]^T\)，用 \(M\)-投影求振型坐标，再用 \(\Phi^{-1}\) 验证。</li>
+    <li>只验证了 \(\boldsymbol x^TM\boldsymbol y=0\)，能否断言两个形态各自独立振动、无能量交换？</li>
+  </ol>
+  <details><summary>参考答案</summary>
+    <ol class="ex">
+      <li>\(V^{-1}\boldsymbol x=\tfrac12[6,2]^T=[3,1]^T\)；投影 \(c_1=6/2=3\)，\(c_2=2/2=1\)，一致（基正交）。可在第 1 节把 \(\boldsymbol x\) 拖到 \([4,2]^T\) 核对。</li>
+      <li>\(\boldsymbol w_1=[1,1]^T\)，\(\boldsymbol w_2=[1,0]^T-\tfrac12[1,1]^T=[\tfrac12,-\tfrac12]^T\)，换算式 \(\boldsymbol w_2=\boldsymbol v_2-\tfrac12\boldsymbol v_1\)。</li>
+      <li>\(U=\tfrac12[k_1u_1^2+k_2(u_2-u_1)^2+k_3(u_3-u_2)^2]\)，\(u_1^2\) 系数 \(\tfrac12(k_1+k_2)\)，\(u_1u_2\) 系数 \(-k_2\)，对应 \(K\) 的元素。</li>
+      <li>不正定：\(ad-b^2=4-9&lt;0\)；取 \([1,-1]^T\) 得 \(2-6+2=-2\)。</li>
+      <li>\(M\boldsymbol u=[6,0]^T\)，\(q_1=6/6=1\)，\(q_2=6/3=2\)；\(1\cdot[1,2]^T+2[1,-1]^T=[3,0]^T\)。</li>
+      <li>不能。它只说明动能交叉项为零，还要 \(\boldsymbol x^TK\boldsymbol y=0\)，有阻尼还要 \(\boldsymbol x^TC\boldsymbol y=0\)。只有真振型才同时满足前两条（04 篇）。</li>
+    </ol>
+  </details>
+  <h3>自测：能不看笔记做到，再进 04 篇</h3>
+  <div class="check" id="chk">
+    <label><input type="checkbox" id="ck1"><span>用 \(\boldsymbol x=V\boldsymbol q\) 说明 \(V\) 的列是什么，方向别搞反</span></label>
+    <label><input type="checkbox" id="ck2"><span>说出一般基、正交基、正交归一基下求坐标的方法与代价，以及投影公式为什么只在正交基下对</span></label>
+    <label><input type="checkbox" id="ck3"><span>证明“非零两两正交 ⟹ 线性无关”，指出两个前提各用在哪</span></label>
+    <label><input type="checkbox" id="ck4"><span>推导投影公式，说出分子分母各起什么作用</span></label>
+    <label><input type="checkbox" id="ck5"><span>完整走一遍 Gram–Schmidt 流水线（造基 → 投影 → 换回）</span></label>
+    <label><input type="checkbox" id="ck6"><span>说明 \(K\) 对称的正确理由（能量的二阶导数可交换）</span></label>
+    <label><input type="checkbox" id="ck7"><span>区分正定、半正定、不定，各举一个结构例子</span></label>
+    <label><input type="checkbox" id="ck8"><span>区分相似变换与合同变换，说明 \(\Phi^TK\Phi\) 属于哪种</span></label>
+    <label><input type="checkbox" id="ck9"><span>说出 \(\boldsymbol x^TM\boldsymbol y\) 成为内积的三条性质各靠 \(M\) 的什么</span></label>
+    <label><input type="checkbox" id="ck10"><span>用 \(M\)-投影求振型坐标，并解释为什么左乘 \(\Phi^TM\) 等价于 \(\Phi^{-1}\) 却便宜得多</span></label>
+    <label><input type="checkbox" id="ck11"><span>说明质量正交只消动能交叉项，刚度、阻尼需另查</span></label>
+  </div>
+</section>
+
+<footer>
+  <p>对应笔记：15-General/12-线性代数/260730-线性代数预备03-线性组合基坐标正交与二次型.md 及其疑问解答。</p>
+</footer>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const NS='http://www.w3.org/2000/svg';
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs){if(k==='text')e.textContent=attrs[k];else e.setAttribute(k,attrs[k]);}if(parent)parent.appendChild(e);return e;}
+const fm=(v,d=2)=>{const r=Math.round(v*10**d)/10**d;return (Object.is(r,-0)?0:r).toString();};
+const f2=v=>fm(v,2), f3=v=>fm(v,3);
+const vec=a=>`[${a.map(v=>fm(v,2)).join(', ')}]`;
+const paren=v=>v<0?`(${fm(v)})`:fm(v);
+function animate(dur,step,done){ // returns cancel fn
+  if(reduced){step(1);done&&done();return ()=>{};}
+  let t0=null,id=0,stop=false;
+  const loop=now=>{if(stop)return;if(t0===null)t0=now;const t=Math.min(1,(now-t0)/dur);step(t);if(t<1)id=requestAnimationFrame(loop);else done&&done();};
+  id=requestAnimationFrame(loop);return ()=>{stop=true;cancelAnimationFrame(id);};
+}
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+
+/* ---------- LaTeX 读数（MathJax 渲染，拖动时节流） ---------- */
+const TX=String.raw;
+const pn=(v,d=2)=>{const s=fm(v,d);return s.startsWith('-')?`(${s})`:s;};
+const rv=(a,d=2)=>`[${a.map(v=>fm(v,d)).join(',\\ ')}]`;
+const cv=(a,d=2)=>`\\begin{bmatrix}${a.map(v=>fm(v,d)).join('\\\\')}\\end{bmatrix}`;
+const bmx=(M,d=2)=>`\\begin{bmatrix}${M.map(r=>r.map(v=>fm(v,d)).join('&')).join('\\\\')}\\end{bmatrix}`;
+let texReady=false,texTimer=0,texLast=0;const TEXQ=new Map(),TEXPRE=new Set();
+function texRun(els){try{MathJax.typesetClear(els);MathJax.typeset(els);}catch(e){}}
+function setTex(el,html){
+  if(typeof el==='string')el=$(el);
+  if(el.__tex===html)return;el.__tex=html;
+  if(!texReady){el.innerHTML=html;TEXPRE.add(el);return;}
+  const now=performance.now();
+  if(!texTimer&&now-texLast>45){el.innerHTML=html;texRun([el]);texLast=performance.now();return;}
+  TEXQ.set(el,html);if(!texTimer)texTimer=setTimeout(flushTex,50);
+}
+function flushTex(){texTimer=0;const els=[...TEXQ.keys()];TEXQ.forEach((h,el)=>{el.innerHTML=h;});TEXQ.clear();if(els.length)texRun(els);texLast=performance.now();}
+window.__onMJ=()=>{texReady=true;const els=[...TEXPRE];TEXPRE.clear();if(els.length)texRun(els);flushTex();};
+
+/* ---------- 平面坐标系 ---------- */
+function Plane(svg,R,o={}){
+  const W=360,H=360,pad=18; svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.replaceChildren();
+  const s=(W/2-pad)/R, X=x=>W/2+x*s, Y=y=>H/2-y*s;
+  const g0=el('g',{},svg), gC=el('g',{},svg), gH=el('g',{},svg);
+  const stepG=R>7?2:1;
+  for(let i=-Math.floor(R);i<=R;i+=1){
+    if(i%stepG)continue;
+    el('line',{x1:X(i),y1:Y(-R-1),x2:X(i),y2:Y(R+1),style:`stroke:var(${i?'--grid':'--axis'});stroke-width:${i?1:1.4}`},g0);
+    el('line',{x1:X(-R-1),y1:Y(i),x2:X(R+1),y2:Y(i),style:`stroke:var(${i?'--grid':'--axis'});stroke-width:${i?1:1.4}`},g0);
+    if(i&&i%(stepG*(R>4?2:1))===0){el('text',{x:X(i),y:Y(0)+13,'text-anchor':'middle','font-size':10,style:'fill:var(--muted)',text:i},g0);el('text',{x:X(0)-5,y:Y(i)+3.5,'text-anchor':'end','font-size':10,style:'fill:var(--muted)',text:i},g0);}
+  }
+  if(o.xl)el('text',{x:W-6,y:Y(0)-6,'text-anchor':'end','font-size':11.5,style:'fill:var(--muted)',text:o.xl},g0);
+  if(o.yl)el('text',{x:X(0)+6,y:14,'font-size':11.5,style:'fill:var(--muted)',text:o.yl},g0);
+  const P={X,Y,s,R,svg,gC,gH};
+  P.clear=()=>gC.replaceChildren();
+  P.line=(x0,y0,x1,y1,st)=>el('line',{x1:X(x0),y1:Y(y0),x2:X(x1),y2:Y(y1),style:st},P.gC);
+  P.poly=(pts,st)=>el('polygon',{points:pts.map(p=>X(p[0]).toFixed(1)+','+Y(p[1]).toFixed(1)).join(' '),style:st},P.gC);
+  P.text=(x,y,t,st='',anchor='start',size=12.5)=>el('text',{x:X(x),y:Y(y),'text-anchor':anchor,'font-size':size,style:st,text:t},P.gC);
+  P.arrow=(x0,y0,x1,y1,col,op={})=>{
+    const ax=X(x0),ay=Y(y0),bx=X(x1),by=Y(y1),dx=bx-ax,dy=by-ay,L=Math.hypot(dx,dy),w=op.w||2.6;
+    const st=`stroke:${col};stroke-width:${w};stroke-linecap:round;${op.dash?'stroke-dasharray:'+op.dash+';':''}opacity:${op.op??1}`;
+    if(L<2){el('circle',{cx:bx,cy:by,r:3.5,style:`fill:${col};opacity:${op.op??1}`},P.gC);}
+    else{const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5),hw=h*.42;
+      el('line',{x1:ax,y1:ay,x2:bx-ux*h*.85,y2:by-uy*h*.85,style:st},P.gC);
+      el('polygon',{points:`${bx},${by} ${bx-ux*h-uy*hw},${by-uy*h+ux*hw} ${bx-ux*h+uy*hw},${by-uy*h-ux*hw}`,style:`fill:${col};opacity:${op.op??1}`},P.gC);}
+    if(op.label){const left=dx<-0.3*L,lx=op.lx??(L<2?8:(dx/(L||1))*10+(left?-4:4)), ly=op.ly??(L<2?-8:(dy/(L||1))*10+(dy>0?12:-4));
+      const mx=op.mid?(ax+bx)/2-bx+(L?-dy/L*14:0):0,my=op.mid?(ay+by)/2-by+(L?dx/L*14:0):0;
+      const tx=el('text',{x:bx+(op.mid?mx:lx),y:by+(op.mid?my+4:ly),'font-size':op.fs||13,'text-anchor':op.anchor||(op.mid?'middle':left?'end':'start'),style:`fill:${col};font-weight:600;paint-order:stroke;stroke:var(--paper);stroke-width:3px`,text:op.label},P.gC);
+      try{const bb=tx.getBBox();let sx=0,sy=0;if(bb.x+bb.width>W-3)sx=W-3-bb.x-bb.width;if(bb.x+sx<3)sx=3-bb.x;if(bb.y<3)sy=3-bb.y;if(bb.y+bb.height>H-3)sy=H-3-bb.y-bb.height;if(sx||sy)tx.setAttribute('transform',`translate(${sx},${sy})`);}catch(e){}}
+  };
+  P.toXY=ev=>{const pt=svg.createSVGPoint();pt.x=ev.clientX;pt.y=ev.clientY;const q=pt.matrixTransform(svg.getScreenCTM().inverse());return [(q.x-W/2)/s,(H/2-q.y)/s];};
+  P.handle=(get,set,col,step=0.5,label='拖动',lim=R)=>{
+    const c=el('circle',{r:10,tabindex:0,role:'slider','aria-label':label,style:`fill:${col};fill-opacity:.22;stroke:${col};stroke-width:1.6;cursor:grab`},gH);
+    let on=false;
+    c.addEventListener('pointerdown',e=>{on=true;c.setPointerCapture(e.pointerId);e.preventDefault();});
+    c.addEventListener('pointermove',e=>{if(!on)return;let [x,y]=P.toXY(e);x=Math.max(-lim,Math.min(lim,Math.round(x/step)*step));y=Math.max(-lim,Math.min(lim,Math.round(y/step)*step));set(x,y);});
+    const end=()=>{on=false;}; c.addEventListener('pointerup',end); c.addEventListener('pointercancel',end);
+    c.addEventListener('keydown',e=>{const [x,y]=get();const m={ArrowLeft:[-step,0],ArrowRight:[step,0],ArrowUp:[0,step],ArrowDown:[0,-step]}[e.key];if(m){e.preventDefault();set(Math.max(-lim,Math.min(lim,x+m[0])),Math.max(-lim,Math.min(lim,y+m[1])));}});
+    return {el:c,update(){const [x,y]=get();c.setAttribute('cx',X(x));c.setAttribute('cy',Y(y));}};
+  };
+  return P;
+}
+
+/* ---------- 公共 ---------- */
+function seq(steps,apply){ // steps: [from,to,ms] 或 ['hold',ms]
+  let cancelled=false,cur=()=>{},tm=0;
+  const run=i=>{if(cancelled||i>=steps.length)return;const s=steps[i];
+    if(s[0]==='hold'){tm=setTimeout(()=>run(i+1),reduced?0:s[1]);}
+    else cur=animate(s[2],t=>apply(s[0]+(s[1]-s[0])*ease(t)),()=>run(i+1));};
+  run(0);return ()=>{cancelled=true;cur();clearTimeout(tm);};
+}
+const mv=(A,[x,y])=>[A[0][0]*x+A[0][1]*y,A[1][0]*x+A[1][1]*y];
+const lerpM=(A,t)=>[[1+(A[0][0]-1)*t,A[0][1]*t],[A[1][0]*t,1+(A[1][1]-1)*t]];
+const det2=A=>A[0][0]*A[1][1]-A[0][1]*A[1][0];
+function matInputs(host,M,onchange){
+  host.replaceChildren();
+  M.forEach((row,i)=>row.forEach((v,j)=>{const sp=document.createElement('span');const inp=document.createElement('input');inp.type='number';inp.step='0.5';inp.value=v;inp.setAttribute('aria-label',`第${i+1}行第${j+1}列`);
+    inp.oninput=()=>{const n=parseFloat(inp.value);if(!isNaN(n)){M[i][j]=n;onchange();}};sp.appendChild(inp);host.appendChild(sp);}));
+}
+function drawBuilding(svg,u1,u2,o={}){
+  const sc=o.sc??14,unit=o.unit??' mm';
+  svg.replaceChildren();
+  const gy=225,y1=150,y2=75,cx=130,half=48;
+  const ink='var(--ink)',mut='var(--muted)';
+  el('line',{x1:40,y1:gy,x2:220,y2:gy,style:`stroke:${ink};stroke-width:2`},svg);
+  for(let i=0;i<12;i++)el('line',{x1:46+i*15,y1:gy,x2:38+i*15,y2:gy+8,style:`stroke:${mut}`},svg);
+  [y1,y2].forEach(y=>el('line',{x1:cx-half-6,y1:y,x2:cx+half+6,y2:y,style:`stroke:${mut};stroke-dasharray:3 3;opacity:.6`},svg));
+  const d1=u1*sc,d2=u2*sc;
+  const col=(xb,xt,yb,yt)=>`M${xb},${yb} C${xb},${(yb*2+yt)/3} ${xt},${(yb+yt*2)/3} ${xt},${yt}`;
+  for(const s of[-1,1])el('path',{d:col(cx+s*half,cx+s*half+d1,gy,y1)+' '+col(cx+s*half+d1,cx+s*half+d2,y1,y2).replace('M','L'),style:`fill:none;stroke:${ink};stroke-width:2`},svg);
+  el('rect',{x:cx-half-8+d1,y:y1-6,width:2*half+16,height:12,rx:2,style:'fill:var(--m1)'},svg);
+  el('rect',{x:cx-half-8+d2,y:y2-6,width:2*half+16,height:12,rx:2,style:'fill:var(--m2)'},svg);
+  el('text',{x:cx+half+14+Math.max(d1,0),y:y1+4,'font-size':13,style:'fill:var(--m1);font-weight:600',text:o.l1??`u₁ = ${fm(u1)}${unit}`},svg);
+  el('text',{x:cx+half+14+Math.max(d2,0),y:y2+4,'font-size':13,style:'fill:var(--m2);font-weight:600',text:o.l2??`u₂ = ${fm(u2)}${unit}`},svg);
+  el('text',{x:cx,y:gy+22,'text-anchor':'middle','font-size':11.5,style:`fill:${o.capCol||mut};font-weight:${o.capCol?600:400}`,text:o.cap??'水平位移放大显示'},svg);
+}
+const dotsPath=(pts,r)=>pts.map(([x,y])=>`M${(x-r).toFixed(1)},${y.toFixed(1)}a${r},${r} 0 1,0 ${2*r},0a${r},${r} 0 1,0 ${-2*r},0`).join('');
+
+/* ---------- 系列条 ---------- */
+const SERIES=[
+ ['00','几何直觉','00.html'],
+ ['01','向量矩阵与基本运算','01.html'],
+ ['02','方程组、秩与可逆性','02.html'],
+ ['03','坐标、正交与二次型',''],
+ ['04','特征值与解耦',''],
+ ['05','速查与自诊','05.html'],
+];
+(function(){const h=document.getElementById('series');if(!h)return;const cur=h.dataset.cur;
+  h.innerHTML=SERIES.map(([n,t,u])=>n===cur?`<span class="cur">${n} ${t}</span>`:u?`<a href="${u}"><span>${n} ${t} ↗</span></a>`:`<span>${n} ${t}</span>`).join('');})();
+
+/* ---------- 工具 ---------- */
+const dot=(a,b)=>a[0]*b[0]+a[1]*b[1];
+const inv2=A=>{const d=det2(A);return [[A[1][1]/d,-A[0][1]/d],[-A[1][0]/d,A[0][0]/d]];};
+const mm2=(A,B)=>[[A[0][0]*B[0][0]+A[0][1]*B[1][0],A[0][0]*B[0][1]+A[0][1]*B[1][1]],[A[1][0]*B[0][0]+A[1][1]*B[1][0],A[1][0]*B[0][1]+A[1][1]*B[1][1]]];
+const tr2=A=>[[A[0][0],A[1][0]],[A[0][1],A[1][1]]];
+function eig2(A){const t=A[0][0]+A[1][1],d=det2(A),D=t*t-4*d;return D>=-1e-12?{re:true,v:[(t+Math.sqrt(Math.max(D,0)))/2,(t-Math.sqrt(Math.max(D,0)))/2]}:{re:false,a:t/2,b:Math.sqrt(-D)/2};}
+const eigTex=e=>e.re?e.v.map(v=>fm(v,3)).join(',\\ '):`${fm(e.a,3)}\\pm${fm(e.b,3)}\\mathrm i`;
+function rightMark(P,at,u,v,col){const s=0.22,a=[at[0]+u[0]*s,at[1]+u[1]*s],b=[a[0]+v[0]*s,a[1]+v[1]*s],c=[at[0]+v[0]*s,at[1]+v[1]*s];
+  el('polyline',{points:[a,b,c].map(p=>P.X(p[0])+','+P.Y(p[1])).join(' '),style:`fill:none;stroke:${col};stroke-width:1.4`},P.gC);}
+const unit=v=>{const L=Math.hypot(...v)||1;return [v[0]/L,v[1]/L];};
+function basisGrid(P,b1,b2,op=.22){const g=el('g',{style:`opacity:${op}`},P.gC);
+  for(let i=-12;i<=12;i++){const L=(p,q)=>el('line',{x1:P.X(p[0]),y1:P.Y(p[1]),x2:P.X(q[0]),y2:P.Y(q[1]),style:`stroke:var(--accent);stroke-width:${i?1:1.6}`},g);
+    L([i*b1[0]-14*b2[0],i*b1[1]-14*b2[1]],[i*b1[0]+14*b2[0],i*b1[1]+14*b2[1]]);L([i*b2[0]-14*b1[0],i*b2[1]-14*b1[1]],[i*b2[0]+14*b1[0],i*b2[1]+14*b1[1]]);}}
+
+/* ---------- 1 三种基 ---------- */
+const r2s=Math.SQRT1_2;
+const PRE1=[['一般基 \\([1,1]^T,[1,2]^T\\)',[1,1],[1,2],[5,7],'v'],['正交基 \\([1,1]^T,[1,-1]^T\\)',[1,1],[1,-1],[5,7],'v'],['正交归一基',[r2s,r2s],[r2s,-r2s],[5,7],'e'],['振型基 \\(\\boldsymbol\\phi_1,\\boldsymbol\\phi_2\\)',[1,2],[1,-1],[1.5,1.5],'φ']];
+const S1={k:0,x:[5,7],wrong:false};
+const P1=Plane($('p1'),8);
+const H1=P1.handle(()=>S1.x,(x,y)=>{S1.x=[x,y];r1();},'var(--bad)',0.5,'目标 x');
+function r1(){
+  const [,v1,v2,,sym]=PRE1[S1.k],x=S1.x,V=[[v1[0],v2[0]],[v1[1],v2[1]]],Vi=inv2(V),c=mv(Vi,x);
+  const sT=sym==='φ'?'\\bm\\phi':sym==='e'?'\\hat{\\bm e}':'\\bm v';
+  P1.clear();basisGrid(P1,v1,v2);
+  const p=[c[0]*v1[0],c[0]*v1[1]];
+  P1.arrow(0,0,p[0],p[1],'var(--m1)',{w:2,dash:'6 4'});P1.arrow(p[0],p[1],x[0],x[1],'var(--m2)',{w:2,dash:'6 4'});
+  const pc=[dot(v1,x)/dot(v1,v1),dot(v2,x)/dot(v2,v2)],xr=[pc[0]*v1[0]+pc[1]*v2[0],pc[0]*v1[1]+pc[1]*v2[1]],ok=Math.hypot(xr[0]-x[0],xr[1]-x[1])<1e-9;
+  if(S1.wrong){const q=[pc[0]*v1[0],pc[0]*v1[1]];P1.arrow(0,0,q[0],q[1],'var(--bad)',{w:2.2,dash:'3 3'});P1.arrow(q[0],q[1],xr[0],xr[1],'var(--bad)',{w:2.2,dash:'3 3',label:ok?'':'✗'});
+    if(!ok)el('circle',{cx:P1.X(xr[0]),cy:P1.Y(xr[1]),r:5,style:'fill:none;stroke:var(--bad);stroke-width:2'},P1.gC);}
+  P1.arrow(0,0,v1[0],v1[1],'var(--m1)',{w:3.2,label:sym==='φ'?'φ₁':sym==='e'?'ê₁':'v₁'});P1.arrow(0,0,v2[0],v2[1],'var(--m2)',{w:3.2,label:sym==='φ'?'φ₂':sym==='e'?'ê₂':'v₂'});
+  P1.arrow(0,0,x[0],x[1],'var(--bad)',{w:3,label:sym==='φ'?'u':'x'});H1.update();
+  const VtV=mm2(tr2(V),V),diag=Math.abs(VtV[0][1])<1e-9;
+  const xn=sym==='φ'?'\\bm u':'\\bm x',cn=sym==='φ'?'\\bm q':'\\bm c';
+  setTex('r1',TX`<span class="row">\(V=${bmx(V,3)},\quad V^TV=${bmx(VtV,3)}\)${diag?'　<span class="cok">对角：基正交</span>':'　<span class="cbad">非对角：基不正交</span>'}</span><span class="row">正确：\(${cn}=V^{-1}${xn}=${rv(c,3)}^T\)，即 \(${xn}=${fm(c[0],3)}\,${sT}_1+${pn(c[1],3)}\,${sT}_2\)</span>`+
+    (S1.wrong?TX`<span class="row ${ok?'cok':'cbad'}">投影公式：\(c_1=\dfrac{${sT}_1^T${xn}}{${sT}_1^T${sT}_1}=${fm(pc[0],3)},\ c_2=\dfrac{${sT}_2^T${xn}}{${sT}_2^T${sT}_2}=${fm(pc[1],3)}\)，代回得 \(${rv(xr,3)}^T\)　${ok?'✓ 与目标一致':'✗ 不等于目标'}</span>`:''));
+}
+PRE1.forEach(([n,,,x],k)=>{const bt=document.createElement('button');bt.type='button';setTex(bt,n);bt.onclick=()=>{S1.k=k;S1.x=x.slice();r1();};$('pre1').appendChild(bt);});
+$('c1p').onchange=e=>{S1.wrong=e.target.checked;r1();};
+
+/* ---------- 2 正交矩阵 ---------- */
+const S2={a:45,f:false,s:false};
+const P2=Plane($('p2'),3);
+function r2(){
+  const t=S2.a*Math.PI/180,R=[[Math.cos(t),-Math.sin(t)],[Math.sin(t),Math.cos(t)]];
+  let Q=S2.f?mm2(R,[[-1,0],[0,1]]):R;if(S2.s)Q=mm2(Q,[[1.5,0.4],[0,0.6]]);
+  const x=[2,1],y=mv(Q,x),sq=[[0,0],[1,0],[1,1],[0,1]];
+  P2.clear();
+  el('circle',{cx:P2.X(0),cy:P2.Y(0),r:Math.hypot(...x)*P2.s,style:'fill:none;stroke:var(--muted);stroke-dasharray:4 4'},P2.gC);
+  P2.poly(sq,'fill:none;stroke:var(--muted);stroke-dasharray:3 3');
+  P2.poly(sq.map(p=>mv(Q,p)),'fill:var(--accent);fill-opacity:.18;stroke:var(--accent);stroke-width:1.4');
+  const e1=mv(Q,[1,0]),e2=mv(Q,[0,1]);
+  P2.arrow(0,0,e1[0],e1[1],'var(--m1)',{w:2.6,label:'Qe₁'});P2.arrow(0,0,e2[0],e2[1],'var(--m2)',{w:2.6,label:'Qe₂'});
+  P2.arrow(0,0,x[0],x[1],'var(--muted)',{w:1.8,dash:'5 4',label:'x'});P2.arrow(0,0,y[0],y[1],'var(--ok)',{w:3,label:'Qx'});
+  const QtQ=mm2(tr2(Q),Q),ang=Math.acos(Math.max(-1,Math.min(1,dot(e1,e2)/(Math.hypot(...e1)*Math.hypot(...e2)))))*180/Math.PI;
+  setTex('a2v',TX`\(${S2.a}^\circ\)`);
+  setTex('r2',TX`<span class="row">\(Q=${bmx(Q,3)},\quad Q^TQ=${bmx(QtQ,3)}\)</span><span class="row">\(\lVert\bm x\rVert=${fm(Math.hypot(...x),3)},\quad\lVert Q\bm x\rVert=${fm(Math.hypot(...y),3)}\)</span><span class="row">\(Q\bm e_1\) 与 \(Q\bm e_2\) 夹角 \(${fm(ang,1)}^\circ\)，\(\det Q=${fm(det2(Q),3)}\)</span>`+
+    (S2.s?'<span class="row cbad">不是正交矩阵：长度、夹角都变了，\\(Q^TQ\\ne I\\)，逆也不等于转置</span>':'<span class="row cok">正交矩阵：长度、夹角都不变，\\(Q^{-1}=Q^T\\)</span>'));
+}
+$('a2').oninput=e=>{S2.a=+e.target.value;r2();};$('f2').onchange=e=>{S2.f=e.target.checked;r2();};$('s2s').onchange=e=>{S2.s=e.target.checked;r2();};
+
+/* ---------- 3 投影 ---------- */
+const S3={x:[2,1],v:[1,1]};let stop3=()=>{};
+const P3=Plane($('p3'),5);
+const H3x=P3.handle(()=>S3.x,(x,y)=>{S3.x=[x,y];r3();},'var(--bad)',0.5,'x');
+const H3v=P3.handle(()=>S3.v,(x,y)=>{if(Math.hypot(x,y)<1e-9)return;stop3();S3.v=[x,y];r3();},'var(--m1)',0.5,'v');
+function r3(){
+  const {x,v}=S3,c=dot(v,x)/dot(v,v),p=[c*v[0],c*v[1]],e=[x[0]-p[0],x[1]-p[1]],u=unit(v);
+  P3.clear();P3.line(-9*u[0],-9*u[1],9*u[0],9*u[1],'stroke:var(--m1);stroke-dasharray:5 4;opacity:.5');
+  P3.line(p[0],p[1],x[0],x[1],'stroke:var(--m2);stroke-width:2.2');
+  if(Math.hypot(...e)>0.05)rightMark(P3,p,c>=0?[-u[0],-u[1]]:u,unit(e),'var(--ink)');
+  P3.arrow(0,0,p[0],p[1],'var(--ok)',{w:5,op:.6,label:'proj'});
+  P3.arrow(0,0,v[0],v[1],'var(--m1)',{w:2.8,label:'v'});P3.arrow(0,0,x[0],x[1],'var(--bad)',{w:2.8,label:'x'});
+  H3x.update();H3v.update();
+  setTex('r3',TX`<span class="row">\(c=\dfrac{\bm v^T\bm x}{\bm v^T\bm v}=\dfrac{${fm(dot(v,x),3)}}{${fm(dot(v,v),3)}}=${fm(c,3)}\)</span><span class="row">\(\operatorname{proj}=c\bm v=${rv(p,3)}^T,\quad \bm e=\bm x-\operatorname{proj}=${rv(e,3)}^T\)</span><span class="row">\(\bm v^T\bm e=${fm(dot(v,e),6)}\)：余量与 \(\bm v\) 垂直</span>`);
+}
+$('b3d').onclick=()=>{stop3();const f=S3.v.slice();stop3=animate(1200,t=>{const k=1+ease(t);S3.v=[f[0]*k,f[1]*k];r3();});};
+$('b3r').onclick=()=>{stop3();S3.v=[1,1];r3();};
+
+/* ---------- 4 Gram–Schmidt ---------- */
+const S4={v1:[1,1],v2:[1,2],x:[5,7],t:0};let stop4=()=>{};
+const P4=Plane($('p4'),8);
+const H4a=P4.handle(()=>S4.v1,(x,y)=>{S4.v1=[x,y];S4.t=0;r4();},'var(--m1)',0.5,'v1');
+const H4b=P4.handle(()=>S4.v2,(x,y)=>{S4.v2=[x,y];S4.t=0;r4();},'var(--m2)',0.5,'v2');
+const H4x=P4.handle(()=>S4.x,(x,y)=>{S4.x=[x,y];S4.t=0;r4();},'var(--bad)',0.5,'x');
+function r4(){
+  const {v1,v2,x,t}=S4;P4.clear();
+  if(Math.abs(det2([[v1[0],v2[0]],[v1[1],v2[1]]]))<1e-9||Math.hypot(...v1)<1e-9){P4.arrow(0,0,v1[0],v1[1],'var(--m1)',{w:3,label:'v₁'});P4.arrow(0,0,v2[0],v2[1],'var(--m2)',{w:3,label:'v₂'});H4a.update();H4b.update();H4x.update();setTex('r4','<span class="row cbad">两支基向量共线，不构成基</span>');return;}
+  const w1=v1,k=dot(w1,v2)/dot(w1,w1),sh=[k*w1[0],k*w1[1]],w2=[v2[0]-sh[0],v2[1]-sh[1]];
+  const a1=dot(w1,x)/dot(w1,w1),a2=dot(w2,x)/dot(w2,w2),c1=a1-a2*k,c2=a2;
+  const s1=Math.min(1,t),s2=Math.max(0,Math.min(1,t-1)),s3=Math.max(0,Math.min(1,t-2)),s4=Math.max(0,Math.min(1,t-3));
+  if(t>0&&t<2){P4.arrow(0,0,sh[0]*ease(s1),sh[1]*ease(s1),'var(--m3)',{w:4,op:.6,label:s1>=1?'影子':''});P4.line(sh[0],sh[1],v2[0],v2[1],'stroke:var(--muted);stroke-dasharray:3 3');}
+  if(t>1){const e=ease(s2),cur=[v2[0]-sh[0]*e,v2[1]-sh[1]*e];basisGrid(P4,w1,cur,.12*s2);P4.arrow(0,0,cur[0],cur[1],'var(--ok)',{w:3,label:s2>=1?'w₂':''});if(s2>=1)rightMark(P4,[0,0],unit(w1),unit(w2),'var(--ink)');}
+  if(t>2){const e=ease(s3),p=[a1*w1[0]*Math.min(1,e*2),a1*w1[1]*Math.min(1,e*2)];P4.arrow(0,0,p[0],p[1],'var(--m1)',{w:2,dash:'6 4',label:e>=1?`${fm(a1,2)}w₁`:'',mid:1});
+    if(e>0.5){const f=(e-0.5)*2,q=[p[0]+a2*w2[0]*f,p[1]+a2*w2[1]*f];P4.arrow(p[0],p[1],q[0],q[1],'var(--ok)',{w:2,dash:'6 4',label:e>=1?`${fm(a2,2)}w₂`:'',mid:1});}}
+  if(t>3){const e=ease(s4),p=[c1*v1[0],c1*v1[1]];const g=el('g',{style:`opacity:${e}`},P4.gC);const sv=P4.gC;P4.gC=g;
+    P4.arrow(0,0,p[0],p[1],'var(--m1)',{w:2.4,label:`${fm(c1,2)}v₁`,mid:1});P4.arrow(p[0],p[1],x[0],x[1],'var(--m2)',{w:2.4,label:`${fm(c2,2)}v₂`,mid:1});P4.gC=sv;}
+  P4.arrow(0,0,v1[0],v1[1],'var(--m1)',{w:3,label:t>0?'v₁ = w₁':'v₁'});P4.arrow(0,0,v2[0],v2[1],'var(--m2)',{w:3,op:t>1?.4:1,label:'v₂'});
+  P4.arrow(0,0,x[0],x[1],'var(--bad)',{w:3,label:'x'});H4a.update();H4b.update();H4x.update();
+  const rows=[
+    TX`<span class="row${t>0&&t<=2?' on':''}">① \(\bm w_1=\bm v_1\)；\(\bm v_2\) 在 \(\bm w_1\) 上的影子系数 \(\dfrac{\bm w_1^T\bm v_2}{\bm w_1^T\bm w_1}=${fm(k,3)}\)</span>`,
+    TX`<span class="row${t>1&&t<=2?' on':''}">② \(\bm w_2=\bm v_2-${fm(k,3)}\,\bm w_1=${rv(w2,3)}^T\)，\(\bm w_1^T\bm w_2=${fm(dot(w1,w2),6)}\)</span>`,
+    TX`<span class="row${t>2&&t<=3?' on':''}">③ 投影各算各的：\(a_1=\dfrac{\bm w_1^T\bm x}{\bm w_1^T\bm w_1}=${fm(a1,3)},\ a_2=\dfrac{\bm w_2^T\bm x}{\bm w_2^T\bm w_2}=${fm(a2,3)}\)</span>`,
+    TX`<span class="row${t>3?' on':''}">④ 换回：\(\bm x=${fm(a1,3)}\bm w_1+${pn(a2,3)}(\bm v_2-${fm(k,3)}\bm v_1)=${fm(c1,3)}\,\bm v_1+${pn(c2,3)}\,\bm v_2\)</span>`];
+  setTex('r4',rows.join(''));
+}
+$('b4').onclick=()=>{stop4();stop4=seq([[0,1,1000],['hold',500],[1,2,1100],['hold',500],[2,3,1600],['hold',500],[3,4,900]],v=>{S4.t=v;r4();});};
+$('b4r').onclick=()=>{stop4();S4.t=0;r4();};
+
+/* ---------- 5 二次型等值线 ---------- */
+const PRE5=[['正定 \\(k_1=2\\)',2,1],['半正定 \\(k_1=0\\)',0,1],['不定 \\(k_1=-0.5\\)',-0.5,1]];
+const S5={k1:2,k2:1,u:[1,1]};
+const P5=Plane($('p5'),3,{xl:'u₁',yl:'u₂'});
+const H5=P5.handle(()=>S5.u,(x,y)=>{S5.u=[x,y];r5();},'var(--bad)',0.25,'位移 u');
+function r5(){
+  const {k1,k2,u}=S5,K=[[k1+k2,-k2],[-k2,k2]],q=d=>K[0][0]*d[0]*d[0]+2*K[0][1]*d[0]*d[1]+K[1][1]*d[1]*d[1];
+  P5.clear();
+  const levels=[0.25,1,2.25,4];
+  for(const sg of[1,-1])for(const c of levels){let d='',pen=false;
+    for(let i=0;i<=720;i++){const th=i/720*2*Math.PI,dd=[Math.cos(th),Math.sin(th)],qq=q(dd);
+      if(qq*sg>1e-6){const t=Math.sqrt(2*c/(qq*sg));if(t<6){const X=P5.X(t*dd[0]),Y=P5.Y(t*dd[1]);d+=(pen?'L':'M')+X.toFixed(1)+','+Y.toFixed(1);pen=true;continue;}}
+      pen=false;}
+    if(d)el('path',{d,style:`fill:none;stroke:var(${sg>0?'--accent':'--bad'});stroke-width:${c===1?1.8:1.1};opacity:.75`},P5.gC);}
+  // 零能量方向
+  const e=eig2(K);const zs=[];for(let i=0;i<360;i++){const a=i/360*Math.PI,b=(i+1)/360*Math.PI,qa=q([Math.cos(a),Math.sin(a)]),qb=q([Math.cos(b),Math.sin(b)]);if(Math.abs(qa)<1e-9||qa*qb<0){const m=Math.abs(qa)<1e-9?a:a+(b-a)*qa/(qa-qb);zs.push(m);}}
+  zs.forEach(m=>P5.line(-6*Math.cos(m),-6*Math.sin(m),6*Math.cos(m),6*Math.sin(m),'stroke:var(--m3);stroke-width:2;stroke-dasharray:6 4'));
+  P5.arrow(0,0,u[0],u[1],'var(--bad)',{w:2.6,label:'u'});H5.update();
+  const U=0.5*(K[0][0]*u[0]**2+2*K[0][1]*u[0]*u[1]+K[1][1]*u[1]**2);
+  const ev=e.v,cls=ev[1]>1e-9?['正定','cok']:ev[1]>-1e-9?['半正定（奇异）','c2']:['不定','cbad'];
+  $('k5av').textContent=fm(k1,2);$('k5bv').textContent=fm(k2,2);
+  setTex('r5',TX`<span class="row">\(K=${bmx(K,2)}\)　<b class="${cls[1]}">${cls[0]}</b></span><span class="row">\(U=\tfrac12\bm u^TK\bm u=\tfrac12[${fm(k1,2)}\times${pn(u[0],2)}^2+${fm(k2,2)}\times${pn(u[1]-u[0],2)}^2]=${fm(U,3)}\)</span><span class="row">二阶判据：\(a=${fm(K[0][0],2)}${K[0][0]>0?'>':'\\le'}0,\quad ad-b^2=${fm(det2(K),3)}${det2(K)>1e-9?'>':det2(K)<-1e-9?'<':'='}0\)</span><span class="row">特征值 \(${eigTex(e)}\)（04 篇：全正 ⟺ 正定）</span>`);
+}
+PRE5.forEach(([n,a,b])=>{const bt=document.createElement('button');bt.type='button';setTex(bt,n);bt.onclick=()=>{S5.k1=a;S5.k2=b;$('k5a').value=a;$('k5b').value=b;r5();};$('pre5').appendChild(bt);});
+$('k5a').oninput=e=>{S5.k1=+e.target.value;r5();};$('k5b').oninput=e=>{S5.k2=+e.target.value;r5();};
+
+/* ---------- 6 相似与合同 ---------- */
+const K6=[[3,-1],[-1,1]],M6=[[2,0],[0,1]],c30=Math.cos(Math.PI/6),s30=Math.sin(Math.PI/6);
+const PRE6=[['笔记例 \\(V=\\begin{bmatrix}1&1\\\\1&-1\\end{bmatrix}\\)',[[1,1],[1,-1]],'V'],['振型基 \\(\\Phi\\)',[[1,1],[2,-1]],'\\Phi'],['旋转 \\(30^\\circ\\)（正交）',[[c30,-s30],[s30,c30]],'Q']];
+function r6(k){const [,V,n]=PRE6[k],S=mm2(mm2(inv2(V),K6),V),C=mm2(mm2(tr2(V),K6),V);
+  let out=TX`<span class="row">\(${n}^{-1}K${n}=${bmx(S,3)}\)，特征值 \(${eigTex(eig2(S))}\)</span><span class="row">\(${n}^TK${n}=${bmx(C,3)}\)，特征值 \(${eigTex(eig2(C))}\)</span><span class="row">对照：\(K\) 的特征值 \(${eigTex(eig2(K6))}\)</span>`;
+  if(n==='\\Phi'){const CM=mm2(mm2(tr2(V),M6),V);out+=TX`<span class="row cok">\(\Phi^TM\Phi=${bmx(CM,3)}\)：\(K\)、\(M\) 同时对角，方程解耦；\(${fm(C[0][0],3)}/${fm(CM[0][0],3)}=${fm(C[0][0]/CM[0][0],3)}\)、\(${fm(C[1][1],3)}/${fm(CM[1][1],3)}=${fm(C[1][1]/CM[1][1],3)}\) 正是两个 \(\omega^2\)</span>`;}
+  if(n==='Q')out+='<span class="row cok">\\(Q\\) 正交，\\(Q^{-1}=Q^T\\)，两种变换结果相同</span>';
+  if(n==='V')out+='<span class="row">相似保特征值；合同不保数值（这里翻倍，因为 \\(V^TV=2I\\)），但正负个数不变</span>';
+  setTex('r6',out);}
+PRE6.forEach(([n],k)=>{const bt=document.createElement('button');bt.type='button';setTex(bt,n);bt.onclick=()=>r6(k);$('pre6').appendChild(bt);});
+
+/* ---------- 7 质量加权内积 ---------- */
+const S7={m1:2,m2:1,u:[1.5,1.5],wrong:false};
+const P7=Plane($('p7'),3.5);
+const H7=P7.handle(()=>S7.u,(x,y)=>{S7.u=[x,y];r7();},'var(--bad)',0.25,'位移 u');
+const PH1=[1,2],PH2=[1,-1];
+function r7(){
+  const {m1,m2,u}=S7,M=[[m1,0],[0,m2]],Mf2=mv(M,PH2),Mu=mv(M,u),mf=(a,b)=>dot(a,mv(M,b));
+  const c12=mf(PH1,PH2),ms1=mf(PH1,PH1),ms2=mf(PH2,PH2),orth=Math.abs(c12)<1e-9;
+  P7.clear();
+  // M 尺子下与 φ1 等长的椭圆
+  const L=ms1;let d='';for(let i=0;i<=120;i++){const th=i/120*2*Math.PI,x=Math.sqrt(L/m1)*Math.cos(th),y=Math.sqrt(L/m2)*Math.sin(th);d+=(i?'L':'M')+P7.X(x).toFixed(1)+','+P7.Y(y).toFixed(1);}
+  el('path',{d,style:'fill:none;stroke:var(--m3);stroke-width:1.4;stroke-dasharray:5 4;opacity:.8'},P7.gC);
+  P7.arrow(0,0,Mf2[0],Mf2[1],'var(--m2)',{w:2,dash:'6 4',label:'Mφ₂'});
+  if(orth)rightMark(P7,[0,0],unit(PH1),unit(Mf2),'var(--ok)');
+  P7.arrow(0,0,PH1[0],PH1[1],'var(--m1)',{w:3,label:'φ₁'});P7.arrow(0,0,PH2[0],PH2[1],'var(--m2)',{w:3,label:'φ₂'});
+  const Phi=[[1,1],[2,-1]],qt=mv(inv2(Phi),u),qm=[mf(PH1,u)/ms1,mf(PH2,u)/ms2],qo=[dot(PH1,u)/dot(PH1,PH1),dot(PH2,u)/dot(PH2,PH2)];
+  const rec=q=>[q[0]*PH1[0]+q[1]*PH2[0],q[0]*PH1[1]+q[1]*PH2[1]];
+  const rm=rec(qm),okm=Math.hypot(rm[0]-u[0],rm[1]-u[1])<1e-9;
+  if(!okm){el('circle',{cx:P7.X(rm[0]),cy:P7.Y(rm[1]),r:5,style:'fill:none;stroke:var(--m3);stroke-width:2'},P7.gC);P7.text(rm[0]+0.1,rm[1]-0.25,'M-投影重构','fill:var(--m3)','start',11);}
+  if(S7.wrong){const ro=rec(qo);el('circle',{cx:P7.X(ro[0]),cy:P7.Y(ro[1]),r:5,style:'fill:var(--bad);opacity:.6'},P7.gC);P7.text(ro[0]+0.1,ro[1]+0.15,'普通投影重构 ✗','fill:var(--bad)','start',11);}
+  P7.arrow(0,0,u[0],u[1],'var(--bad)',{w:2.6,label:'u'});H7.update();
+  $('m7av').textContent=fm(m1,2);$('m7bv').textContent=fm(m2,2);
+  setTex('r7',TX`<span class="row">普通点积 \(\bm\phi_1^T\bm\phi_2=-1\ne0\)（夹角 \(108.4^\circ\)）</span><span class="row">\(M\bm\phi_2=${rv(Mf2,2)}^T,\quad \bm\phi_1^TM\bm\phi_2=m_1-2m_2=${fm(c12,3)}\)　${orth?'<b class="cok">\\(M\\)-正交</b>':'<b class="cbad">不 \\(M\\)-正交</b>'}</span><span class="row">动能 \(T=\tfrac12(${fm(ms1,2)})\dot q_1^2${c12<0?'':'+'}${fm(c12,2)}\,\dot q_1\dot q_2+\tfrac12(${fm(ms2,2)})\dot q_2^2\)${orth?'：交叉项消失':''}</span><span class="row">真实坐标 \(\bm q=\Phi^{-1}\bm u=${rv(qt,3)}^T\)</span><span class="row ${okm?'cok':'cbad'}">\(M\)-投影 \(q_i=\dfrac{\bm\phi_i^TM\bm u}{\bm\phi_i^TM\bm\phi_i}\)：\(${rv(qm,3)}^T\)${okm?'，与真实坐标一致':'，交叉项消不掉，不对'}</span>`+
+    (S7.wrong?TX`<span class="row cbad">普通投影 \(q_i=\dfrac{\bm\phi_i^T\bm u}{\bm\phi_i^T\bm\phi_i}\)：\(${rv(qo,3)}^T\)，用错了尺子</span>`:''));
+}
+$('m7a').oninput=e=>{S7.m1=+e.target.value;r7();};$('m7b').oninput=e=>{S7.m2=+e.target.value;r7();};$('w7').onchange=e=>{S7.wrong=e.target.checked;r7();};
+
+/* ---------- 自测 ---------- */
+(function(){let st={};try{st=JSON.parse(localStorage.getItem('la03-check')||'{}');}catch(e){}
+  document.querySelectorAll('#chk input').forEach(c=>{c.checked=!!st[c.id];c.onchange=()=>{st[c.id]=c.checked;try{localStorage.setItem('la03-check',JSON.stringify(st));}catch(e){}};});})();
+
+/* ---------- 启动 ---------- */
+r1();r2();r3();r4();r5();r6(0);r7();
+</script>
+</html>

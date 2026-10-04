@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>三层框架振型分解算例</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: single-column calculation sheet — steps down the page, each step = formula strip + figure + table */
+:root{
+  --bg:#eef1f4; --paper:#ffffff; --ink:#18212c; --muted:#5a6675; --rule:#d3dae3; --soft:#e4e9ef;
+  --accent:#1d5b9e; --m1:#1f6fb2; --m2:#cf7a22; --m3:#a83c75; --ok:#2b7d4f; --bad:#b33a2e;
+  --serif:"Noto Serif SC","Songti SC","SimSun",serif;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"JetBrains Mono",Consolas,"SFMono-Regular",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11151b; --paper:#181e26; --ink:#e2e7ed; --muted:#98a4b3; --rule:#2c3643; --soft:#212a35;
+  --accent:#6ea8ea; --m1:#5ba7ec; --m2:#efa352; --m3:#e07bb0; --ok:#5cc08a; --bad:#ef7b6e; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11151b; --paper:#181e26; --ink:#e2e7ed; --muted:#98a4b3; --rule:#2c3643; --soft:#212a35;
+  --accent:#6ea8ea; --m1:#5ba7ec; --m2:#efa352; --m3:#e07bb0; --ok:#5cc08a; --bad:#ef7b6e; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.7;padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:980px;margin:0 auto}
+header.top{padding-block:40px 20px}
+.eyebrow{font-size:12px;letter-spacing:.12em;color:var(--muted)}
+h1{font-family:var(--serif);font-size:clamp(26px,4.4vw,38px);line-height:1.25;margin:6px 0 10px;text-wrap:balance}
+h2{font-family:var(--serif);font-size:22px;line-height:1.35;margin:0;text-wrap:balance}
+h3{font-size:15px;margin:18px 0 6px}
+p{margin:8px 0}
+.lede{max-width:44em;color:var(--muted)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+section.step{background:var(--paper);border:1px solid var(--rule);border-radius:6px;margin-top:22px;padding:22px 22px 18px}
+.stephead{display:flex;gap:14px;align-items:baseline;border-bottom:1px solid var(--rule);padding-bottom:10px;margin-bottom:12px;flex-wrap:wrap}
+.stepno{font-family:var(--mono);font-size:13px;color:var(--accent);border:1px solid var(--accent);border-radius:3px;padding:0 7px;white-space:nowrap}
+.why{font-size:13.5px;color:var(--muted);max-width:46em}
+.formula{font-family:"Times New Roman",var(--serif);font-size:19px;background:var(--soft);border-radius:4px;padding:12px 16px;margin:12px 0;overflow-x:auto;white-space:nowrap}
+.formula i{font-style:italic}
+.formula .cl{font-family:var(--sans);font-size:12px;color:var(--muted);margin-left:14px}
+.mat{display:inline-grid;grid-template-columns:repeat(3,auto);gap:2px 16px;vertical-align:middle;border-left:1.5px solid currentColor;border-right:1.5px solid currentColor;border-radius:5px;padding:2px 10px;font-size:.85em;text-align:center}
+.mat.num{font-size:.75em}
+details.hand{border:1px solid var(--rule);border-radius:4px;padding:8px 14px;margin-top:12px}
+details.hand summary{cursor:pointer;font-weight:500;color:var(--accent)}
+details.hand h4{font-size:14px;margin:16px 0 4px}
+details.hand .formula{font-size:16px}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 3px}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 4px}
+.frac>span:last-child{padding:0 4px}
+.tbl{overflow-x:auto;margin:10px 0}
+table{border-collapse:collapse;font-size:13.5px;min-width:100%}
+th,td{border-bottom:1px solid var(--rule);padding:6px 10px;text-align:right;white-space:nowrap}
+th{font-weight:500;color:var(--muted);font-size:12.5px}
+td.l,th.l{text-align:left}
+[hidden]{display:none!important}
+td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+td.t{font-family:var(--sans)}
+tr.hl td{background:var(--soft)}
+.c1{color:var(--m1)}.c2{color:var(--m2)}.c3{color:var(--m3)}
+.pill{display:inline-block;font-size:12px;border-radius:99px;padding:0 9px;border:1px solid currentColor;white-space:nowrap}
+.pill.ok{color:var(--ok)}.pill.bad{color:var(--bad)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;align-items:start}
+.grid2>*{min-width:0}
+.note{border-left:3px solid var(--accent);padding:6px 12px;background:var(--soft);font-size:14px;margin:12px 0;border-radius:0 4px 4px 0}
+.note.warn{border-color:var(--m2)}
+figure{margin:8px 0}
+figcaption{font-size:12.5px;color:var(--muted)}
+svg text{fill:var(--ink);font-family:var(--sans)}
+svg .mut{fill:var(--muted)}
+canvas{display:block;width:100%}
+.modecv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.modecv>div{border:1px solid var(--rule);border-radius:4px;padding:6px}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13.5px;margin-top:14px}
+.flow a{color:var(--ink);text-decoration:none;border:1px solid var(--rule);background:var(--paper);border-radius:4px;padding:4px 10px}
+.flow a:hover,.flow a:focus-visible{border-color:var(--accent);color:var(--accent)}
+.flow .ar{color:var(--muted)}
+.params{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px 14px;margin-top:10px}
+.params label{display:flex;flex-direction:column;font-size:12.5px;color:var(--muted);gap:3px}
+input,select,button{font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:4px;padding:5px 8px}
+input{font-family:var(--mono)}
+button{cursor:pointer}
+button:hover{border-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:4px;overflow:hidden}
+.seg button{border:0;border-radius:0;padding:4px 12px;background:transparent}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--paper)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.big{font-family:var(--mono);font-size:22px;font-weight:600}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}
+.kpi{border:1px solid var(--rule);border-radius:4px;padding:8px 12px}
+.kpi .lab{font-size:12.5px;color:var(--muted)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px}
+.legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:5px;border-radius:2px}
+.terms td,.terms th{white-space:normal;text-align:left;vertical-align:top}
+.terms td{font-family:var(--sans)}
+.terms td b{font-weight:700}
+.terms .wrong{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--bad)}
+footer{font-size:12.5px;color:var(--muted);margin-top:26px}
+@media (max-width:640px){
+  section.step{padding:16px 14px}
+  .modecv{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .formula{font-size:16px}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+</style>
+
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow"><a href="../index.html" style="color:var(--accent);text-decoration:none;letter-spacing:0">← 返回首页</a>　振型分解反应谱法 · 从运动方程到设计地震力</div>
+  <h1>从振型到地震力：一个三层框架算到底</h1>
+  <p class="lede">用一个 3 层剪切型框架，从运动方程出发，依次推出周期与振型、参与系数、有效质量、各振型地震作用和振型组合，再用时程分析检验，最后对照底部剪力法和盈建科输出。页面数值全部实时计算，可修改参数观察变化。</p>
+  <nav class="flow" aria-label="教程目录">
+    <a href="#s-in">① 算例</a><span class="ar">→</span>
+    <a href="#s1">② 运动方程</a><span class="ar">→</span>
+    <a href="#s2">③ 周期与振型</a><span class="ar">→</span>
+    <a href="#s3">④ 解耦与参与系数</a><span class="ar">→</span>
+    <a href="#s4">⑤ 有效质量</a><span class="ar">→</span>
+    <a href="#s5">⑥ 反应谱</a><span class="ar">→</span>
+    <a href="#s6">⑦ 各振型地震作用</a><span class="ar">→</span>
+    <a href="#s7">⑧ 振型组合</a><span class="ar">→</span>
+    <a href="#s8">⑨ 时程检验</a><span class="ar">→</span>
+    <a href="#s9">⑩ 底部剪力法</a><span class="ar">→</span>
+    <a href="#s10">⑪ 盈建科对照</a>
+  </nav>
+</header>
+
+<!-- ① 算例 -->
+<section class="step" id="s-in">
+  <div class="stephead"><span class="stepno">①</span><h2>算例：三层剪切型框架</h2></div>
+  <div class="grid2">
+    <div>
+      <p>楼板无限刚、柱子只提供层间抗侧刚度，每层只有一个水平自由度。层重力荷载代表值 <i>G</i><sub>i</sub>，层侧向刚度 <i>k</i><sub>i</sub>，层高 4 m。地震参数取 7 度（0.10g）多遇地震，II 类场地，设计地震分组第一组，阻尼比 5%。</p>
+      <p>目标：求地震作用下各层的地震力、层剪力和层间位移。</p>
+      <div class="params" id="params">
+        <label>G₁ 首层 (kN)<input id="G1" type="number" step="50" value="1500"></label>
+        <label>G₂ 二层 (kN)<input id="G2" type="number" step="50" value="1500"></label>
+        <label>G₃ 顶层 (kN)<input id="G3" type="number" step="50" value="1200"></label>
+        <label>k₁ (kN/m)<input id="k1" type="number" step="1000" value="36000"></label>
+        <label>k₂ (kN/m)<input id="k2" type="number" step="1000" value="30000"></label>
+        <label>k₃ (kN/m)<input id="k3" type="number" step="1000" value="22000"></label>
+        <label><span>α<sub>max</sub>（多遇）</span><select id="amax">
+          <option value="0.04">6 度 0.04</option><option value="0.08" selected>7 度(0.10g) 0.08</option><option value="0.12">7 度(0.15g) 0.12</option><option value="0.16">8 度(0.20g) 0.16</option><option value="0.24">8 度(0.30g) 0.24</option><option value="0.32">9 度 0.32</option></select></label>
+        <label><span>T<sub>g</sub> (s)</span><input id="Tg" type="number" step="0.05" value="0.35"></label>
+      </div>
+      <div class="row" style="margin-top:10px"><button id="reset" type="button">恢复默认算例</button><span id="dirty" class="pill" hidden>已修改参数，第 ⑨ 节仍为默认算例</span></div>
+      <p class="why" style="margin-top:12px"><b>记号约定。</b>下标 j 表示振型号，i 表示楼层号（1 为首层）。粗体为向量或矩阵，斜体为标量。Σ 不加说明时，指固定振型 j、对楼层 i = 1～3 求和；对振型求和写作 Σ<sub>j</sub>。</p>
+    </div>
+    <figure><svg id="schem" viewBox="0 0 320 300" role="img" aria-label="三层框架简图"></svg><figcaption>算例简图：层重 G、层刚度 k（首层在下）</figcaption></figure>
+  </div>
+</section>
+
+<!-- ② 运动方程 -->
+<section class="step" id="s1">
+  <div class="stephead"><span class="stepno">②</span><h2>运动方程：地震对结构做了什么</h2></div>
+  <h3>质量矩阵</h3>
+  <p>质量集中在楼板处，第 i 层质量 <i>m</i><sub>i</sub> = <i>G</i><sub>i</sub>/<i>g</i>（单位 t）。三层质量排成对角矩阵，非对角元为 0：</p>
+  <div class="formula"><b>M</b> = diag(<i>m</i><sub>1</sub>, <i>m</i><sub>2</sub>, <i>m</i><sub>3</sub>) = diag(<span class="num" id="Mvals"></span>) t</div>
+  <p class="why"><b>M</b> 是矩阵，<i>m</i><sub>i</sub> 是它的第 i 个对角元（标量）。后文凡出现 Σ<i>m</i><sub>i</sub>(…)，都是矩阵乘积在对角质量阵下的展开。</p>
+  <h3>刚度矩阵</h3>
+  <p>刚度矩阵不是把层刚度直接填进去，而是由层刚度组装而成。<b>K</b> 的第 j 列，等于“只让第 j 层平移 1 m、其余层固定”时各层需要施加的力。例如首层平移 1 m，首层柱和二层柱都被错动 1 m，所以首层要施加 <i>k</i><sub>1</sub>+<i>k</i><sub>2</sub>，二层要施加 −<i>k</i><sub>2</sub> 把它拉住；顶层上面没有楼层，所以 K<sub>33</sub> 只有 <i>k</i><sub>3</sub>。</p>
+  <div class="formula"><b>K</b> = <span class="mat"><span><i>k</i><sub>1</sub>+<i>k</i><sub>2</sub></span><span>−<i>k</i><sub>2</sub></span><span>0</span><span>−<i>k</i><sub>2</sub></span><span><i>k</i><sub>2</sub>+<i>k</i><sub>3</sub></span><span>−<i>k</i><sub>3</sub></span><span>0</span><span>−<i>k</i><sub>3</sub></span><span><i>k</i><sub>3</sub></span></span> = <span class="mat num" id="Kmat"></span> kN/m<span class="cl">行、列顺序：首层、二层、顶层</span></div>
+  <h3>地面运动的输入</h3>
+  <p>记各层<b>相对地面</b>的位移为 <b>u</b> = {<i>u</i><sub>1</sub>, <i>u</i><sub>2</sub>, <i>u</i><sub>3</sub>}<sup>T</sup>。地面平移 <i>u</i><sub>g</sub> 时，各层的绝对位移可以拆成两部分：随地面整体平移的 {1}<i>u</i><sub>g</sub>，加上相对变形 <b>u</b>。这里 {1} = {1, 1, 1}<sup>T</sup> 叫<b>影响向量</b>，表示地面移动 1 个单位时各层被刚性带动的位移。这只是对运动的拆分，并不假设结构刚性，结构的柔性全部体现在 <b>u</b> 里。</p>
+  <p>惯性力取决于绝对加速度 <b>ü</b> + {1}<i>a</i><sub>g</sub>，由牛顿定律 <b>M</b>(<b>ü</b> + {1}<i>a</i><sub>g</sub>) + <b>K u</b> = 0，把已知的地面项移到右边：</p>
+  <div class="formula"><b>M ü</b> + <b>K u</b> = −<b>M</b>{1}<i>a</i><sub>g</sub><span class="cl">阻尼项后面以振型阻尼比 ζ 计入</span></div>
+  <p>这一步是精确的。右边就是地震对结构的等效荷载：第 i 层为 −<i>m</i><sub>i</sub><i>a</i><sub>g</sub>，与该层质量成正比。注意各层的真实加速度是 <i>a</i><sub>g</sub> + <i>ü</i><sub>i</sub>，并不等于 <i>a</i><sub>g</sub>；“全是 1”的是荷载分布中的影响向量，不是真实加速度。</p>
+  <div class="note">困难在于 <b>K</b> 不是对角阵：首层方程里含有二层位移，三个方程互相耦合，不能逐个求解。要把它拆开，需要先找到结构自己的振动形态，也就是振型。</div>
+</section>
+
+<!-- ③ 周期与振型 -->
+<section class="step" id="s2">
+  <div class="stephead"><span class="stepno">③</span><h2>周期与振型：结构自己会怎么振</h2></div>
+  <p>先看没有地震、结构自由振动的情形：<b>M ü</b> + <b>K u</b> = 0。寻找一种“保持形状、同步振动”的运动：</p>
+  <div class="formula"><b>u</b>(t) = <b>X</b>·sin(ω<i>t</i>)<span class="cl"><b>X</b> 是 3×1 向量（各层振幅，即振型）；sin(ωt) 是三层共用的标量时间函数</span></div>
+  <p>它的含义是三层按同一频率、同一相位振动，各层位移之比始终是 <i>X</i><sub>1</sub> : <i>X</i><sub>2</sub> : <i>X</i><sub>3</sub>。代入方程，<b>ü</b> = −ω²<b>X</b> sin(ωt)，消去标量 sin(ωt) 得</p>
+  <div class="formula">(<b>K</b> − ω²<b>M</b>) <b>X</b> = 0 &nbsp;⇔&nbsp; <b>K X</b> = λ<b>M X</b>，&nbsp; λ = ω²</div>
+  <p>这是<b>广义</b>特征值问题。它和熟悉的标准形式 (<b>A</b> − λ<b>I</b>)<b>X</b> = 0 的区别只是右边多了 <b>M</b>：左乘 <b>M</b><sup>−1</sup> 即得 <b>A</b> = <b>M</b><sup>−1</sup><b>K</b>，特征值和特征向量都不变。标准形式隐含“各自由度质量都为 1”；各层质量相等时 <b>M</b> = <i>m</i><b>I</b>，问题就退化为 (<b>K</b>/<i>m</i> − λ<b>I</b>)<b>X</b> = 0。程序一般改用对称形式 <b>M</b><sup>−1/2</sup><b>K M</b><sup>−1/2</sup>，以保留 <b>K</b>、<b>M</b> 对称带来的性质。</p>
+  <p>要有非零解 <b>X</b>，必须 det(<b>K</b> − λ<b>M</b>) = 0。3 个自由度得到一个关于 λ 的三次方程，3 个根对应 3 个圆频率 ω<sub>j</sub> 和周期 <i>T</i><sub>j</sub> = 2π/ω<sub>j</sub>；每个根代回方程，得到对应的振型 <b>X</b><sub>j</sub>。</p>
+  <details class="hand" id="handBox"><summary>展开：本例周期与振型的完整手算过程（随参数实时更新）</summary><div id="hand"></div></details>
+  <h3>计算结果</h3>
+  <div class="modecv" id="modecv"></div>
+  <div class="row" style="margin-top:8px">
+    <button type="button" id="mPlay">▶ 播放一个周期</button>
+    <div class="seg" role="group" aria-label="播放速度"><button type="button" id="mSame" aria-pressed="true">统一慢放（看形状）</button><button type="button" id="mReal" aria-pressed="false">按真实周期比例</button></div>
+  </div>
+  <p class="why" style="margin-top:6px">静止时显示最大位移形状，点一次按钮播放一个完整周期后停住。“统一慢放”三个振型都是 8 s 一个来回，便于比较形状；“按真实周期比例”时振型 2、3 更快，各自播完一个周期先停。振型 2 沿高度变号一次，振型 3 变号两次，第 n 阶振型有 n−1 个零点。</p>
+  <div class="tbl"><table id="tModal"></table></div>
+  <h3>振型的大小需要约定：归一化</h3>
+  <p>(<b>K</b> − λ<b>M</b>)<b>X</b> = 0 只能确定 <b>X</b> 的形状，<b>X</b> 乘任意常数仍是解。使用前必须约定一把“尺子”，常用两种：</p>
+  <ul>
+    <li><b>顶层 = 1</b>：直观，适合画图和手算。TMD/TLD 设计也采用这类约定，取阻尼器安装位置的振型值为 1。</li>
+    <li><b>质量归一</b>：缩放到 <b>X</b><sub>j</sub><sup>T</sup><b>M X</b><sub>j</sub> = Σ<i>m</i><sub>i</sub><i>X</i><sub>ji</sub>² = 1。维度为 (1×3)(3×3)(3×1)，右边的 1 是标量。有限元软件的特征值求解一般直接输出这种形式，后面会看到它让公式最简。</li>
+  </ul>
+  <div class="row"><span style="font-size:13px;color:var(--muted)">表中振型的归一化方式：</span>
+    <div class="seg" role="group" aria-label="归一化方式"><button type="button" id="nTop" aria-pressed="true">顶层 = 1</button><button type="button" id="nMass" aria-pressed="false">质量归一</button></div></div>
+  <h3>振型的关键性质：正交</h3>
+  <p>不同振型关于 <b>M</b> 和 <b>K</b> 都正交，j ≠ k 时 <b>X</b><sub>k</sub><sup>T</sup><b>M X</b><sub>j</sub> = 0、<b>X</b><sub>k</sub><sup>T</sup><b>K X</b><sub>j</sub> = 0。这是特征值问题自带的性质，不是人为规定。本例核验：<span class="num" id="orth"></span>。把三个振型排成矩阵 <b>Φ</b> = [<b>X</b><sub>1</sub> <b>X</b><sub>2</sub> <b>X</b><sub>3</sub>]，则 <b>Φ</b><sup>T</sup><b>MΦ</b> 和 <b>Φ</b><sup>T</sup><b>KΦ</b> 都是对角阵；质量归一时 <b>Φ</b><sup>T</sup><b>MΦ</b> = <b>I</b>，<b>Φ</b><sup>T</sup><b>KΦ</b> = diag(ω<sub>1</sub>², ω<sub>2</sub>², ω<sub>3</sub>²)。正交性正是下一步解耦的钥匙。</p>
+</section>
+
+<!-- ④ 解耦 -->
+<section class="step" id="s3">
+  <div class="stephead"><span class="stepno">④</span><h2>解耦：模态质量与振型参与系数</h2></div>
+  <p>回到地震下的方程 <b>M ü</b> + <b>K u</b> = −<b>M</b>{1}<i>a</i><sub>g</sub>。3 个振型线性无关，任何位移都能写成它们的组合，于是换一套坐标：</p>
+  <div class="formula"><b>u</b>(t) = Σ<sub>j</sub> <b>X</b><sub>j</sub> <i>q</i><sub>j</sub>(t)<span class="cl"><i>q</i><sub>j</sub>(t) 为振型坐标，是标量时间函数</span></div>
+  <p>代入方程并左乘 <b>X</b><sub>j</sub><sup>T</sup>，由正交性，所有交叉项为零，只剩第 j 个振型自己：</p>
+  <div class="formula">(<b>X</b><sub>j</sub><sup>T</sup><b>M X</b><sub>j</sub>) <i>q̈</i><sub>j</sub> + (<b>X</b><sub>j</sub><sup>T</sup><b>K X</b><sub>j</sub>) <i>q</i><sub>j</sub> = −(<b>X</b><sub>j</sub><sup>T</sup><b>M</b>{1}) <i>a</i><sub>g</sub></div>
+  <p>三个括号各有名字：</p>
+  <ul>
+    <li><b>模态质量</b>（广义质量）<i>M</i>*<sub>j</sub> = <b>X</b><sub>j</sub><sup>T</sup><b>M X</b><sub>j</sub> = Σ<i>m</i><sub>i</sub><i>X</i><sub>ji</sub>²，是等效单自由度体系的质量；</li>
+    <li><b>模态刚度</b> <i>K</i>*<sub>j</sub> = <b>X</b><sub>j</sub><sup>T</sup><b>K X</b><sub>j</sub> = ω<sub>j</sub>²<i>M</i>*<sub>j</sub>；</li>
+    <li><b>激励项</b> <i>L</i><sub>j</sub> = <b>X</b><sub>j</sub><sup>T</sup><b>M</b>{1} = Σ<i>m</i><sub>i</sub><i>X</i><sub>ji</sub>，是地震荷载在第 j 振型上的投影。</li>
+  </ul>
+  <p>两边除以 <i>M</i>*<sub>j</sub>，并按振型阻尼比 ζ 计入阻尼，三个耦合方程变成三个独立的单自由度方程：</p>
+  <div class="formula"><i>q̈</i><sub>j</sub> + 2ζω<sub>j</sub><i>q̇</i><sub>j</sub> + ω<sub>j</sub>²<i>q</i><sub>j</sub> = −<i>γ</i><sub>j</sub><i>a</i><sub>g</sub></div>
+  <div class="formula"><i>γ</i><sub>j</sub> = <span class="frac"><span><i>L</i><sub>j</sub></span><span><i>M</i>*<sub>j</sub></span></span> = <span class="frac"><span>Σ<i>m</i><sub>i</sub><i>X</i><sub>ji</sub></span><span>Σ<i>m</i><sub>i</sub><i>X</i><sub>ji</sub>²</span></span> = <span class="frac"><span>Σ<i>X</i><sub>ji</sub><i>G</i><sub>i</sub></span><span>Σ<i>X</i><sub>ji</sub>²<i>G</i><sub>i</sub></span></span><span class="cl">振型参与系数；抗规 5.2.2-2、高规 4.3.9（g 上下约掉）</span></div>
+  <p><b>振型参与系数 γ<sub>j</sub></b> 就是在解耦时自然出现的：它是地震荷载投影到第 j 振型、再除以模态质量后的系数。质量归一时 <i>M</i>*<sub>j</sub> = 1，γ<sub>j</sub> 简化为 Σ<i>m</i><sub>i</sub><i>X</i><sub>ji</sub>。</p>
+  <div class="row"><span style="font-size:13px;color:var(--muted)">代入本例：</span><div class="seg" role="group" aria-label="选择振型" id="gSel"></div></div>
+  <div class="formula" id="gSub"></div>
+  <h3>解出来是什么：γX 的含义</h3>
+  <p>记 <i>D</i><sub>j</sub>(t) 为周期 <i>T</i><sub>j</sub>、阻尼比 ζ 的单自由度振子在同一条 <i>a</i><sub>g</sub>(t) 下的位移反应。它满足的是不带 γ 的标准方程，反应谱就是用这个方程定义的：</p>
+  <div class="formula"><i>D̈</i><sub>j</sub> + 2ζω<sub>j</sub><i>Ḋ</i><sub>j</sub> + ω<sub>j</sub>²<i>D</i><sub>j</sub> = −<i>a</i><sub>g</sub><span class="cl">单位激励的标准振子</span></div>
+  <p>两边同乘常数 <i>γ</i><sub>j</sub>（γ 不随时间变，可以移进导数里）：</p>
+  <div class="formula">(<i>γ</i><sub>j</sub><i>D</i><sub>j</sub>)<sup>··</sup> + 2ζω<sub>j</sub>(<i>γ</i><sub>j</sub><i>D</i><sub>j</sub>)<sup>·</sup> + ω<sub>j</sub>²(<i>γ</i><sub>j</sub><i>D</i><sub>j</sub>) = −<i>γ</i><sub>j</sub><i>a</i><sub>g</sub></div>
+  <p>这和上面的振型方程一字不差。两者都从静止开始（初位移、初速度为 0），同一个方程、同一组初始条件只有一个解，所以 <i>q</i><sub>j</sub> = <i>γ</i><sub>j</sub><i>D</i><sub>j</sub>(t)。本质是线性：输入放大 γ<sub>j</sub> 倍，反应也放大 γ<sub>j</sub> 倍；γ<sub>j</sub> 为负时反应整体反号。代回坐标变换：</p>
+  <div class="formula"><b>u</b>(t) = Σ<sub>j</sub> (<i>γ</i><sub>j</sub><b>X</b><sub>j</sub>) · <i>D</i><sub>j</sub>(t)</div>
+  <p>所以 <i>γ</i><sub>j</sub><b>X</b><sub>j</sub> 是“单自由度振子位移为 1 时，第 j 振型引起的各层位移”。多自由度结构的反应，就是 3 个单自由度振子的反应各乘一个固定形状后叠加。</p>
+  <div class="grid2">
+    <div>
+      <h3>回头看：γ 把地面运动“分配”给各振型</h3>
+      <p>3 个振型可以作为 3 维空间的一组基，影响向量 {1} 一定能写成 {1} = <i>c</i><sub>1</sub><b>X</b><sub>1</sub> + <i>c</i><sub>2</sub><b>X</b><sub>2</sub> + <i>c</i><sub>3</sub><b>X</b><sub>3</sub>，<i>c</i><sub>j</sub> 为标量系数（类比 <b>v</b> = 3<b>i</b> + 4<b>j</b>）。两边左乘 <b>X</b><sub>k</sub><sup>T</sup><b>M</b>，由正交性得 <i>c</i><sub>k</sub> = <i>L</i><sub>k</sub>/<i>M</i>*<sub>k</sub>，正好就是 <i>γ</i><sub>k</sub>：</p>
+      <div class="formula">{1} = Σ<sub>j</sub> <i>γ</i><sub>j</sub><b>X</b><sub>j</sub>，&nbsp; 每层 Σ<sub>j</sub> <i>γ</i><sub>j</sub><i>X</i><sub>ji</sub> = 1</div>
+      <p>通俗地说：地震把每层都往同一边推（按质量分配力），而这栋楼只会三种固有“姿势”，推力只能拆成三种姿势的组合。右图就是拆分结果，每层三段之和为 1：绝大部分分给了姿势 1，姿势 2、3 只分到一点。</p>
+    </div>
+    <figure><svg id="gBar" viewBox="0 0 400 250" role="img" aria-label="各层 γX 分解"></svg><figcaption>γ<sub>j</sub>X<sub>ji</sub>：影响向量 {1} 在各振型上的分量。首层振型 2、3 合计分走约一半；顶层振型 1 的份额超过 1，由振型 2 的负值抵回。</figcaption></figure>
+  </div>
+  <h3>γ 本身的数值没有意义，γX 才有</h3>
+  <p>振型乘以常数 c 时，<i>L</i><sub>j</sub> 变为 c 倍，<i>M</i>*<sub>j</sub> 变为 c² 倍，γ<sub>j</sub> 变为 1/c 倍，而乘积 <i>γ</i><sub>j</sub><b>X</b><sub>j</sub> 不变。好比“长度 = 数字 × 单位”：<b>X</b> 是单位，γ 是数字，3 米 = 300 厘米，数字随单位变，长度不变。切换上面的归一化按钮可以看到：下表的 γ 和 <b>X</b> 都在变，γX 列不变。所以比较振型的重要性，不能看 γ 的大小，要看下一节与缩放无关的有效质量。</p>
+  <div class="tbl"><table id="tGamma"></table></div>
+  <p>同样，模态质量 <i>M</i>*<sub>j</sub> 也随缩放变化，只有约定了归一化方式才是确定值。例如 TMD 设计约定阻尼器所在位置振型值为 1，阻尼器装在顶层时，本例 <i>M</i>*<sub>1</sub> = <span class="num" id="mstar1"></span> t，这就是质量比 μ = <i>m</i><sub>T</sub>/<i>M</i>*<sub>1</sub> 的分母；质量归一时则 <i>M</i>*<sub>1</sub> = 1。</p>
+  <p class="why">γ 与 <b>X</b> 分开存放还有一个原因：<b>X</b> 只属于结构，γ 还取决于地震方向。空间模型中，x 向地震的影响向量只在 x 自由度取 1，得到 γ<sub>xj</sub>；y 向同理得到 γ<sub>yj</sub>。任意方向 θ 时 γ<sub>tj</sub> = γ<sub>xj</sub>cosθ + γ<sub>yj</sub>sinθ（抗规 5.2.3）。一套振型可以配多个方向的 γ。</p>
+</section>
+
+<!-- ⑤ 有效质量 -->
+<section class="step" id="s4">
+  <div class="stephead"><span class="stepno">⑤</span><h2>有效质量：振型取多少才够</h2></div>
+  <p>把 γ 和 <i>L</i> 组合成一个与缩放无关的量，即<b>有效质量</b>：</p>
+  <div class="formula"><i>M</i><sub>eff,j</sub> = <span class="frac"><span><i>L</i><sub>j</sub>²</span><span><i>M</i>*<sub>j</sub></span></span> = <i>γ</i><sub>j</sub><i>L</i><sub>j</sub>，&nbsp; <i>G</i><sub>eff,j</sub> = <i>M</i><sub>eff,j</sub><i>g</i> = <span class="frac"><span>(Σ<i>X</i><sub>ji</sub><i>G</i><sub>i</sub>)²</span><span>Σ<i>X</i><sub>ji</sub>²<i>G</i><sub>i</sub></span></span>，&nbsp; 有效质量系数 = <i>G</i><sub>eff,j</sub>/Σ<i>G</i><sub>i</sub></div>
+  <h3>全部振型加起来恰好是总质量</h3>
+  <p>对 {1} = Σ<sub>j</sub><i>γ</i><sub>j</sub><b>X</b><sub>j</sub> 两边左乘 {1}<sup>T</sup><b>M</b>：左边 {1}<sup>T</sup><b>M</b>{1} = Σ<i>m</i><sub>i</sub> 为总质量；右边由正交性只剩 Σ<sub>j</sub><i>γ</i><sub>j</sub>²<i>M</i>*<sub>j</sub> = Σ<sub>j</sub><i>M</i><sub>eff,j</sub>。所以全部振型的有效质量之和恒等于总质量，这是数学恒等式。本例 <span class="num" id="sumGeff"></span>。</p>
+  <h3>有效质量决定该振型的基底剪力</h3>
+  <p>后面会推出第 j 振型的层地震力 <i>F</i><sub>ji</sub> = <i>α</i><sub>j</sub><i>γ</i><sub>j</sub><i>X</i><sub>ji</sub><i>G</i><sub>i</sub>，沿高度相加得基底剪力：</p>
+  <div class="formula"><i>V</i><sub>0j</sub> = Σ<i>F</i><sub>ji</sub> = <i>α</i><sub>j</sub><i>γ</i><sub>j</sub>Σ<i>X</i><sub>ji</sub><i>G</i><sub>i</sub> = <i>α</i><sub>j</sub> · <i>G</i><sub>eff,j</sub></div>
+  <p>它和单质点体系 <i>V</i> = <i>α</i>·<i>G</i> 形式相同。也就是说，<b>只看基底剪力时</b>，第 j 振型相当于一个周期为 <i>T</i><sub>j</sub>、重量为 <i>G</i><sub>eff,j</sub> 的单质点；结构本身仍是 3 个质点，各层的力、上部楼层剪力和层间位移仍要逐层计算。</p>
+  <p>注意区分两个“质量”：模态质量 <i>M</i>*<sub>j</sub> 随缩放而变，有效质量 <i>M</i><sub>eff,j</sub> 不变。本例振型 1 在顶层 = 1 时 <i>M</i>*<sub>1</sub> = <span class="num" id="mstar1b"></span> t，而 <i>M</i><sub>eff,1</sub> = <span class="num" id="meff1"></span> t，两者不能混用，也不能用“有效质量系数 × 总质量”代替模态质量。</p>
+  <div class="grid2">
+    <div>
+      <h3>90% 判据从哪里来</h3>
+      <p>实际模型自由度成千上万，只取前 n 阶振型。没取到的振型，其有效质量对应的那部分荷载就没进入计算，这就是截断误差。抗规 5.2.2 条文说明取“振型参与质量达到总质量 90% 所需的振型数”，高规 5.1.13 对 B 级高度和复杂高层明确要求不小于 90%。没有规范要求必须达到 100%；美国 ASCE 7-16 第 12.9.1.1 条要求 100%，同时允许以 90% 作为替代。</p>
+      <p>90% 通常够用，是因为被截掉的多是短周期的高阶振型，剩余有效质量小，又经平方和开方组合，对基底剪力影响不大。但它只保证底部总量的误差小，不保证每个局部量都准确，后面会看到只取 1 阶时顶层剪力误差远大于基底剪力误差。</p>
+      <div id="meffMsg"></div>
+    </div>
+    <figure><svg id="meffBar" viewBox="0 0 400 190" role="img" aria-label="有效质量系数累计"></svg><figcaption>累计有效质量系数与 90% 线</figcaption></figure>
+  </div>
+  <div class="tbl"><table id="tMeff"></table></div>
+</section>
+
+<!-- ⑥ 反应谱 -->
+<section class="step" id="s5">
+  <div class="stephead"><span class="stepno">⑥</span><h2>反应谱：每个振子的最大加速度</h2></div>
+  <p>第 ④ 节把问题化成了 3 个单自由度振子。反应谱给出的正是单自由度振子的最大反应：周期为 <i>T</i> 的振子，最大绝对加速度为 <i>α</i>(<i>T</i>)·<i>g</i>，最大位移 <i>S</i><sub>d</sub> = <i>α</i><i>g</i>/ω²。规范谱见抗规 5.1.5（阻尼比 0.05：γ = 0.9，η₁ = 0.02，η₂ = 1.0），每个振型按自身周期各取一次 α。</p>
+  <figure><svg id="spec" viewBox="0 0 640 280" role="img" aria-label="地震影响系数曲线"></svg></figure>
+  <div class="tbl"><table id="tAlpha"></table></div>
+  <p class="why" id="alphaNote"></p>
+</section>
+
+<!-- ⑦ 各振型地震作用 -->
+<section class="step" id="s6">
+  <div class="stephead"><span class="stepno">⑦</span><h2>各振型的地震作用、层剪力、层间位移</h2></div>
+  <p>第 j 振型的最大位移为 <b>u</b><sub>j,max</sub> = <i>γ</i><sub>j</sub><b>X</b><sub>j</sub><i>S</i><sub>d</sub>(<i>T</i><sub>j</sub>)。对应的弹性恢复力 <b>F</b><sub>j</sub> = <b>K u</b><sub>j,max</sub>，利用 <b>K X</b><sub>j</sub> = ω<sub>j</sub>²<b>M X</b><sub>j</sub> 和 ω²<i>S</i><sub>d</sub> = <i>α g</i>，再以 <i>m</i><sub>i</sub><i>g</i> = <i>G</i><sub>i</sub> 代入，得到规范公式：</p>
+  <div class="formula"><i>F</i><sub>ji</sub> = <i>α</i><sub>j</sub> <i>γ</i><sub>j</sub> <i>X</i><sub>ji</sub> <i>G</i><sub>i</sub><span class="cl">抗规 5.2.2-1；高规 4.3.9</span> &nbsp;&nbsp; <i>V</i><sub>ji</sub> = Σ<sub>k≥i</sub> <i>F</i><sub>jk</sub> &nbsp;&nbsp; Δ<sub>ji</sub> = <i>V</i><sub>ji</sub> / <i>k</i><sub>i</sub></div>
+  <p>三个因子各司其职：<b>X</b> 决定力沿高度的分布形状，γ 与 <b>X</b> 一起决定该振型分到多少地震荷载，α 决定该周期对应的加速度放大。</p>
+  <figure><svg id="forceFig" viewBox="0 0 900 330" role="img" aria-label="各振型层地震力与层剪力"></svg><figcaption>箭头 = 层地震力 F（同一比例），阶梯 = 层剪力 V。振型 2、3 的力有正有负，层剪力沿高度会变号。</figcaption></figure>
+  <div class="tbl"><table id="tForce"></table></div>
+  <div class="note">第 j 振型的各层位移是 <b>X</b><sub>j</sub>·<i>q</i><sub>j</sub>(t)，三层共用同一个时间函数 <i>q</i><sub>j</sub>(t)，所以<b>同一振型内</b>各层的力在同一瞬间达到峰值，方向由 <i>X</i><sub>ji</sub> 的正负决定。每个振型的 F<sub>j1</sub>、F<sub>j2</sub>、F<sub>j3</sub> 因而是同一时刻真实存在的一组力，可以作为一个荷载工况做静力分析，算出的内力相互协调、满足平衡。</div>
+</section>
+
+<!-- ⑧ 振型组合 -->
+<section class="step" id="s7">
+  <div class="stephead"><span class="stepno">⑧</span><h2>振型组合：为什么不能直接相加</h2></div>
+  <p>三个振型的输入是同一条 <i>a</i><sub>g</sub>(t)，但反应 <i>q</i><sub>1</sub>、<i>q</i><sub>2</sub>、<i>q</i><sub>3</sub> 并不相同。每个振子的反应是一个卷积（Duhamel 积分）：</p>
+  <div class="formula"><i>D</i><sub>j</sub>(t) ∝ ∫ <i>a</i><sub>g</sub>(τ) e<sup>−ζω<sub>j</sub>(t−τ)</sup> sin[ω<sub>j</sub>(t−τ)] dτ</div>
+  <p>每个振子相当于一个“过滤器”，主要放大与自身频率接近的成分，并记住过去一段时间的输入。地震波是宽频随机信号，不同频率成分在时间上分布不均，于是各振子在不同时刻达到峰值。即使输入只是一个瞬时脉冲，各振子也约在 <i>T</i><sub>j</sub>/4 时第一次达峰（本例为 <span class="num" id="tq"></span> s），之后按各自频率振荡，相位很快错开。<b>振型内部同步，振型之间不同步</b>：前者保证单振型可以做静力分析，后者决定了振型之间只能做统计组合。</p>
+  <div class="formula">SRSS：<i>S</i> = √( Σ<sub>j</sub> <i>S</i><sub>j</sub>² )<span class="cl">抗规 5.2.2-3，相邻周期比 &lt; 0.85 时可用</span></div>
+  <div class="formula">CQC：<i>S</i> = √( Σ<sub>j</sub> Σ<sub>k</sub> <i>ρ</i><sub>jk</sub> <i>S</i><sub>j</sub> <i>S</i><sub>k</sub> )，&nbsp; <i>ρ</i><sub>jk</sub> = <span class="frac"><span>8 <i>ζ</i>² (1+<i>λ</i><sub>T</sub>) <i>λ</i><sub>T</sub><sup>1.5</sup></span><span>(1−<i>λ</i><sub>T</sub>²)² + 4<i>ζ</i>²<i>λ</i><sub>T</sub>(1+<i>λ</i><sub>T</sub>)²</span></span><span class="cl">抗规 5.2.3（ζ<sub>j</sub>=ζ<sub>k</sub>=ζ 的化简式），λ<sub>T</sub>=T<sub>k</sub>/T<sub>j</sub></span></div>
+  <p>SRSS 假定各振型峰值互不相关。两个振型周期接近时，两个振子对同一段地震波反应相似，峰值几乎同时出现，SRSS 会低估；CQC 用相关系数 ρ<sub>jk</sub> 把这种相关性补回来。</p>
+  <div class="grid2">
+    <div>
+      <h3>本例的周期比与相关系数</h3>
+      <div class="tbl"><table id="tRho"></table></div>
+      <div id="ratioMsg"></div>
+    </div>
+    <figure><svg id="rhoFig" viewBox="0 0 400 220" role="img" aria-label="CQC 相关系数随周期比变化"></svg><figcaption>ρ 只在周期接近时变大。平面算例周期拉得开，CQC ≈ SRSS；扭转耦联时 x、y、扭转周期常常很接近，必须用 CQC。</figcaption></figure>
+  </div>
+  <h3>组合对象是效应，不是力</h3>
+  <p>上式中的 <i>S</i><sub>j</sub> 是第 j 振型下的某一个<b>效应</b>：某层剪力、某层位移角、某根柱的弯矩……每个效应量分别组合，结果都是正值，符号信息丢失。</p>
+  <div class="tbl"><table id="tCombo"></table></div>
+  <div class="note warn" id="fNote"></div>
+</section>
+
+<!-- ⑨ 时程检验 -->
+<section class="step" id="s8">
+  <div class="stephead"><span class="stepno">⑨</span><h2>时程检验：平方和开方准不准</h2></div>
+  <p class="why">用一条按本例反应谱拟合的人工波（PGA ≈ <span class="num" id="pga"></span> g，与规范谱在各周期偏差 ≤ 3%）做振型叠加时程。三个振型的基底剪力各自振荡、峰值出现在不同时刻；实际总剪力是它们的实时代数和。本节数据按默认算例预先计算。</p>
+  <div class="grid2" style="grid-template-columns:minmax(0,1fr) minmax(0,2.4fr)">
+    <div><canvas id="thBld" height="300" aria-label="结构位移动画"></canvas></div>
+    <div><canvas id="thChart" height="300" aria-label="各振型基底剪力时程"></canvas>
+      <div class="legend" style="margin-top:6px"><span><i style="background:var(--m1)"></i>振型 1</span><span><i style="background:var(--m2)"></i>振型 2</span><span><i style="background:var(--m3)"></i>振型 3</span><span><i style="background:var(--ink)"></i>总基底剪力</span></div>
+    </div>
+  </div>
+  <div class="row" style="margin-top:10px"><button type="button" id="thPlay">暂停</button><button type="button" id="thRestart">重播</button><span class="num" id="thTime" style="color:var(--muted)"></span></div>
+  <div class="kpis" id="thKpi"></div>
+  <p class="why">表中有两种 SRSS：“时程三峰值”用这条波下三个振型时程各自的峰值组合；“反应谱值”用规范谱算出的各振型基底剪力（第 ⑦ 节）组合，这是设计实际采用的。两者只差在各振型峰值本身。本例相关系数很小，CQC 与 SRSS 只差零点几个百分点。</p>
+  <h3>单条波的差别算不算大：换 40 条波看统计</h3>
+  <figure><svg id="ensFig" viewBox="0 0 640 150" role="img" aria-label="40 条人工波下实际峰值与 SRSS 之比"></svg><figcaption>同一反应谱、40 条随机相位的拟合人工波，每点为一条波的“实际总基底剪力峰值 ÷ SRSS（时程三峰值）”。粗竖线为平均值，橙圈为上面演示的这条波。</figcaption></figure>
+  <p>SRSS 是随机振动理论下的<b>期望值</b>估计，单条波实际峰值可能偏高也可能偏低：40 条波的比值平均 1.008、标准差 5.5%、范围 0.91～1.15，演示的这条波处在正常离散范围内。“峰值绝对值相加”相当于假设所有振型同时达峰，40 条波平均高估约 26%。反应谱法给出的是平均意义上的结果，单条波的离散性也正是规范要求时程补充计算取多条波平均或包络的原因。</p>
+</section>
+
+<!-- ⑩ 底部剪力法 -->
+<section class="step" id="s9">
+  <div class="stephead"><span class="stepno">⑩</span><h2>与底部剪力法对照</h2></div>
+  <p>底部剪力法（抗规 5.2.1）把整栋楼当作一个以第一振型为主的等效单质点：<i>F</i><sub>Ek</sub> = <i>α</i><sub>1</sub><i>G</i><sub>eq</sub>，多质点体系取 <i>G</i><sub>eq</sub> = 0.85Σ<i>G</i>。对照第 ⑤ 节，0.85 正是第一振型有效质量系数的经验近似：均匀剪切型结构理论值为 8/π² ≈ 0.81，本例为 <span class="num" id="bsmR"></span>。</p>
+  <div class="formula" id="bsm"></div>
+  <p>底部剪力法并不比振型分解法保守，原因有二：</p>
+  <ul>
+    <li><b>α<sub>1</sub> 是所有振型中最小的 α。</b>第一周期最长，落在反应谱下降段；高阶振型周期短，落在平台段，α 是 α<sub>1</sub> 的 2 倍以上。底部剪力法把全部重量都按 α<sub>1</sub> 计算，相当于压低了高阶振型的放大。</li>
+    <li><b>0.85 可能低于第一振型的实际有效质量系数</b>，本例即如此。</li>
+  </ul>
+  <p>反过来，当 <i>T</i><sub>1</sub> ≤ <i>T</i><sub>g</sub>、各振型 α 相同时，若第一振型有效质量系数低于 0.85，底部剪力法又会略偏大。所以它只是经过标定的近似，不是保守上限。顶部附加地震作用 Δ<i>F</i><sub>n</sub> = δ<sub>n</sub><i>F</i><sub>Ek</sub>（<i>T</i><sub>1</sub> &gt; 1.4<i>T</i><sub>g</sub> 时）用来近似高阶振型的鞭梢效应，它从 <i>F</i><sub>Ek</sub> 中分出，不增加基底剪力。底部剪力法不做振型截断，90% 判据对它不适用；其适用范围限于抗规 5.1.2 规定的高度不超过 40 m、以剪切变形为主、质量和刚度沿高度分布比较均匀的结构。弯曲型结构第一振型有效质量约 61%，用 0.85 偏差会很大。</p>
+</section>
+
+<!-- ⑪ 盈建科对照 -->
+<section class="step" id="s10">
+  <div class="stephead"><span class="stepno">⑪</span><h2>回到盈建科：名词与输出对照</h2></div>
+  <h3>名词</h3>
+  <div class="tbl"><table class="terms">
+    <thead><tr><th>常见说法</th><th>规范 / 软件中的名称</th><th>符号</th><th style="white-space:nowrap">位置</th><th>用途</th></tr></thead>
+    <tbody>
+    <tr><td><span class="wrong">振型质量系数</span></td><td><b>有效质量系数</b>（盈建科、SATWE 输出名称）；ETABS 称 Modal Participating Mass Ratio；抗规条文说明称“振型参与质量”</td><td class="num"><i>G</i><sub>eff,j</sub>/Σ<i>G</i></td><td style="white-space:nowrap">第 ⑤ 节</td><td>判断振型数是否足够：累计 ≥ 90%</td></tr>
+    <tr><td><span class="wrong">振型因子</span></td><td><b>振型参与系数</b>（抗规 5.2.2、高规 4.3.9）；扭转耦联时为 <i>γ</i><sub>tj</sub>（抗规 5.2.3、高规 4.3.10）</td><td class="num"><i>γ</i><sub>j</sub></td><td style="white-space:nowrap">第 ④ 节</td><td>进入地震力公式；单独数值随归一化变化</td></tr>
+    <tr><td>—</td><td><b>振型 / 振型向量</b></td><td class="num"><b>X</b><sub>j</sub></td><td style="white-space:nowrap">第 ③ 节</td><td>力沿高度的分布形状</td></tr>
+    <tr><td>—</td><td><b>模态质量 / 广义质量</b></td><td class="num"><i>M</i>*<sub>j</sub></td><td style="white-space:nowrap">第 ④ 节</td><td>随归一化变化；TMD 质量比的分母</td></tr>
+    <tr><td>—</td><td><b>平动系数 / 扭转系数</b>（有资料称“方向因子”）</td><td>—</td><td>—</td><td>振型中平动、扭转成分各占多少，和为 1；不进入地震力公式，用于判断振型方向和周期比</td></tr>
+    </tbody>
+  </table></div>
+  <h3>文本输出</h3>
+  <div class="tbl"><table class="terms">
+    <thead><tr><th>盈建科文本结果中的内容</th><th>对应本页</th><th>怎么看</th></tr></thead>
+    <tbody>
+    <tr><td>周期、转角、平动系数（X+Y）、扭转系数</td><td style="white-space:nowrap">第 ③ 节</td><td>识别第一平动、第一扭转振型，计算周期比。</td></tr>
+    <tr><td>各振型的 X / Y 向有效质量系数及合计</td><td style="white-space:nowrap">第 ⑤ 节</td><td>合计 ≥ 90%，否则增加振型数。某方向单振型系数很小，说明该振型在这个方向几乎不贡献地震力。</td></tr>
+    <tr><td>各振型作用下的基底剪力</td><td>第 ⑦ 节，<i>V</i><sub>0j</sub>=<i>α</i><sub>j</sub><i>G</i><sub>eff,j</sub></td><td>可手核：该振型有效质量 × 对应 α。</td></tr>
+    <tr><td>楼层地震剪力、楼层位移角（CQC 组合后）</td><td>第 ⑧ 节</td><td>每个效应量单独组合的结果，彼此之间不再满足平衡关系。</td></tr>
+    <tr><td>剪重比及调整系数</td><td>第 ⑧ 节之后</td><td>组合后的楼层剪力 ÷ 该层以上总重，低于规范最小剪力系数时整体放大（抗规 5.2.5）。</td></tr>
+    </tbody>
+  </table></div>
+  <h3>真实结构比算例多出的三件事</h3>
+  <div class="grid2">
+    <div class="note"><b>扭转耦联。</b>刚性楼板每层 3 个自由度（x、y、θ），层地震力分为 <i>F</i><sub>xji</sub>、<i>F</i><sub>yji</sub> 和扭矩 <i>F</i><sub>tji</sub>=<i>α</i><sub>j</sub><i>γ</i><sub>tj</sub><i>r</i><sub>i</sub>²<i>φ</i><sub>ji</sub><i>G</i><sub>i</sub>（抗规 5.2.3、高规 4.3.10）。平动与扭转周期接近，必须用 CQC。</div>
+    <div class="note"><b>双向地震。</b>在单向 CQC 结果基础上再组合：<br><i>S</i> = max{ √(<i>S</i><sub>x</sub>² + (0.85<i>S</i><sub>y</sub>)²)，√(<i>S</i><sub>y</sub>² + (0.85<i>S</i><sub>x</sub>)²) }</div>
+    <div class="note"><b>振型数。</b>3 自由度只有 3 个振型，取满即 100%。实际模型只取前 n 阶，用有效质量系数判断截断误差；多塔、大底盘、有大量局部振型时，累计值上升很慢，还应检查顶部剪力和局部构件内力是否稳定。</div>
+  </div>
+</section>
+
+<footer>
+  <p>依据：GB/T 50011-2010《建筑抗震设计标准》（2024 年版）5.1.2、5.1.4、5.1.5、5.2.1、5.2.2、5.2.3、5.2.5 及条文说明；JGJ 3-2010《高层建筑混凝土结构技术规程》4.3.8～4.3.10、5.1.13；ASCE/SEI 7-16 第 12.9.1.1 条。盈建科输出项目的具体措辞以所用版本的文本结果为准。第 ⑨ 节人工波为演示用途，由本页算例反应谱迭代拟合生成。</p>
+</footer>
+</div>
+
+
+<script>
+const TH = {"t": [0.0, 0.04, 0.08, 0.12, 0.16, 0.2, 0.24, 0.28, 0.32, 0.36, 0.4, 0.44, 0.48, 0.52, 0.56, 0.6, 0.64, 0.68, 0.72, 0.76, 0.8, 0.84, 0.88, 0.92, 0.96, 1.0, 1.04, 1.08, 1.12, 1.16, 1.2, 1.24, 1.28, 1.32, 1.36, 1.4, 1.44, 1.48, 1.52, 1.56, 1.6, 1.64, 1.68, 1.72, 1.76, 1.8, 1.84, 1.88, 1.92, 1.96, 2.0, 2.04, 2.08, 2.12, 2.16, 2.2, 2.24, 2.28, 2.32, 2.36, 2.4, 2.44, 2.48, 2.52, 2.56, 2.6, 2.64, 2.68, 2.72, 2.76, 2.8, 2.84, 2.88, 2.92, 2.96, 3.0, 3.04, 3.08, 3.12, 3.16, 3.2, 3.24, 3.28, 3.32, 3.36, 3.4, 3.44, 3.48, 3.52, 3.56, 3.6, 3.64, 3.68, 3.72, 3.76, 3.8, 3.84, 3.88, 3.92, 3.96, 4.0, 4.04, 4.08, 4.12, 4.16, 4.2, 4.24, 4.28, 4.32, 4.36, 4.4, 4.44, 4.48, 4.52, 4.56, 4.6, 4.64, 4.68, 4.72, 4.76, 4.8, 4.84, 4.88, 4.92, 4.96, 5.0, 5.04, 5.08, 5.12, 5.16, 5.2, 5.24, 5.28, 5.32, 5.36, 5.4, 5.44, 5.48, 5.52, 5.56, 5.6, 5.64, 5.68, 5.72, 5.76, 5.8, 5.84, 5.88, 5.92, 5.96, 6.0, 6.04, 6.08, 6.12, 6.16, 6.2, 6.24, 6.28, 6.32, 6.36, 6.4, 6.44, 6.48, 6.52, 6.56, 6.6, 6.64, 6.68, 6.72, 6.76, 6.8, 6.84, 6.88, 6.92, 6.96, 7.0, 7.04, 7.08, 7.12, 7.16, 7.2, 7.24, 7.28, 7.32, 7.36, 7.4, 7.44, 7.48, 7.52, 7.56, 7.6, 7.64, 7.68, 7.72, 7.76, 7.8, 7.84, 7.88, 7.92, 7.96, 8.0, 8.04, 8.08, 8.12, 8.16, 8.2, 8.24, 8.28, 8.32, 8.36, 8.4, 8.44, 8.48, 8.52, 8.56, 8.6, 8.64, 8.68, 8.72, 8.76, 8.8, 8.84, 8.88, 8.92, 8.96, 9.0, 9.04, 9.08, 9.12, 9.16, 9.2, 9.24, 9.28, 9.32, 9.36, 9.4, 9.44, 9.48, 9.52, 9.56, 9.6, 9.64, 9.68, 9.72, 9.76, 9.8, 9.84, 9.88, 9.92, 9.96, 10.0, 10.04, 10.08, 10.12, 10.16, 10.2, 10.24, 10.28, 10.32, 10.36, 10.4, 10.44, 10.48, 10.52, 10.56, 10.6, 10.64, 10.68, 10.72, 10.76, 10.8, 10.84, 10.88, 10.92, 10.96, 11.0, 11.04, 11.08, 11.12, 11.16, 11.2, 11.24, 11.28, 11.32, 11.36, 11.4, 11.44, 11.48, 11.52, 11.56, 11.6, 11.64, 11.68, 11.72, 11.76, 11.8, 11.84, 11.88, 11.92, 11.96, 12.0, 12.04, 12.08, 12.12, 12.16, 12.2, 12.24, 12.28, 12.32, 12.36, 12.4, 12.44, 12.48, 12.52, 12.56, 12.6, 12.64, 12.68, 12.72, 12.76, 12.8, 12.84, 12.88, 12.92, 12.96, 13.0, 13.04, 13.08, 13.12, 13.16, 13.2, 13.24, 13.28, 13.32, 13.36, 13.4, 13.44, 13.48, 13.52, 13.56, 13.6, 13.64, 13.68, 13.72, 13.76, 13.8, 13.84, 13.88, 13.92, 13.96, 14.0, 14.04, 14.08, 14.12, 14.16, 14.2, 14.24, 14.28, 14.32, 14.36, 14.4, 14.44, 14.48, 14.52, 14.56, 14.6, 14.64, 14.68, 14.72, 14.76, 14.8, 14.84, 14.88, 14.92, 14.96, 15.0, 15.04, 15.08, 15.12, 15.16, 15.2, 15.24, 15.28, 15.32, 15.36, 15.4, 15.44, 15.48, 15.52, 15.56, 15.6, 15.64, 15.68, 15.72, 15.76, 15.8, 15.84, 15.88, 15.92, 15.96, 16.0, 16.04, 16.08, 16.12, 16.16, 16.2, 16.24, 16.28, 16.32, 16.36, 16.4, 16.44, 16.48, 16.52, 16.56, 16.6, 16.64, 16.68, 16.72, 16.76, 16.8, 16.84, 16.88, 16.92, 16.96, 17.0, 17.04, 17.08, 17.12, 17.16, 17.2, 17.24, 17.28, 17.32, 17.36, 17.4, 17.44, 17.48, 17.52, 17.56, 17.6, 17.64, 17.68, 17.72, 17.76, 17.8, 17.84, 17.88, 17.92, 17.96, 18.0, 18.04, 18.08, 18.12, 18.16, 18.2, 18.24, 18.28, 18.32, 18.36, 18.4, 18.44, 18.48, 18.52, 18.56, 18.6, 18.64, 18.68, 18.72, 18.76, 18.8, 18.84, 18.88, 18.92, 18.96, 19.0, 19.04, 19.08, 19.12, 19.16, 19.2, 19.24, 19.28, 19.32, 19.36, 19.4, 19.44, 19.48, 19.52, 19.56, 19.6, 19.64, 19.68, 19.72, 19.76, 19.8, 19.84, 19.88, 19.92, 19.96, 20.0, 20.04, 20.08, 20.12, 20.16, 20.2, 20.24, 20.28, 20.32, 20.36, 20.4, 20.44, 20.48, 20.52, 20.56, 20.6, 20.64, 20.68, 20.72, 20.76, 20.8, 20.84, 20.88, 20.92, 20.96, 21.0, 21.04, 21.08, 21.12, 21.16, 21.2, 21.24, 21.28, 21.32, 21.36, 21.4, 21.44, 21.48, 21.52, 21.56, 21.6, 21.64, 21.68, 21.72, 21.76, 21.8, 21.84, 21.88, 21.92, 21.96, 22.0, 22.04, 22.08, 22.12, 22.16, 22.2, 22.24, 22.28, 22.32, 22.36, 22.4, 22.44, 22.48, 22.52, 22.56, 22.6, 22.64, 22.68, 22.72, 22.76, 22.8, 22.84, 22.88, 22.92, 22.96, 23.0, 23.04, 23.08, 23.12, 23.16, 23.2, 23.24, 23.28, 23.32, 23.36, 23.4, 23.44, 23.48, 23.52, 23.56, 23.6, 23.64, 23.68, 23.72, 23.76, 23.8, 23.84, 23.88, 23.92, 23.96, 24.0, 24.04, 24.08, 24.12, 24.16, 24.2, 24.24, 24.28, 24.32, 24.36, 24.4, 24.44, 24.48, 24.52, 24.56, 24.6, 24.64, 24.68, 24.72, 24.76, 24.8, 24.84, 24.88, 24.92, 24.96, 25.0, 25.04, 25.08, 25.12, 25.16, 25.2, 25.24, 25.28, 25.32, 25.36, 25.4, 25.44, 25.48, 25.52, 25.56, 25.6, 25.64, 25.68, 25.72, 25.76, 25.8, 25.84, 25.88, 25.92, 25.96, 26.0, 26.04, 26.08, 26.12, 26.16, 26.2, 26.24, 26.28, 26.32, 26.36, 26.4, 26.44, 26.48, 26.52, 26.56, 26.6, 26.64, 26.68, 26.72, 26.76, 26.8, 26.84, 26.88, 26.92, 26.96, 27.0, 27.04, 27.08, 27.12, 27.16, 27.2, 27.24, 27.28, 27.32, 27.36, 27.4, 27.44, 27.48, 27.52, 27.56, 27.6, 27.64, 27.68, 27.72, 27.76, 27.8, 27.84, 27.88, 27.92, 27.96, 28.0, 28.04, 28.08, 28.12, 28.16, 28.2, 28.24, 28.28, 28.32, 28.36, 28.4, 28.44, 28.48, 28.52, 28.56, 28.6, 28.64, 28.68, 28.72, 28.76, 28.8, 28.84, 28.88, 28.92, 28.96, 29.0, 29.04, 29.08, 29.12, 29.16, 29.2, 29.24, 29.28, 29.32, 29.36, 29.4, 29.44, 29.48, 29.52, 29.56, 29.6, 29.64, 29.68, 29.72, 29.76, 29.8, 29.84, 29.88, 29.92, 29.96], "ag": [-0.0, 0.0, -0.0, -0.0001, 0.0001, -0.0001, -0.0001, -0.0002, 0.0006, 0.0, -0.0004, 0.0005, 0.0003, -0.0008, -0.0004, -0.0022, -0.0015, 0.0005, 0.0004, -0.0015, 0.0023, 0.0017, -0.001, -0.0008, -0.0009, -0.0031, -0.0, -0.0003, 0.007, -0.003, -0.0035, 0.0044, 0.0075, -0.0062, 0.0017, 0.0016, -0.0092, 0.0051, 0.0115, 0.0169, 0.0057, 0.0114, 0.0127, -0.002, -0.0102, -0.0023, 0.008, -0.0083, -0.0238, -0.0242, -0.0064, 0.0135, 0.0098, 0.0062, 0.0243, 0.0136, 0.0008, -0.0032, -0.0095, 0.0077, 0.0017, -0.005, -0.0102, -0.0193, -0.0019, 0.0072, 0.008, 0.005, 0.0195, -0.0045, -0.0061, -0.017, -0.0142, -0.0023, -0.0032, -0.0026, 0.0169, -0.0164, -0.0093, -0.0013, 0.0023, 0.002, -0.0076, 0.0015, -0.0092, -0.0013, -0.0348, -0.0043, -0.003, 0.0149, 0.0071, 0.0118, 0.0185, 0.02, 0.0099, -0.003, -0.0205, -0.0072, 0.0035, 0.0061, 0.0175, -0.0049, -0.0055, -0.0023, -0.0303, -0.0077, 0.0172, 0.0012, -0.0008, 0.0088, 0.0006, -0.0164, 0.0016, 0.003, -0.0031, -0.0124, -0.0041, 0.0168, -0.0083, 0.0088, -0.0086, -0.0015, -0.0108, -0.0058, 0.0213, 0.001, 0.0049, -0.0051, -0.0028, 0.003, -0.009, -0.0113, -0.0011, 0.0084, 0.0268, 0.0048, 0.0017, 0.009, 0.0006, 0.0019, -0.009, 0.0194, 0.0085, -0.0023, -0.0025, 0.0013, 0.0052, -0.0202, -0.0203, 0.0011, 0.0219, 0.0117, 0.0003, -0.0265, -0.0091, -0.0155, -0.0058, -0.0055, 0.009, 0.0182, -0.0116, -0.0056, -0.0052, -0.0078, -0.005, 0.01, -0.0011, 0.0025, -0.0118, -0.0094, 0.0004, -0.0139, -0.0176, -0.0091, -0.0079, -0.0136, 0.0078, -0.0013, 0.013, 0.0055, 0.0218, 0.0055, 0.0018, -0.0078, 0.0017, 0.0068, 0.0212, 0.0014, 0.0101, 0.0043, 0.0168, 0.0012, -0.0052, -0.0122, -0.0027, -0.0, -0.0044, -0.01, 0.026, 0.0088, 0.0005, -0.0239, -0.0046, -0.0153, 0.0132, 0.0237, -0.0118, 0.0062, -0.014, 0.0012, -0.0135, -0.0118, -0.0068, 0.0006, 0.0019, 0.0085, -0.0016, 0.0012, -0.0173, 0.0019, 0.0125, 0.0195, 0.0086, -0.0059, 0.0203, -0.0022, 0.0237, -0.0161, -0.0022, -0.0051, 0.0045, 0.0177, 0.0132, 0.0163, -0.0053, -0.0171, -0.0086, 0.0004, -0.0257, -0.0076, 0.0006, 0.0004, 0.0019, 0.0326, -0.0017, -0.0157, 0.0037, 0.0065, -0.0109, 0.0074, 0.0005, -0.0018, -0.009, -0.0002, 0.0066, -0.0126, -0.013, -0.0001, 0.0144, 0.0109, 0.001, -0.0038, 0.0095, -0.0221, -0.0149, -0.0133, 0.0058, -0.016, -0.0033, 0.0027, 0.0179, 0.0031, 0.003, -0.0043, 0.0048, 0.0115, 0.0041, 0.0129, -0.0064, -0.0014, 0.013, 0.0103, 0.0032, 0.0062, 0.0033, 0.0176, -0.0075, -0.0242, -0.0039, 0.0043, 0.0079, -0.0152, -0.0015, 0.0094, -0.0019, -0.0067, -0.0084, -0.0112, -0.002, 0.0065, -0.0146, -0.0035, -0.0037, -0.002, 0.0118, -0.0112, -0.0089, -0.0082, -0.0066, 0.0057, -0.0046, 0.0089, 0.0011, 0.0077, 0.0099, 0.0004, 0.0063, -0.0066, -0.0122, -0.005, -0.0055, 0.0159, 0.0166, 0.0165, -0.0054, 0.0081, 0.0135, -0.0185, -0.0162, -0.004, -0.0012, -0.0089, 0.0172, 0.0219, -0.0014, 0.0125, 0.0207, -0.0061, -0.0085, -0.0036, -0.0043, 0.0022, 0.0019, 0.0173, -0.0021, -0.0102, -0.0005, 0.0013, 0.0008, -0.0176, -0.0113, 0.0098, 0.0011, 0.0072, 0.0147, -0.0098, 0.008, 0.0001, 0.0075, 0.0051, 0.0139, -0.0197, 0.0043, 0.0076, 0.0031, 0.0009, 0.003, 0.0019, 0.0059, 0.0121, -0.0094, -0.0021, -0.0056, -0.0079, -0.0085, 0.0022, -0.0062, -0.0082, 0.0017, 0.0082, 0.0089, -0.0024, -0.0025, 0.0028, -0.0076, -0.0041, 0.0098, 0.0086, 0.0023, 0.005, 0.0031, 0.0012, -0.0123, -0.0077, -0.0188, -0.0136, -0.0013, -0.0085, 0.0106, 0.0006, -0.007, -0.0031, 0.0048, 0.0046, 0.0086, 0.0105, 0.0023, -0.0045, -0.0078, -0.002, 0.0032, -0.0175, -0.0072, 0.0035, -0.0047, -0.0042, -0.0035, 0.0051, 0.0049, -0.0083, 0.0054, 0.009, -0.0075, -0.0066, 0.0041, -0.0041, 0.0017, 0.0048, 0.0047, 0.0059, -0.0027, -0.0034, 0.0013, 0.0026, -0.0045, -0.0056, 0.0005, -0.0032, -0.0074, -0.002, -0.0003, -0.0008, -0.0005, 0.0006, -0.0011, 0.005, 0.0028, -0.0025, 0.0035, 0.0022, -0.0047, -0.0019, -0.0015, 0.0029, 0.0016, -0.0021, 0.0012, -0.0019, 0.0006, -0.0036, 0.0001, 0.0011, -0.0003, 0.001, -0.0009, -0.003, 0.0014, 0.0003, 0.0004, 0.0008, 0.0024, -0.002, -0.0006, 0.0014, 0.0051, -0.0, -0.0006, 0.0006, 0.0026, -0.0025, -0.0019, -0.0009, -0.0055, 0.0, -0.0009, 0.0029, 0.0012, 0.0025, -0.0002, -0.0009, -0.0001, 0.0013, 0.0018, 0.0014, -0.0001, -0.003, -0.0025, -0.0013, 0.0025, 0.0004, -0.0014, -0.001, -0.0024, 0.0009, -0.0013, 0.0028, 0.0019, -0.0017, 0.0008, -0.0011, -0.0028, -0.0007, 0.0002, 0.0004, 0.0003, 0.0001, -0.0016, -0.0001, 0.0011, 0.0021, 0.0014, 0.0003, -0.0006, 0.0004, 0.0004, -0.0006, -0.0003, 0.0009, -0.0007, -0.0009, -0.0015, -0.0009, 0.0003, 0.0015, 0.001, 0.0001, 0.0002, -0.0003, -0.0003, 0.0009, -0.0002, -0.0006, -0.0005, -0.0009, -0.0004, -0.0016, -0.001, -0.0005, -0.0002, -0.0001, 0.0012, -0.0003, -0.0004, 0.0011, -0.0, 0.0005, 0.0011, -0.0003, 0.0, 0.0005, 0.0016, 0.0, 0.0006, 0.0007, -0.0006, -0.001, -0.0003, 0.0001, 0.0001, 0.0005, 0.0004, -0.0006, -0.0005, -0.0015, -0.0007, 0.0002, 0.0005, -0.0006, -0.0003, 0.0004, -0.0003, 0.0004, -0.0001, 0.0001, 0.0003, -0.001, 0.0006, -0.0005, -0.0008, 0.0003, 0.0008, -0.0012, -0.0007, 0.0003, -0.0001, 0.0003, -0.0004, -0.0004, -0.0004, -0.0001, -0.0, -0.0005, 0.0002, 0.0001, -0.0005, -0.0001, 0.0002, 0.0, 0.0001, -0.0001, -0.0001, -0.0003, 0.0, -0.0002, -0.0001, 0.0004, 0.0005, 0.0005, 0.0002, 0.0, 0.0001, 0.0005, -0.0, -0.0001, 0.0003, -0.0003, 0.0001, -0.0004, 0.0003, 0.0001, -0.0002, 0.0, -0.0001, -0.0, 0.0001, 0.0001, -0.0001, -0.0002, -0.0001, -0.0004, -0.0002, -0.0, 0.0001, -0.0002, -0.0, -0.0003, 0.0, -0.0003, 0.0, 0.0003, 0.0, -0.0001, 0.0, 0.0003, 0.0, -0.0001, 0.0, -0.0, 0.0001, -0.0001, -0.0001, -0.0001, 0.0001, -0.0, 0.0, 0.0002, 0.0001, 0.0003, -0.0001, 0.0001, 0.0003, -0.0, 0.0001, 0.0001, 0.0002, -0.0, -0.0001, 0.0001, 0.0, 0.0, -0.0002, 0.0002, -0.0001, 0.0001, -0.0, 0.0, -0.0002, -0.0002, -0.0001, 0.0001, -0.0001, -0.0001, 0.0001, -0.0, -0.0002, -0.0001, -0.0001, -0.0001, -0.0001, 0.0, -0.0002, -0.0001, 0.0001, -0.0, 0.0, 0.0001, -0.0, -0.0001, -0.0001, -0.0, 0.0001, 0.0, 0.0001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0002, 0.0, 0.0001, 0.0001, 0.0001, -0.0001, 0.0001, 0.0001, 0.0, 0.0, -0.0, 0.0, 0.0001, 0.0001, -0.0, -0.0, 0.0, -0.0001, -0.0, 0.0, 0.0, 0.0, -0.0, 0.0, -0.0, 0.0001, 0.0, -0.0, 0.0, -0.0, -0.0, -0.0], "Vb": [[0.0, -0.0, 0.0, 0.0, 0.02, 0.03, 0.05, 0.1, 0.15, 0.13, 0.16, 0.27, 0.36, 0.58, 0.94, 1.25, 1.71, 2.26, 2.76, 3.17, 3.35, 2.77, 1.56, 0.14, -1.32, -2.22, -2.39, -1.87, -0.65, 0.21, 1.51, 2.97, 3.74, 3.56, 2.63, 1.12, 0.09, 0.3, 0.21, -2.79, -9.47, -18.05, -27.5, -36.24, -41.87, -43.14, -41.5, -39.37, -34.11, -22.55, -5.02, 14.9, 31.16, 41.56, 46.97, 45.44, 36.4, 22.66, 7.9, -5.51, -17.8, -28.54, -37.03, -40.94, -38.32, -32.87, -29.34, -27.48, -25.53, -23.21, -17.77, -10.13, 0.61, 14.4, 27.5, 38.05, 45.61, 47.9, 49.28, 51.45, 50.32, 44.12, 36.21, 27.72, 17.91, 8.96, 1.84, -0.15, -0.14, 0.91, 1.39, 1.1, -1.88, -8.35, -16.98, -25.99, -30.93, -27.15, -17.5, -8.62, -4.08, -3.2, -2.27, -0.28, 3.71, 12.03, 21.27, 26.42, 27.85, 26.96, 22.23, 15.48, 9.45, 2.13, -6.11, -13.18, -17.27, -20.14, -23.68, -24.83, -26.1, -26.74, -26.25, -22.3, -14.9, -9.67, -5.4, -0.61, 5.45, 11.41, 15.78, 19.73, 23.23, 24.32, 21.28, 12.85, 2.39, -8.46, -19.82, -30.42, -40.01, -47.01, -54.18, -60.34, -63.92, -64.42, -61.37, -54.66, -39.7, -16.8, 6.28, 24.88, 39.43, 51.27, 64.26, 77.71, 90.45, 98.84, 100.55, 92.95, 75.61, 54.37, 32.16, 10.09, -9.49, -26.1, -41.2, -54.31, -65.91, -71.87, -71.3, -65.23, -49.59, -25.91, 0.08, 27.8, 55.52, 78.07, 93.67, 98.67, 93.39, 79.53, 60.28, 37.28, 13.02, -12.76, -38.44, -62.76, -84.53, -103.2, -116.59, -125.53, -126.86, -118.18, -98.83, -71.22, -39.7, -7.27, 24.82, 51.38, 73.16, 91.22, 104.91, 112.11, 112.93, 103.37, 83.58, 58.92, 29.23, -1.52, -30.53, -53.57, -68.41, -75.39, -76.31, -70.86, -59.98, -46.56, -31.55, -13.17, 5.3, 21.26, 34.47, 44.4, 49.5, 48.65, 42.85, 29.35, 14.75, 1.28, -10.56, -22.24, -35.2, -47.54, -59.28, -66.07, -62.63, -51.3, -34.63, -10.06, 17.57, 42.96, 64.29, 77.92, 80.35, 77.31, 70.02, 56.26, 36.52, 14.24, -8.07, -28.1, -43.98, -54.49, -59.47, -59.44, -52.57, -37.79, -20.09, -3.47, 10.85, 21.52, 28.89, 31.8, 32.98, 34.92, 38.81, 42.8, 47.34, 49.27, 46.9, 39.09, 27.11, 12.99, -2.39, -19.35, -35.87, -51.65, -65.69, -73.46, -74.97, -73.47, -69.43, -60.77, -48.16, -34.43, -22.32, -7.73, 10.27, 26.59, 39.13, 49.16, 58.15, 62.04, 58.78, 50.88, 40.75, 28.29, 14.37, -0.31, -15.35, -26.99, -34.34, -37.31, -36.7, -31.81, -21.51, -8.54, 5.91, 20.42, 32.38, 41.2, 44.87, 41.61, 31.33, 15.82, -2.32, -21.44, -36.88, -45.9, -50.25, -50.74, -48.59, -45.56, -42.41, -37.15, -31.67, -25.51, -13.75, 3.07, 21.46, 40.53, 59.29, 71.7, 74.43, 70.61, 60.63, 45.87, 30.94, 16.76, 3.0, -9.91, -21.52, -30.34, -36.43, -38.63, -36.3, -30.58, -22.88, -12.54, 3.56, 22.16, 36.52, 46.76, 52.79, 52.02, 47.12, 40.55, 31.56, 17.13, -0.86, -20.77, -37.13, -50.68, -62.46, -70.58, -72.89, -70.07, -64.3, -56.77, -46.19, -30.6, -12.21, 7.91, 28.17, 46.91, 61.62, 72.25, 78.48, 78.83, 72.58, 59.96, 43.16, 22.84, -0.5, -22.35, -40.46, -56.58, -70.98, -81.25, -86.58, -86.75, -80.89, -67.78, -49.0, -24.88, 3.51, 32.84, 60.89, 82.55, 96.73, 104.31, 103.96, 94.57, 77.56, 54.1, 25.06, -6.34, -35.62, -59.64, -77.9, -89.43, -91.5, -85.42, -73.89, -57.41, -36.22, -12.11, 11.76, 34.01, 54.28, 68.89, 76.6, 78.97, 75.62, 66.38, 52.89, 35.39, 14.75, -7.03, -28.59, -47.77, -63.01, -73.22, -77.15, -74.41, -66.05, -54.08, -38.65, -19.92, -0.02, 19.29, 36.83, 51.25, 61.39, 67.2, 67.53, 62.53, 53.3, 40.02, 23.86, 6.97, -9.37, -24.55, -38.18, -49.22, -56.42, -59.16, -56.98, -50.18, -39.22, -25.85, -11.43, 3.04, 16.7, 29.0, 39.23, 46.45, 49.98, 49.64, 45.72, 38.43, 28.77, 17.14, 3.73, -10.58, -24.07, -35.54, -44.24, -49.71, -50.96, -47.97, -41.24, -30.82, -17.97, -4.13, 9.3, 21.38, 31.33, 38.96, 43.91, 45.74, 43.72, 37.93, 29.13, 18.18, 6.56, -4.44, -14.56, -23.79, -31.27, -36.05, -37.64, -35.91, -31.37, -24.56, -16.65, -8.15, 0.78, 9.35, 17.15, 23.93, 29.0, 31.7, 31.76, 29.46, 25.18, 19.34, 12.35, 4.29, -4.43, -12.85, -20.13, -25.67, -29.23, -30.68, -29.85, -26.71, -21.62, -14.93, -7.17, 1.08, 9.13, 16.15, 21.57, 25.08, 26.61, 26.14, 23.82, 19.87, 14.5, 8.31, 1.87, -4.4, -10.05, -14.65, -17.77, -19.35, -19.5, -18.16, -15.48, -11.95, -7.78, -3.18, 1.35, 5.58, 9.14, 11.63, 13.14, 13.72, 13.26, 11.68, 9.25, 6.08, 2.31, -1.51, -4.98, -7.93, -10.17, -11.62, -12.33, -12.19, -11.09, -9.08, -6.27, -2.97, 0.46, 3.73, 6.7, 9.23, 11.13, 12.26, 12.42, 11.68, 10.08, 7.71, 4.89, 1.79, -1.27, -4.04, -6.51, -8.54, -9.73, -10.1, -9.8, -8.92, -7.53, -5.66, -3.4, -0.9, 1.58, 3.88, 5.86, 7.29, 8.15, 8.47, 8.18, 7.27, 5.83, 3.96, 1.85, -0.32, -2.34, -4.09, -5.45, -6.34, -6.82, -6.9, -6.54, -5.74, -4.58, -3.19, -1.67, -0.02, 1.65, 3.15, 4.43, 5.38, 5.95, 6.01, 5.6, 4.79, 3.62, 2.23, 0.71, -0.89, -2.38, -3.64, -4.57, -5.12, -5.22, -4.89, -4.21, -3.25, -2.07, -0.74, 0.67, 2.02, 3.23, 4.2, 4.81, 5.04, 4.9, 4.42, 3.6, 2.52, 1.31, 0.04, -1.22, -2.38, -3.32, -3.97, -4.32, -4.34, -4.06, -3.52, -2.77, -1.87, -0.9, 0.11, 1.08, 1.91, 2.56, 2.97, 3.14, 3.06, 2.77, 2.3, 1.66, 0.88, 0.06, -0.72, -1.46, -2.08, -2.54, -2.79, -2.84, -2.63, -2.19, -1.59, -0.9, -0.15, 0.6, 1.29, 1.87, 2.36, 2.7, 2.84, 2.8, 2.58, 2.19, 1.71, 1.12, 0.45, -0.25, -0.93, -1.54, -2.02, -2.32, -2.44, -2.38, -2.16, -1.81, -1.34, -0.8, -0.22, 0.38, 0.93, 1.38, 1.69, 1.87, 1.89, 1.76, 1.49, 1.13, 0.69, 0.18, -0.33, -0.8, -1.18, -1.47, -1.67, -1.76, -1.73, -1.56, -1.29, -0.92, -0.49, -0.04, 0.39, 0.78, 1.1, 1.34, 1.47, 1.49, 1.4, 1.21, 0.94, 0.61, 0.25], [0.0, -0.0, 0.0, 0.0, 0.01, 0.01, 0.02, 0.04, 0.04, -0.01, -0.01, 0.05, 0.08, 0.18, 0.31, 0.31, 0.33, 0.36, 0.3, 0.19, 0.02, -0.47, -0.99, -1.14, -0.83, 0.07, 1.22, 2.09, 2.36, 1.38, 0.16, -0.86, -1.72, -2.18, -2.0, -1.21, 0.35, 2.42, 3.14, 0.7, -4.31, -8.86, -10.79, -8.92, -3.21, 4.22, 9.22, 8.44, 4.31, 1.04, 0.37, 1.11, 0.08, -2.87, -5.44, -7.6, -8.98, -7.84, -3.26, 3.35, 8.33, 9.38, 6.29, 1.73, -1.15, -3.29, -6.44, -8.89, -8.53, -5.4, 0.75, 6.84, 11.18, 12.53, 8.88, 1.54, -5.96, -11.5, -10.16, -1.86, 6.99, 11.39, 11.46, 7.73, 1.23, -4.22, -6.12, -2.2, 3.6, 8.12, 8.59, 4.95, -2.18, -10.2, -15.12, -14.4, -6.36, 7.77, 20.11, 21.96, 11.4, -5.7, -19.36, -23.3, -15.76, 0.9, 17.34, 23.89, 18.79, 5.82, -9.98, -20.81, -21.04, -12.72, -0.08, 12.09, 19.43, 17.89, 7.47, -5.14, -15.93, -20.01, -15.78, -4.1, 9.76, 16.68, 15.1, 7.31, -2.27, -9.99, -13.3, -10.2, -2.27, 5.73, 9.33, 6.3, -0.03, -6.25, -10.26, -10.23, -6.73, -0.94, 2.58, 2.87, 0.71, -2.63, -5.32, -5.99, -1.31, 6.97, 11.46, 8.68, 1.31, -5.82, -6.82, -1.49, 7.37, 14.07, 14.75, 7.86, -3.9, -12.55, -13.81, -7.93, 2.58, 12.38, 15.75, 11.3, 0.62, -9.31, -13.91, -12.04, -2.07, 11.12, 19.35, 20.28, 14.15, 2.13, -10.47, -19.85, -21.98, -15.76, -3.2, 9.99, 18.55, 17.89, 8.68, -4.93, -17.2, -23.52, -21.05, -12.39, -0.06, 11.99, 19.57, 19.28, 10.45, -2.97, -14.27, -20.49, -17.75, -6.27, 8.82, 20.08, 23.2, 14.87, -1.1, -15.19, -22.73, -19.91, -8.26, 8.0, 22.06, 27.32, 20.8, 6.31, -9.68, -21.44, -24.14, -15.43, -0.93, 12.04, 18.56, 16.46, 6.62, -6.78, -17.31, -22.66, -17.57, -4.18, 10.96, 19.87, 17.75, 6.78, -8.32, -18.69, -17.17, -6.3, 7.75, 21.16, 26.48, 20.0, 5.22, -12.38, -26.7, -28.43, -17.12, -0.19, 14.34, 21.55, 19.33, 9.66, -2.55, -11.81, -14.63, -10.66, -0.83, 11.35, 18.23, 15.61, 5.2, -8.29, -18.26, -21.1, -14.34, 0.08, 16.31, 26.38, 26.81, 16.33, -0.88, -17.89, -27.11, -24.44, -11.93, 3.56, 15.66, 18.87, 12.33, 1.62, -8.64, -16.06, -17.82, -12.03, -1.6, 7.57, 10.64, 9.7, 6.64, 0.65, -6.09, -9.38, -6.74, -1.8, 2.05, 4.47, 5.6, 4.48, 1.67, -1.73, -4.65, -4.23, -0.79, 3.81, 6.96, 7.95, 7.45, 4.65, 0.78, -2.65, -5.13, -5.56, -4.77, -4.18, -4.35, -4.63, -4.07, -2.81, 0.57, 5.53, 8.47, 7.67, 2.99, -4.26, -11.1, -13.31, -11.12, -5.2, 4.97, 15.03, 19.39, 16.86, 9.19, -2.87, -15.47, -21.3, -18.36, -8.14, 6.59, 19.15, 23.47, 17.91, 5.2, -8.36, -17.28, -17.58, -9.32, 2.9, 13.05, 17.69, 17.62, 11.96, 0.24, -11.5, -17.9, -17.95, -10.56, 1.87, 12.9, 15.62, 9.83, -1.28, -10.22, -14.41, -13.55, -7.68, 1.4, 9.15, 11.24, 6.7, -0.93, -6.49, -8.29, -5.62, 0.05, 5.98, 8.9, 8.3, 4.88, -0.43, -5.75, -9.05, -8.37, -4.68, -0.38, 4.3, 7.78, 6.84, 1.31, -5.28, -9.95, -10.82, -7.17, 0.26, 7.78, 12.9, 14.07, 10.36, 3.6, -5.01, -11.48, -12.15, -7.68, -1.15, 4.84, 7.58, 5.51, 0.4, -4.04, -5.31, -3.74, -0.3, 4.68, 8.23, 7.68, 3.83, -0.81, -4.28, -5.98, -5.09, -1.43, 1.88, 3.26, 3.4, 2.12, -0.28, -2.22, -3.42, -3.71, -2.78, -1.25, 0.55, 1.98, 2.5, 2.36, 1.81, 0.7, -1.22, -2.57, -2.18, -0.75, 0.88, 2.12, 2.38, 1.5, 0.27, -1.27, -2.43, -2.37, -1.58, -0.35, 1.28, 2.64, 2.8, 1.37, -0.89, -2.64, -3.03, -1.76, 0.51, 2.85, 3.74, 2.68, 0.3, -2.17, -3.42, -2.91, -1.13, 0.94, 2.39, 2.72, 1.77, 0.26, -1.36, -2.81, -3.57, -2.96, -1.17, 0.93, 2.38, 3.0, 2.61, 1.34, 0.13, -0.78, -1.28, -1.4, -1.11, -0.52, 0.38, 1.28, 1.69, 1.05, -0.39, -1.84, -2.57, -1.93, -0.03, 1.92, 2.66, 2.08, 0.79, -0.47, -1.12, -1.09, -0.53, -0.08, 0.13, 0.3, 0.3, 0.25, 0.37, 0.44, 0.24, -0.22, -0.58, -0.62, -0.3, 0.19, 0.34, -0.01, -0.49, -0.74, -0.6, -0.24, 0.15, 0.45, 0.64, 0.62, 0.43, 0.17, -0.03, -0.15, -0.29, -0.44, -0.52, -0.41, -0.16, 0.18, 0.42, 0.43, 0.3, 0.17, 0.05, 0.01, 0.06, 0.27, 0.45, 0.42, 0.26, 0.03, -0.32, -0.59, -0.6, -0.47, -0.19, 0.06, 0.07, 0.01, -0.01, -0.04, -0.17, -0.23, -0.28, -0.35, -0.26, 0.02, 0.32, 0.49, 0.44, 0.12, -0.27, -0.47, -0.37, -0.0, 0.41, 0.63, 0.54, 0.26, -0.03, -0.23, -0.27, -0.21, -0.07, 0.07, 0.12, 0.15, 0.11, 0.07, 0.08, 0.02, -0.11, -0.09, 0.03, 0.08, 0.02, -0.12, -0.21, -0.19, -0.06, 0.08, 0.17, 0.2, 0.1, -0.04, -0.11, -0.12, -0.1, -0.06, -0.01, 0.03, 0.06, 0.11, 0.14, 0.14, 0.09, -0.03, -0.2, -0.31, -0.29, -0.18, -0.04, 0.07, 0.17, 0.23, 0.19, 0.09, -0.02, -0.1, -0.16, -0.17, -0.12, -0.03, 0.07, 0.12, 0.09, 0.01, -0.05, -0.07, -0.04, 0.04, 0.13, 0.16, 0.12, 0.03, -0.04, -0.05, -0.03, 0.04, 0.1, 0.09, 0.04, -0.03, -0.07, -0.1, -0.09, -0.04, 0.03, 0.07, 0.06, 0.04, 0.01, -0.02, -0.04, -0.05, -0.05, -0.05, -0.05, -0.05, -0.03, 0.0, 0.01, -0.01, -0.04, -0.06, -0.06, -0.03, 0.01, 0.04, 0.03, 0.01, -0.0, -0.03, -0.05, -0.05, -0.02, 0.02, 0.07, 0.12, 0.12, 0.07, -0.01, -0.06, -0.09, -0.07, 0.01, 0.1, 0.16, 0.15, 0.09, 0.01, -0.04, -0.06, -0.07, -0.06, -0.03, -0.0, 0.03, 0.05, 0.06, 0.04, -0.01, -0.05, -0.08, -0.08, -0.04, 0.01, 0.06, 0.07, 0.03, -0.03, -0.07, -0.1, -0.09, -0.03, 0.02, 0.05, 0.05, 0.03, 0.01, -0.02, -0.05, -0.07, -0.06, -0.03, 0.02, 0.06, 0.08, 0.06, 0.01, -0.05, -0.07, -0.07, -0.03, 0.01, 0.05, 0.07, 0.05, 0.02, -0.02], [0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.01, 0.01, -0.02, -0.01, 0.04, 0.05, 0.08, 0.1, 0.05, 0.05, 0.09, 0.1, 0.07, -0.01, -0.25, -0.41, -0.26, 0.07, 0.46, 0.63, 0.43, 0.1, -0.42, -0.37, 0.08, 0.27, -0.0, -0.43, -0.6, -0.08, 0.89, 0.93, -0.82, -3.1, -3.58, -1.87, 0.71, 2.56, 2.51, 0.3, -2.83, -3.2, 0.5, 5.07, 5.88, 1.02, -5.35, -7.31, -4.19, 0.65, 3.72, 3.52, 0.94, -2.06, -3.1, -1.51, 1.78, 4.5, 3.28, -2.01, -6.44, -5.77, -0.85, 4.86, 6.39, 3.37, -1.01, -3.91, -3.37, -0.07, 2.4, 3.56, 3.2, 0.37, -3.02, -3.13, 0.0, 3.02, 3.92, 2.28, 0.64, -0.71, -0.99, -0.58, 0.04, -0.34, -1.7, -2.54, -1.84, 1.02, 4.98, 5.83, 1.14, -5.74, -8.55, -4.07, 3.72, 8.44, 7.35, 0.95, -6.47, -8.43, -3.3, 3.45, 6.56, 4.51, -1.37, -5.92, -4.96, 0.67, 5.18, 4.24, 0.04, -4.48, -5.34, -1.96, 3.29, 6.01, 2.43, -3.38, -5.77, -2.69, 2.51, 4.96, 3.36, -0.52, -3.84, -4.5, -2.72, 0.7, 3.05, 2.17, -0.78, -3.33, -3.1, -1.61, 0.0, 0.78, 0.27, -0.82, -1.36, 0.83, 4.03, 3.43, -1.14, -4.96, -4.13, 1.86, 7.68, 8.43, 3.0, -4.21, -7.96, -5.87, 1.3, 7.59, 7.67, 2.28, -3.91, -6.59, -4.04, 0.67, 4.6, 4.76, 1.07, -1.42, -0.83, 0.77, 2.44, 2.88, 0.76, -2.06, -4.09, -3.59, -0.82, 2.38, 3.36, 1.73, -1.61, -3.86, -3.42, -1.12, 0.66, 0.78, -1.27, -2.68, -1.46, 1.67, 3.7, 2.29, -1.28, -3.49, -3.59, -0.81, 3.16, 5.08, 3.14, -0.58, -4.24, -5.07, -1.4, 2.62, 4.2, 2.43, -0.16, -1.1, -0.17, 0.95, 1.47, 0.87, -0.93, -2.29, -1.11, 0.75, 1.25, 0.41, -0.85, -1.78, -1.9, -0.96, -0.94, 0.09, 1.58, 2.1, 0.5, -2.49, -3.93, -3.08, 0.38, 5.04, 6.3, 2.89, -0.59, -2.23, -1.95, -0.17, 0.72, -0.85, -1.43, -0.34, 0.39, -0.06, -0.57, -0.41, 0.45, 1.42, 1.73, 1.02, -0.26, -0.33, 1.37, 1.97, 0.17, -2.35, -3.55, -2.21, 0.11, 2.35, 3.56, 3.27, 1.36, -0.22, -1.15, -1.28, -1.06, -0.53, 0.24, 0.48, -0.45, -1.41, -1.92, -1.63, 0.39, 2.15, 1.11, -1.71, -2.96, -1.72, 0.12, 0.41, 0.75, 1.55, 0.83, -1.0, -1.6, 0.15, 1.39, 0.48, -0.91, -0.98, -0.11, 0.86, 1.0, 0.03, -0.22, 0.44, 1.27, 1.24, 0.77, 0.82, 0.67, 0.39, 0.11, -0.46, -0.78, -1.09, -1.72, -2.29, -2.03, -0.77, 0.45, 1.76, 2.64, 1.63, -0.61, -2.51, -3.06, -2.08, 0.22, 1.32, 0.73, 0.95, 1.88, 1.94, 1.35, 0.76, -0.94, -3.15, -2.93, -0.69, 1.71, 3.43, 3.05, 0.6, -1.88, -2.5, -0.67, 1.67, 2.78, 2.06, -0.02, -1.93, -1.64, 1.77, 4.5, 2.51, -1.77, -4.39, -4.1, -0.57, 3.7, 4.61, 0.44, -4.68, -6.29, -2.02, 3.44, 4.77, 1.6, -2.44, -4.18, -3.0, -0.4, 2.02, 3.21, 1.98, -0.32, -1.72, -1.19, 0.24, 1.61, 1.91, 0.59, -1.41, -2.5, -1.47, 0.39, 1.1, 1.12, 0.74, -0.72, -2.43, -2.46, -0.87, 0.87, 1.64, 1.52, 0.53, -0.01, 0.58, 1.33, 1.55, 0.04, -1.69, -1.58, -0.23, 0.66, 0.57, -0.43, -1.78, -1.99, -0.24, 2.21, 2.88, 1.31, -0.28, -1.0, -1.02, -0.22, 1.03, 1.61, 0.64, -0.82, -1.1, -0.86, -0.44, 0.44, 0.9, 0.4, -0.28, -0.86, -1.03, -0.55, 0.05, 0.46, 0.44, 0.08, -0.07, 0.2, 0.37, -0.11, -0.5, -0.13, 0.39, 0.52, 0.26, -0.19, -0.5, -0.23, 0.05, 0.12, 0.14, -0.11, -0.36, -0.09, 0.44, 0.57, -0.0, -0.71, -0.77, -0.12, 0.77, 1.13, 0.76, -0.25, -1.13, -1.13, -0.26, 0.83, 1.25, 0.64, -0.5, -1.17, -0.81, 0.14, 0.96, 0.86, -0.25, -1.39, -1.39, -0.27, 0.94, 1.19, 0.59, -0.27, -0.71, -0.21, 0.58, 0.83, 0.25, -0.59, -0.96, -0.42, 0.54, 1.03, 0.45, -0.68, -1.29, -0.87, 0.36, 1.46, 1.33, -0.04, -1.33, -1.32, -0.06, 1.33, 1.58, 0.53, -1.04, -1.74, -0.92, 0.58, 1.51, 1.25, 0.05, -1.13, -1.36, -0.46, 0.78, 1.31, 0.74, -0.52, -1.43, -1.16, 0.05, 1.14, 1.18, 0.2, -0.85, -1.04, -0.31, 0.67, 1.06, 0.6, -0.29, -0.91, -0.81, -0.11, 0.59, 0.73, 0.26, -0.37, -0.67, -0.35, 0.29, 0.68, 0.52, -0.0, -0.37, -0.34, -0.03, 0.3, 0.38, 0.06, -0.32, -0.41, -0.21, 0.12, 0.27, 0.07, -0.19, -0.25, -0.1, 0.05, 0.14, 0.05, -0.15, -0.21, -0.04, 0.17, 0.24, 0.1, -0.16, -0.28, -0.13, 0.16, 0.36, 0.28, -0.02, -0.3, -0.28, 0.01, 0.3, 0.34, 0.08, -0.23, -0.33, -0.18, 0.12, 0.3, 0.24, 0.02, -0.21, -0.28, -0.06, 0.23, 0.27, 0.05, -0.24, -0.31, -0.11, 0.18, 0.29, 0.14, -0.1, -0.26, -0.2, 0.06, 0.24, 0.2, -0.02, -0.21, -0.22, -0.03, 0.18, 0.25, 0.12, -0.09, -0.23, -0.2, -0.03, 0.14, 0.17, 0.03, -0.15, -0.16, -0.02, 0.12, 0.17, 0.08, -0.06, -0.15, -0.13, -0.0, 0.1, 0.12, 0.03, -0.1, -0.13, -0.05, 0.08, 0.14, 0.1, -0.0, -0.09, -0.1, -0.02, 0.08, 0.12, 0.07, -0.02, -0.08, -0.08, -0.02, 0.05, 0.08, 0.03, -0.05, -0.07, -0.03, 0.02, 0.05, 0.04, 0.0, -0.03, -0.03, -0.01, 0.01, 0.01, -0.01, -0.03, -0.03, -0.0, 0.01, 0.0, -0.02, -0.03, -0.02, 0.01, 0.03, 0.01, -0.02, -0.03, -0.01, 0.01, 0.01, 0.01, 0.0, -0.01, 0.01, 0.03, 0.03, 0.0, -0.02, -0.02, -0.01, 0.02, 0.04, 0.04, 0.01, -0.02, -0.03, -0.0, 0.04, 0.05, 0.01, -0.04, -0.06, -0.03, 0.02, 0.05, 0.04, -0.0, -0.05, -0.05, -0.02, 0.02, 0.04, 0.03, -0.01, -0.04, -0.05, -0.02, 0.02, 0.03, 0.01, -0.02, -0.03, -0.03, -0.0, 0.02, 0.03, 0.01, -0.02, -0.04, -0.03, 0.01, 0.04, 0.03, 0.01, -0.03, -0.04, -0.02, 0.02, 0.03, 0.02, -0.01, -0.03, -0.02, 0.0, 0.02, 0.03]], "Vt": [0.0, -0.0, 0.0, 0.01, 0.03, 0.04, 0.08, 0.15, 0.21, 0.1, 0.14, 0.36, 0.49, 0.84, 1.35, 1.61, 2.09, 2.7, 3.16, 3.43, 3.35, 2.05, 0.16, -1.26, -2.08, -1.69, -0.54, 0.65, 1.82, 1.17, 1.3, 2.19, 2.3, 1.37, 0.2, -0.69, 0.36, 3.61, 4.28, -2.91, -16.88, -30.49, -40.16, -44.45, -42.52, -36.41, -31.99, -33.76, -32.99, -21.02, 0.41, 21.88, 32.26, 33.34, 34.23, 33.64, 28.06, 18.53, 8.15, -1.22, -11.52, -22.26, -32.25, -37.43, -34.98, -32.89, -37.8, -42.81, -39.83, -29.45, -12.16, 3.1, 15.16, 25.92, 32.47, 36.22, 39.58, 38.79, 42.68, 52.79, 57.68, 52.5, 44.53, 35.45, 22.16, 8.66, -2.0, -1.71, 2.75, 8.03, 9.39, 6.09, -4.4, -20.25, -34.64, -42.23, -36.27, -14.39, 8.45, 14.48, 1.59, -17.45, -25.7, -19.86, -3.61, 20.29, 39.56, 43.83, 38.21, 29.47, 15.69, 1.22, -7.09, -11.96, -12.11, -6.05, 2.84, 2.93, -11.97, -29.92, -46.51, -52.08, -43.99, -23.11, 0.87, 9.45, 6.32, 0.93, 0.48, 3.92, 7.44, 12.88, 20.44, 26.2, 26.11, 16.44, 3.07, -11.65, -27.91, -41.43, -50.08, -51.05, -53.21, -57.47, -62.43, -66.77, -67.5, -62.01, -40.18, -5.8, 21.17, 32.43, 35.77, 41.32, 59.3, 83.9, 106.25, 115.9, 111.1, 92.85, 65.85, 43.12, 25.94, 9.83, -4.63, -17.63, -32.04, -47.05, -64.62, -76.57, -80.45, -76.2, -53.09, -15.62, 20.21, 50.52, 72.55, 80.96, 81.14, 74.73, 67.81, 62.95, 59.46, 50.63, 33.31, 3.52, -33.61, -71.11, -102.85, -126.06, -136.86, -139.19, -129.6, -107.65, -77.59, -48.24, -26.96, -11.53, 7.06, 27.3, 54.6, 88.11, 118.8, 135.32, 135.54, 114.0, 77.41, 42.33, 9.11, -17.23, -36.35, -45.72, -47.45, -48.24, -54.55, -63.07, -68.79, -68.93, -57.98, -29.71, 5.12, 34.55, 53.44, 60.0, 54.35, 39.97, 24.58, 5.75, -2.73, -1.32, 2.5, -1.88, -19.94, -44.69, -70.68, -84.37, -74.75, -51.31, -23.98, 10.5, 41.83, 61.0, 69.34, 66.26, 52.8, 47.45, 52.55, 56.46, 50.8, 35.23, 10.86, -17.99, -45.11, -64.58, -73.08, -70.37, -53.73, -25.07, 0.11, 12.3, 13.7, 9.68, 8.42, 10.8, 21.0, 38.55, 58.4, 70.55, 73.93, 64.46, 44.74, 20.14, -0.53, -11.21, -13.84, -16.25, -21.62, -34.71, -54.99, -71.45, -81.46, -88.42, -88.97, -75.75, -51.48, -26.74, -11.27, 2.73, 18.46, 28.07, 32.04, 38.18, 51.57, 61.63, 61.31, 54.44, 45.37, 32.66, 16.9, -1.04, -19.96, -31.44, -34.7, -32.23, -28.5, -23.08, -13.24, -3.21, 7.09, 17.89, 26.79, 34.87, 39.02, 35.71, 24.69, 9.16, -7.16, -23.79, -34.54, -37.72, -40.15, -43.68, -48.11, -52.88, -55.6, -50.25, -41.47, -29.98, -7.83, 19.98, 42.79, 58.74, 69.24, 67.89, 55.81, 46.39, 41.57, 39.45, 40.96, 38.95, 27.07, 6.11, -18.81, -39.36, -52.04, -53.43, -43.56, -27.71, -11.76, 3.52, 22.95, 38.62, 39.27, 33.49, 30.5, 29.97, 35.99, 46.11, 49.07, 33.18, 4.29, -28.34, -49.37, -61.66, -71.25, -76.66, -73.94, -65.1, -56.07, -50.47, -45.09, -33.88, -18.53, 1.96, 26.51, 51.69, 70.76, 82.16, 85.27, 78.98, 65.41, 48.41, 33.32, 18.55, 0.22, -16.93, -31.94, -50.45, -72.11, -88.99, -97.4, -96.7, -86.43, -66.0, -40.69, -11.99, 18.16, 44.53, 66.05, 77.58, 83.56, 90.57, 96.05, 94.08, 82.97, 61.25, 28.78, -7.93, -39.89, -62.74, -78.77, -88.42, -87.11, -78.2, -67.23, -53.81, -36.0, -14.77, 6.42, 28.1, 51.76, 69.91, 79.42, 82.81, 78.64, 66.51, 50.39, 31.1, 10.01, -10.37, -29.8, -46.77, -60.6, -70.64, -74.86, -72.41, -64.98, -55.41, -41.72, -22.22, -0.38, 20.69, 39.2, 53.43, 62.38, 67.23, 66.32, 60.22, 51.07, 38.33, 23.15, 8.16, -6.29, -21.18, -36.81, -50.83, -59.83, -62.32, -57.97, -48.53, -35.6, -22.37, -9.88, 2.21, 14.27, 26.41, 37.57, 45.96, 50.42, 50.86, 47.64, 40.34, 30.0, 16.64, 0.67, -15.55, -28.42, -36.98, -42.38, -46.14, -47.37, -45.62, -40.61, -30.9, -18.18, -4.58, 8.15, 19.68, 29.86, 38.92, 45.74, 48.46, 45.23, 36.86, 26.0, 14.74, 5.0, -3.02, -11.31, -21.18, -30.53, -36.58, -38.17, -35.71, -30.87, -24.56, -17.76, -9.76, 0.16, 10.23, 18.91, 25.55, 29.48, 30.81, 30.17, 28.43, 25.34, 20.36, 13.27, 4.11, -5.87, -14.49, -20.83, -25.13, -28.29, -30.33, -30.26, -27.11, -21.31, -13.83, -5.94, 1.65, 8.69, 14.96, 20.31, 24.45, 26.79, 26.71, 24.26, 19.92, 14.26, 8.26, 2.33, -3.67, -9.52, -14.59, -17.87, -19.25, -19.12, -17.6, -15.07, -12.21, -8.7, -4.18, 0.67, 5.51, 9.47, 11.77, 12.96, 13.46, 13.12, 11.56, 9.15, 5.86, 1.81, -1.98, -4.99, -7.44, -9.44, -11.09, -12.37, -12.75, -11.69, -9.29, -5.91, -2.27, 1.06, 3.97, 6.69, 9.21, 11.2, 12.33, 12.29, 11.38, 9.83, 7.65, 5.16, 2.2, -0.96, -3.93, -6.7, -8.94, -9.88, -9.84, -9.45, -8.85, -7.89, -6.17, -3.7, -0.78, 1.96, 4.19, 5.96, 7.13, 7.91, 8.41, 8.31, 7.37, 5.75, 3.74, 1.66, -0.29, -2.04, -3.7, -5.2, -6.34, -7.08, -7.3, -6.89, -5.89, -4.59, -3.2, -1.75, -0.02, 1.86, 3.47, 4.68, 5.44, 5.8, 5.7, 5.3, 4.67, 3.69, 2.42, 0.86, -0.89, -2.5, -3.73, -4.55, -5.02, -5.09, -4.77, -4.13, -3.24, -2.06, -0.7, 0.74, 2.06, 3.26, 4.22, 4.82, 5.05, 4.92, 4.43, 3.53, 2.38, 1.21, 0.05, -1.13, -2.27, -3.24, -3.95, -4.36, -4.42, -4.12, -3.56, -2.82, -1.93, -0.99, 0.06, 1.08, 1.93, 2.55, 2.91, 3.05, 2.98, 2.75, 2.35, 1.71, 0.89, 0.04, -0.73, -1.48, -2.12, -2.57, -2.81, -2.83, -2.55, -2.04, -1.43, -0.82, -0.17, 0.52, 1.19, 1.82, 2.41, 2.84, 3.01, 2.94, 2.65, 2.2, 1.7, 1.1, 0.39, -0.34, -1.01, -1.57, -1.97, -2.21, -2.34, -2.34, -2.22, -1.91, -1.44, -0.85, -0.22, 0.42, 0.99, 1.42, 1.67, 1.82, 1.84, 1.7, 1.41, 1.08, 0.68, 0.2, -0.29, -0.74, -1.14, -1.48, -1.74, -1.87, -1.82, -1.58, -1.24, -0.83, -0.4, -0.01, 0.36, 0.72, 1.05, 1.3, 1.46, 1.49, 1.42, 1.25, 0.99, 0.65, 0.26], "U": [[[0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1e-05, 1e-05, 2e-05, 3e-05, 3e-05, 5e-05, 6e-05, 8e-05, 9e-05, 9e-05, 8e-05, 4e-05, 0.0, -4e-05, -6e-05, -7e-05, -5e-05, -2e-05, 1e-05, 4e-05, 8e-05, 0.0001, 0.0001, 7e-05, 3e-05, 0.0, 1e-05, 1e-05, -8e-05, -0.00026, -0.0005, -0.00076, -0.00101, -0.00116, -0.0012, -0.00115, -0.00109, -0.00095, -0.00063, -0.00014, 0.00041, 0.00087, 0.00115, 0.0013, 0.00126, 0.00101, 0.00063, 0.00022, -0.00015, -0.00049, -0.00079, -0.00103, -0.00114, -0.00106, -0.00091, -0.00082, -0.00076, -0.00071, -0.00064, -0.00049, -0.00028, 2e-05, 0.0004, 0.00076, 0.00106, 0.00127, 0.00133, 0.00137, 0.00143, 0.0014, 0.00123, 0.00101, 0.00077, 0.0005, 0.00025, 5e-05, -0.0, -0.0, 3e-05, 4e-05, 3e-05, -5e-05, -0.00023, -0.00047, -0.00072, -0.00086, -0.00075, -0.00049, -0.00024, -0.00011, -9e-05, -6e-05, -1e-05, 0.0001, 0.00033, 0.00059, 0.00073, 0.00077, 0.00075, 0.00062, 0.00043, 0.00026, 6e-05, -0.00017, -0.00037, -0.00048, -0.00056, -0.00066, -0.00069, -0.00072, -0.00074, -0.00073, -0.00062, -0.00041, -0.00027, -0.00015, -2e-05, 0.00015, 0.00032, 0.00044, 0.00055, 0.00065, 0.00068, 0.00059, 0.00036, 7e-05, -0.00023, -0.00055, -0.00084, -0.00111, -0.00131, -0.00151, -0.00168, -0.00178, -0.00179, -0.0017, -0.00152, -0.0011, -0.00047, 0.00017, 0.00069, 0.0011, 0.00142, 0.00179, 0.00216, 0.00251, 0.00275, 0.00279, 0.00258, 0.0021, 0.00151, 0.00089, 0.00028, -0.00026, -0.00072, -0.00114, -0.00151, -0.00183, -0.002, -0.00198, -0.00181, -0.00138, -0.00072, 0.0, 0.00077, 0.00154, 0.00217, 0.0026, 0.00274, 0.00259, 0.00221, 0.00167, 0.00104, 0.00036, -0.00035, -0.00107, -0.00174, -0.00235, -0.00287, -0.00324, -0.00349, -0.00352, -0.00328, -0.00275, -0.00198, -0.0011, -0.0002, 0.00069, 0.00143, 0.00203, 0.00253, 0.00291, 0.00311, 0.00314, 0.00287, 0.00232, 0.00164, 0.00081, -4e-05, -0.00085, -0.00149, -0.0019, -0.00209, -0.00212, -0.00197, -0.00167, -0.00129, -0.00088, -0.00037, 0.00015, 0.00059, 0.00096, 0.00123, 0.00138, 0.00135, 0.00119, 0.00082, 0.00041, 4e-05, -0.00029, -0.00062, -0.00098, -0.00132, -0.00165, -0.00184, -0.00174, -0.00143, -0.00096, -0.00028, 0.00049, 0.00119, 0.00179, 0.00216, 0.00223, 0.00215, 0.00194, 0.00156, 0.00101, 0.0004, -0.00022, -0.00078, -0.00122, -0.00151, -0.00165, -0.00165, -0.00146, -0.00105, -0.00056, -0.0001, 0.0003, 0.0006, 0.0008, 0.00088, 0.00092, 0.00097, 0.00108, 0.00119, 0.00131, 0.00137, 0.0013, 0.00109, 0.00075, 0.00036, -7e-05, -0.00054, -0.001, -0.00143, -0.00182, -0.00204, -0.00208, -0.00204, -0.00193, -0.00169, -0.00134, -0.00096, -0.00062, -0.00021, 0.00029, 0.00074, 0.00109, 0.00137, 0.00162, 0.00172, 0.00163, 0.00141, 0.00113, 0.00079, 0.0004, -1e-05, -0.00043, -0.00075, -0.00095, -0.00104, -0.00102, -0.00088, -0.0006, -0.00024, 0.00016, 0.00057, 0.0009, 0.00114, 0.00125, 0.00116, 0.00087, 0.00044, -6e-05, -0.0006, -0.00102, -0.00127, -0.0014, -0.00141, -0.00135, -0.00127, -0.00118, -0.00103, -0.00088, -0.00071, -0.00038, 9e-05, 0.0006, 0.00113, 0.00165, 0.00199, 0.00207, 0.00196, 0.00168, 0.00127, 0.00086, 0.00047, 8e-05, -0.00028, -0.0006, -0.00084, -0.00101, -0.00107, -0.00101, -0.00085, -0.00064, -0.00035, 0.0001, 0.00062, 0.00101, 0.0013, 0.00147, 0.00144, 0.00131, 0.00113, 0.00088, 0.00048, -2e-05, -0.00058, -0.00103, -0.00141, -0.00173, -0.00196, -0.00202, -0.00195, -0.00179, -0.00158, -0.00128, -0.00085, -0.00034, 0.00022, 0.00078, 0.0013, 0.00171, 0.00201, 0.00218, 0.00219, 0.00202, 0.00167, 0.0012, 0.00063, -1e-05, -0.00062, -0.00112, -0.00157, -0.00197, -0.00226, -0.00241, -0.00241, -0.00225, -0.00188, -0.00136, -0.00069, 0.0001, 0.00091, 0.00169, 0.00229, 0.00269, 0.0029, 0.00289, 0.00263, 0.00215, 0.0015, 0.0007, -0.00018, -0.00099, -0.00166, -0.00216, -0.00248, -0.00254, -0.00237, -0.00205, -0.00159, -0.00101, -0.00034, 0.00033, 0.00094, 0.00151, 0.00191, 0.00213, 0.00219, 0.0021, 0.00184, 0.00147, 0.00098, 0.00041, -0.0002, -0.00079, -0.00133, -0.00175, -0.00203, -0.00214, -0.00207, -0.00183, -0.0015, -0.00107, -0.00055, -0.0, 0.00054, 0.00102, 0.00142, 0.00171, 0.00187, 0.00188, 0.00174, 0.00148, 0.00111, 0.00066, 0.00019, -0.00026, -0.00068, -0.00106, -0.00137, -0.00157, -0.00164, -0.00158, -0.00139, -0.00109, -0.00072, -0.00032, 8e-05, 0.00046, 0.00081, 0.00109, 0.00129, 0.00139, 0.00138, 0.00127, 0.00107, 0.0008, 0.00048, 0.0001, -0.00029, -0.00067, -0.00099, -0.00123, -0.00138, -0.00142, -0.00133, -0.00115, -0.00086, -0.0005, -0.00011, 0.00026, 0.00059, 0.00087, 0.00108, 0.00122, 0.00127, 0.00121, 0.00105, 0.00081, 0.0005, 0.00018, -0.00012, -0.0004, -0.00066, -0.00087, -0.001, -0.00105, -0.001, -0.00087, -0.00068, -0.00046, -0.00023, 2e-05, 0.00026, 0.00048, 0.00066, 0.00081, 0.00088, 0.00088, 0.00082, 0.0007, 0.00054, 0.00034, 0.00012, -0.00012, -0.00036, -0.00056, -0.00071, -0.00081, -0.00085, -0.00083, -0.00074, -0.0006, -0.00041, -0.0002, 3e-05, 0.00025, 0.00045, 0.0006, 0.0007, 0.00074, 0.00073, 0.00066, 0.00055, 0.0004, 0.00023, 5e-05, -0.00012, -0.00028, -0.00041, -0.00049, -0.00054, -0.00054, -0.0005, -0.00043, -0.00033, -0.00022, -9e-05, 4e-05, 0.00016, 0.00025, 0.00032, 0.00036, 0.00038, 0.00037, 0.00032, 0.00026, 0.00017, 6e-05, -4e-05, -0.00014, -0.00022, -0.00028, -0.00032, -0.00034, -0.00034, -0.00031, -0.00025, -0.00017, -8e-05, 1e-05, 0.0001, 0.00019, 0.00026, 0.00031, 0.00034, 0.00034, 0.00032, 0.00028, 0.00021, 0.00014, 5e-05, -4e-05, -0.00011, -0.00018, -0.00024, -0.00027, -0.00028, -0.00027, -0.00025, -0.00021, -0.00016, -9e-05, -3e-05, 4e-05, 0.00011, 0.00016, 0.0002, 0.00023, 0.00024, 0.00023, 0.0002, 0.00016, 0.00011, 5e-05, -1e-05, -7e-05, -0.00011, -0.00015, -0.00018, -0.00019, -0.00019, -0.00018, -0.00016, -0.00013, -9e-05, -5e-05, -0.0, 5e-05, 9e-05, 0.00012, 0.00015, 0.00017, 0.00017, 0.00016, 0.00013, 0.0001, 6e-05, 2e-05, -2e-05, -7e-05, -0.0001, -0.00013, -0.00014, -0.00015, -0.00014, -0.00012, -9e-05, -6e-05, -2e-05, 2e-05, 6e-05, 9e-05, 0.00012, 0.00013, 0.00014, 0.00014, 0.00012, 0.0001, 7e-05, 4e-05, 0.0, -3e-05, -7e-05, -9e-05, -0.00011, -0.00012, -0.00012, -0.00011, -0.0001, -8e-05, -5e-05, -3e-05, 0.0, 3e-05, 5e-05, 7e-05, 8e-05, 9e-05, 9e-05, 8e-05, 6e-05, 5e-05, 2e-05, 0.0, -2e-05, -4e-05, -6e-05, -7e-05, -8e-05, -8e-05, -7e-05, -6e-05, -4e-05, -2e-05, -0.0, 2e-05, 4e-05, 5e-05, 7e-05, 7e-05, 8e-05, 8e-05, 7e-05, 6e-05, 5e-05, 3e-05, 1e-05, -1e-05, -3e-05, -4e-05, -6e-05, -6e-05, -7e-05, -7e-05, -6e-05, -5e-05, -4e-05, -2e-05, -1e-05, 1e-05, 3e-05, 4e-05, 5e-05, 5e-05, 5e-05, 5e-05, 4e-05, 3e-05, 2e-05, 0.0, -1e-05, -2e-05, -3e-05, -4e-05, -5e-05, -5e-05, -5e-05, -4e-05, -4e-05, -3e-05, -1e-05, -0.0, 1e-05, 2e-05, 3e-05, 4e-05, 4e-05, 4e-05, 4e-05, 3e-05, 3e-05, 2e-05, 1e-05], [0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, 0.0, 0.0, 1e-05, 1e-05, 1e-05, 1e-05, 1e-05, 1e-05, 1e-05, 0.0, -1e-05, -3e-05, -3e-05, -2e-05, 0.0, 3e-05, 6e-05, 7e-05, 4e-05, 0.0, -2e-05, -5e-05, -6e-05, -6e-05, -3e-05, 1e-05, 7e-05, 9e-05, 2e-05, -0.00012, -0.00025, -0.0003, -0.00025, -9e-05, 0.00012, 0.00026, 0.00023, 0.00012, 3e-05, 1e-05, 3e-05, 0.0, -8e-05, -0.00015, -0.00021, -0.00025, -0.00022, -9e-05, 9e-05, 0.00023, 0.00026, 0.00017, 5e-05, -3e-05, -9e-05, -0.00018, -0.00025, -0.00024, -0.00015, 2e-05, 0.00019, 0.00031, 0.00035, 0.00025, 4e-05, -0.00017, -0.00032, -0.00028, -5e-05, 0.00019, 0.00032, 0.00032, 0.00021, 3e-05, -0.00012, -0.00017, -6e-05, 0.0001, 0.00023, 0.00024, 0.00014, -6e-05, -0.00028, -0.00042, -0.0004, -0.00018, 0.00022, 0.00056, 0.00061, 0.00032, -0.00016, -0.00054, -0.00065, -0.00044, 3e-05, 0.00048, 0.00066, 0.00052, 0.00016, -0.00028, -0.00058, -0.00058, -0.00035, -0.0, 0.00034, 0.00054, 0.0005, 0.00021, -0.00014, -0.00044, -0.00056, -0.00044, -0.00011, 0.00027, 0.00046, 0.00042, 0.0002, -6e-05, -0.00028, -0.00037, -0.00028, -6e-05, 0.00016, 0.00026, 0.00018, -0.0, -0.00017, -0.00029, -0.00028, -0.00019, -3e-05, 7e-05, 8e-05, 2e-05, -7e-05, -0.00015, -0.00017, -4e-05, 0.00019, 0.00032, 0.00024, 4e-05, -0.00016, -0.00019, -4e-05, 0.0002, 0.00039, 0.00041, 0.00022, -0.00011, -0.00035, -0.00038, -0.00022, 7e-05, 0.00034, 0.00044, 0.00031, 2e-05, -0.00026, -0.00039, -0.00033, -6e-05, 0.00031, 0.00054, 0.00056, 0.00039, 6e-05, -0.00029, -0.00055, -0.00061, -0.00044, -9e-05, 0.00028, 0.00052, 0.0005, 0.00024, -0.00014, -0.00048, -0.00065, -0.00058, -0.00034, -0.0, 0.00033, 0.00054, 0.00054, 0.00029, -8e-05, -0.0004, -0.00057, -0.00049, -0.00017, 0.00024, 0.00056, 0.00064, 0.00041, -3e-05, -0.00042, -0.00063, -0.00055, -0.00023, 0.00022, 0.00061, 0.00076, 0.00058, 0.00018, -0.00027, -0.0006, -0.00067, -0.00043, -3e-05, 0.00033, 0.00052, 0.00046, 0.00018, -0.00019, -0.00048, -0.00063, -0.00049, -0.00012, 0.0003, 0.00055, 0.00049, 0.00019, -0.00023, -0.00052, -0.00048, -0.00018, 0.00022, 0.00059, 0.00074, 0.00056, 0.00014, -0.00034, -0.00074, -0.00079, -0.00048, -1e-05, 0.0004, 0.0006, 0.00054, 0.00027, -7e-05, -0.00033, -0.00041, -0.0003, -2e-05, 0.00032, 0.00051, 0.00043, 0.00014, -0.00023, -0.00051, -0.00059, -0.0004, 0.0, 0.00045, 0.00073, 0.00074, 0.00045, -2e-05, -0.0005, -0.00075, -0.00068, -0.00033, 0.0001, 0.00043, 0.00052, 0.00034, 5e-05, -0.00024, -0.00045, -0.0005, -0.00033, -4e-05, 0.00021, 0.0003, 0.00027, 0.00018, 2e-05, -0.00017, -0.00026, -0.00019, -5e-05, 6e-05, 0.00012, 0.00016, 0.00012, 5e-05, -5e-05, -0.00013, -0.00012, -2e-05, 0.00011, 0.00019, 0.00022, 0.00021, 0.00013, 2e-05, -7e-05, -0.00014, -0.00015, -0.00013, -0.00012, -0.00012, -0.00013, -0.00011, -8e-05, 2e-05, 0.00015, 0.00024, 0.00021, 8e-05, -0.00012, -0.00031, -0.00037, -0.00031, -0.00014, 0.00014, 0.00042, 0.00054, 0.00047, 0.00026, -8e-05, -0.00043, -0.00059, -0.00051, -0.00023, 0.00018, 0.00053, 0.00065, 0.0005, 0.00014, -0.00023, -0.00048, -0.00049, -0.00026, 8e-05, 0.00036, 0.00049, 0.00049, 0.00033, 1e-05, -0.00032, -0.0005, -0.0005, -0.00029, 5e-05, 0.00036, 0.00043, 0.00027, -4e-05, -0.00028, -0.0004, -0.00038, -0.00021, 4e-05, 0.00025, 0.00031, 0.00019, -3e-05, -0.00018, -0.00023, -0.00016, 0.0, 0.00017, 0.00025, 0.00023, 0.00014, -1e-05, -0.00016, -0.00025, -0.00023, -0.00013, -1e-05, 0.00012, 0.00022, 0.00019, 4e-05, -0.00015, -0.00028, -0.0003, -0.0002, 1e-05, 0.00022, 0.00036, 0.00039, 0.00029, 0.0001, -0.00014, -0.00032, -0.00034, -0.00021, -3e-05, 0.00013, 0.00021, 0.00015, 1e-05, -0.00011, -0.00015, -0.0001, -1e-05, 0.00013, 0.00023, 0.00021, 0.00011, -2e-05, -0.00012, -0.00017, -0.00014, -4e-05, 5e-05, 9e-05, 9e-05, 6e-05, -1e-05, -6e-05, -0.0001, -0.0001, -8e-05, -3e-05, 2e-05, 5e-05, 7e-05, 7e-05, 5e-05, 2e-05, -3e-05, -7e-05, -6e-05, -2e-05, 2e-05, 6e-05, 7e-05, 4e-05, 1e-05, -4e-05, -7e-05, -7e-05, -4e-05, -1e-05, 4e-05, 7e-05, 8e-05, 4e-05, -2e-05, -7e-05, -8e-05, -5e-05, 1e-05, 8e-05, 0.0001, 7e-05, 1e-05, -6e-05, -0.0001, -8e-05, -3e-05, 3e-05, 7e-05, 8e-05, 5e-05, 1e-05, -4e-05, -8e-05, -0.0001, -8e-05, -3e-05, 3e-05, 7e-05, 8e-05, 7e-05, 4e-05, 0.0, -2e-05, -4e-05, -4e-05, -3e-05, -1e-05, 1e-05, 4e-05, 5e-05, 3e-05, -1e-05, -5e-05, -7e-05, -5e-05, -0.0, 5e-05, 7e-05, 6e-05, 2e-05, -1e-05, -3e-05, -3e-05, -1e-05, -0.0, 0.0, 1e-05, 1e-05, 1e-05, 1e-05, 1e-05, 1e-05, -1e-05, -2e-05, -2e-05, -1e-05, 1e-05, 1e-05, -0.0, -1e-05, -2e-05, -2e-05, -1e-05, 0.0, 1e-05, 2e-05, 2e-05, 1e-05, 0.0, -0.0, -0.0, -1e-05, -1e-05, -1e-05, -1e-05, -0.0, 0.0, 1e-05, 1e-05, 1e-05, 0.0, 0.0, 0.0, 0.0, 1e-05, 1e-05, 1e-05, 1e-05, 0.0, -1e-05, -2e-05, -2e-05, -1e-05, -1e-05, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -1e-05, -1e-05, -1e-05, -1e-05, 0.0, 1e-05, 1e-05, 1e-05, 0.0, -1e-05, -1e-05, -1e-05, -0.0, 1e-05, 2e-05, 1e-05, 1e-05, -0.0, -1e-05, -1e-05, -1e-05, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -1e-05, -1e-05, -0.0, 0.0, 0.0, 1e-05, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -1e-05, -1e-05, -1e-05, -0.0, -0.0, 0.0, 0.0, 1e-05, 1e-05, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0], [0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -1e-05, -1e-05, -1e-05, 0.0, 1e-05, 2e-05, 1e-05, 0.0, -1e-05, -1e-05, 0.0, 1e-05, -0.0, -1e-05, -2e-05, -0.0, 2e-05, 3e-05, -2e-05, -9e-05, -0.0001, -5e-05, 2e-05, 7e-05, 7e-05, 1e-05, -8e-05, -9e-05, 1e-05, 0.00014, 0.00016, 3e-05, -0.00015, -0.0002, -0.00012, 2e-05, 0.0001, 0.0001, 3e-05, -6e-05, -9e-05, -4e-05, 5e-05, 0.00012, 9e-05, -6e-05, -0.00018, -0.00016, -2e-05, 0.00013, 0.00018, 9e-05, -3e-05, -0.00011, -9e-05, -0.0, 7e-05, 0.0001, 9e-05, 1e-05, -8e-05, -9e-05, 0.0, 8e-05, 0.00011, 6e-05, 2e-05, -2e-05, -3e-05, -2e-05, 0.0, -1e-05, -5e-05, -7e-05, -5e-05, 3e-05, 0.00014, 0.00016, 3e-05, -0.00016, -0.00024, -0.00011, 0.0001, 0.00023, 0.0002, 3e-05, -0.00018, -0.00023, -9e-05, 0.0001, 0.00018, 0.00013, -4e-05, -0.00016, -0.00014, 2e-05, 0.00014, 0.00012, 0.0, -0.00012, -0.00015, -5e-05, 9e-05, 0.00017, 7e-05, -9e-05, -0.00016, -7e-05, 7e-05, 0.00014, 9e-05, -1e-05, -0.00011, -0.00012, -8e-05, 2e-05, 8e-05, 6e-05, -2e-05, -9e-05, -9e-05, -4e-05, 0.0, 2e-05, 1e-05, -2e-05, -4e-05, 2e-05, 0.00011, 0.0001, -3e-05, -0.00014, -0.00011, 5e-05, 0.00021, 0.00023, 8e-05, -0.00012, -0.00022, -0.00016, 4e-05, 0.00021, 0.00021, 6e-05, -0.00011, -0.00018, -0.00011, 2e-05, 0.00013, 0.00013, 3e-05, -4e-05, -2e-05, 2e-05, 7e-05, 8e-05, 2e-05, -6e-05, -0.00011, -0.0001, -2e-05, 7e-05, 9e-05, 5e-05, -4e-05, -0.00011, -9e-05, -3e-05, 2e-05, 2e-05, -4e-05, -7e-05, -4e-05, 5e-05, 0.0001, 6e-05, -4e-05, -0.0001, -0.0001, -2e-05, 9e-05, 0.00014, 9e-05, -2e-05, -0.00012, -0.00014, -4e-05, 7e-05, 0.00012, 7e-05, -0.0, -3e-05, -0.0, 3e-05, 4e-05, 2e-05, -3e-05, -6e-05, -3e-05, 2e-05, 3e-05, 1e-05, -2e-05, -5e-05, -5e-05, -3e-05, -3e-05, 0.0, 4e-05, 6e-05, 1e-05, -7e-05, -0.00011, -9e-05, 1e-05, 0.00014, 0.00017, 8e-05, -2e-05, -6e-05, -5e-05, -0.0, 2e-05, -2e-05, -4e-05, -1e-05, 1e-05, -0.0, -2e-05, -1e-05, 1e-05, 4e-05, 5e-05, 3e-05, -1e-05, -1e-05, 4e-05, 5e-05, 0.0, -7e-05, -0.0001, -6e-05, 0.0, 7e-05, 0.0001, 9e-05, 4e-05, -1e-05, -3e-05, -4e-05, -3e-05, -1e-05, 1e-05, 1e-05, -1e-05, -4e-05, -5e-05, -5e-05, 1e-05, 6e-05, 3e-05, -5e-05, -8e-05, -5e-05, 0.0, 1e-05, 2e-05, 4e-05, 2e-05, -3e-05, -4e-05, 0.0, 4e-05, 1e-05, -3e-05, -3e-05, -0.0, 2e-05, 3e-05, 0.0, -1e-05, 1e-05, 4e-05, 3e-05, 2e-05, 2e-05, 2e-05, 1e-05, 0.0, -1e-05, -2e-05, -3e-05, -5e-05, -6e-05, -6e-05, -2e-05, 1e-05, 5e-05, 7e-05, 5e-05, -2e-05, -7e-05, -8e-05, -6e-05, 1e-05, 4e-05, 2e-05, 3e-05, 5e-05, 5e-05, 4e-05, 2e-05, -3e-05, -9e-05, -8e-05, -2e-05, 5e-05, 0.0001, 8e-05, 2e-05, -5e-05, -7e-05, -2e-05, 5e-05, 8e-05, 6e-05, -0.0, -5e-05, -5e-05, 5e-05, 0.00013, 7e-05, -5e-05, -0.00012, -0.00011, -2e-05, 0.0001, 0.00013, 1e-05, -0.00013, -0.00017, -6e-05, 0.0001, 0.00013, 4e-05, -7e-05, -0.00012, -8e-05, -1e-05, 6e-05, 9e-05, 5e-05, -1e-05, -5e-05, -3e-05, 1e-05, 4e-05, 5e-05, 2e-05, -4e-05, -7e-05, -4e-05, 1e-05, 3e-05, 3e-05, 2e-05, -2e-05, -7e-05, -7e-05, -2e-05, 2e-05, 5e-05, 4e-05, 1e-05, -0.0, 2e-05, 4e-05, 4e-05, 0.0, -5e-05, -4e-05, -1e-05, 2e-05, 2e-05, -1e-05, -5e-05, -6e-05, -1e-05, 6e-05, 8e-05, 4e-05, -1e-05, -3e-05, -3e-05, -1e-05, 3e-05, 4e-05, 2e-05, -2e-05, -3e-05, -2e-05, -1e-05, 1e-05, 2e-05, 1e-05, -1e-05, -2e-05, -3e-05, -2e-05, 0.0, 1e-05, 1e-05, 0.0, -0.0, 1e-05, 1e-05, -0.0, -1e-05, -0.0, 1e-05, 1e-05, 1e-05, -1e-05, -1e-05, -1e-05, 0.0, 0.0, 0.0, -0.0, -1e-05, -0.0, 1e-05, 2e-05, -0.0, -2e-05, -2e-05, -0.0, 2e-05, 3e-05, 2e-05, -1e-05, -3e-05, -3e-05, -1e-05, 2e-05, 3e-05, 2e-05, -1e-05, -3e-05, -2e-05, 0.0, 3e-05, 2e-05, -1e-05, -4e-05, -4e-05, -1e-05, 3e-05, 3e-05, 2e-05, -1e-05, -2e-05, -1e-05, 2e-05, 2e-05, 1e-05, -2e-05, -3e-05, -1e-05, 2e-05, 3e-05, 1e-05, -2e-05, -4e-05, -2e-05, 1e-05, 4e-05, 4e-05, -0.0, -4e-05, -4e-05, -0.0, 4e-05, 4e-05, 1e-05, -3e-05, -5e-05, -3e-05, 2e-05, 4e-05, 3e-05, 0.0, -3e-05, -4e-05, -1e-05, 2e-05, 4e-05, 2e-05, -1e-05, -4e-05, -3e-05, 0.0, 3e-05, 3e-05, 1e-05, -2e-05, -3e-05, -1e-05, 2e-05, 3e-05, 2e-05, -1e-05, -3e-05, -2e-05, -0.0, 2e-05, 2e-05, 1e-05, -1e-05, -2e-05, -1e-05, 1e-05, 2e-05, 1e-05, -0.0, -1e-05, -1e-05, -0.0, 1e-05, 1e-05, 0.0, -1e-05, -1e-05, -1e-05, 0.0, 1e-05, 0.0, -1e-05, -1e-05, -0.0, 0.0, 0.0, 0.0, -0.0, -1e-05, -0.0, 0.0, 1e-05, 0.0, -0.0, -1e-05, -0.0, 0.0, 1e-05, 1e-05, -0.0, -1e-05, -1e-05, 0.0, 1e-05, 1e-05, 0.0, -1e-05, -1e-05, -0.0, 0.0, 1e-05, 1e-05, 0.0, -1e-05, -1e-05, -0.0, 1e-05, 1e-05, 0.0, -1e-05, -1e-05, -0.0, 1e-05, 1e-05, 0.0, -0.0, -1e-05, -1e-05, 0.0, 1e-05, 1e-05, -0.0, -1e-05, -1e-05, -0.0, 1e-05, 1e-05, 0.0, -0.0, -1e-05, -1e-05, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0]], [[0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1e-05, 1e-05, 1e-05, 1e-05, 1e-05, 2e-05, 3e-05, 5e-05, 7e-05, 9e-05, 0.00012, 0.00015, 0.00017, 0.00018, 0.00015, 9e-05, 1e-05, -7e-05, -0.00012, -0.00013, -0.0001, -4e-05, 1e-05, 8e-05, 0.00016, 0.0002, 0.00019, 0.00014, 6e-05, 0.0, 2e-05, 1e-05, -0.00015, -0.00052, -0.00098, -0.0015, -0.00198, -0.00228, -0.00235, -0.00226, -0.00215, -0.00186, -0.00123, -0.00027, 0.00081, 0.0017, 0.00227, 0.00256, 0.00248, 0.00199, 0.00124, 0.00043, -0.0003, -0.00097, -0.00156, -0.00202, -0.00223, -0.00209, -0.00179, -0.0016, -0.0015, -0.00139, -0.00127, -0.00097, -0.00055, 3e-05, 0.00079, 0.0015, 0.00208, 0.00249, 0.00261, 0.00269, 0.00281, 0.00275, 0.00241, 0.00198, 0.00151, 0.00098, 0.00049, 0.0001, -1e-05, -1e-05, 5e-05, 8e-05, 6e-05, -0.0001, -0.00046, -0.00093, -0.00142, -0.00169, -0.00148, -0.00095, -0.00047, -0.00022, -0.00017, -0.00012, -2e-05, 0.0002, 0.00066, 0.00116, 0.00144, 0.00152, 0.00147, 0.00121, 0.00084, 0.00052, 0.00012, -0.00033, -0.00072, -0.00094, -0.0011, -0.00129, -0.00135, -0.00142, -0.00146, -0.00143, -0.00122, -0.00081, -0.00053, -0.00029, -3e-05, 0.0003, 0.00062, 0.00086, 0.00108, 0.00127, 0.00133, 0.00116, 0.0007, 0.00013, -0.00046, -0.00108, -0.00166, -0.00218, -0.00256, -0.00296, -0.00329, -0.00349, -0.00351, -0.00335, -0.00298, -0.00217, -0.00092, 0.00034, 0.00136, 0.00215, 0.0028, 0.00351, 0.00424, 0.00493, 0.00539, 0.00549, 0.00507, 0.00412, 0.00297, 0.00175, 0.00055, -0.00052, -0.00142, -0.00225, -0.00296, -0.0036, -0.00392, -0.00389, -0.00356, -0.00271, -0.00141, 0.0, 0.00152, 0.00303, 0.00426, 0.00511, 0.00538, 0.00509, 0.00434, 0.00329, 0.00203, 0.00071, -0.0007, -0.0021, -0.00342, -0.00461, -0.00563, -0.00636, -0.00685, -0.00692, -0.00645, -0.00539, -0.00389, -0.00217, -0.0004, 0.00135, 0.0028, 0.00399, 0.00498, 0.00572, 0.00612, 0.00616, 0.00564, 0.00456, 0.00321, 0.00159, -8e-05, -0.00167, -0.00292, -0.00373, -0.00411, -0.00416, -0.00387, -0.00327, -0.00254, -0.00172, -0.00072, 0.00029, 0.00116, 0.00188, 0.00242, 0.0027, 0.00265, 0.00234, 0.0016, 0.0008, 7e-05, -0.00058, -0.00121, -0.00192, -0.00259, -0.00323, -0.0036, -0.00342, -0.0028, -0.00189, -0.00055, 0.00096, 0.00234, 0.00351, 0.00425, 0.00438, 0.00422, 0.00382, 0.00307, 0.00199, 0.00078, -0.00044, -0.00153, -0.0024, -0.00297, -0.00324, -0.00324, -0.00287, -0.00206, -0.0011, -0.00019, 0.00059, 0.00117, 0.00158, 0.00173, 0.0018, 0.0019, 0.00212, 0.00233, 0.00258, 0.00269, 0.00256, 0.00213, 0.00148, 0.00071, -0.00013, -0.00106, -0.00196, -0.00282, -0.00358, -0.00401, -0.00409, -0.00401, -0.00379, -0.00331, -0.00263, -0.00188, -0.00122, -0.00042, 0.00056, 0.00145, 0.00213, 0.00268, 0.00317, 0.00338, 0.00321, 0.00278, 0.00222, 0.00154, 0.00078, -2e-05, -0.00084, -0.00147, -0.00187, -0.00204, -0.002, -0.00174, -0.00117, -0.00047, 0.00032, 0.00111, 0.00177, 0.00225, 0.00245, 0.00227, 0.00171, 0.00086, -0.00013, -0.00117, -0.00201, -0.0025, -0.00274, -0.00277, -0.00265, -0.00249, -0.00231, -0.00203, -0.00173, -0.00139, -0.00075, 0.00017, 0.00117, 0.00221, 0.00323, 0.00391, 0.00406, 0.00385, 0.00331, 0.0025, 0.00169, 0.00091, 0.00016, -0.00054, -0.00117, -0.00165, -0.00199, -0.00211, -0.00198, -0.00167, -0.00125, -0.00068, 0.00019, 0.00121, 0.00199, 0.00255, 0.00288, 0.00284, 0.00257, 0.00221, 0.00172, 0.00093, -5e-05, -0.00113, -0.00203, -0.00276, -0.00341, -0.00385, -0.00398, -0.00382, -0.00351, -0.0031, -0.00252, -0.00167, -0.00067, 0.00043, 0.00154, 0.00256, 0.00336, 0.00394, 0.00428, 0.0043, 0.00396, 0.00327, 0.00235, 0.00125, -3e-05, -0.00122, -0.00221, -0.00309, -0.00387, -0.00443, -0.00472, -0.00473, -0.00441, -0.0037, -0.00267, -0.00136, 0.00019, 0.00179, 0.00332, 0.0045, 0.00528, 0.00569, 0.00567, 0.00516, 0.00423, 0.00295, 0.00137, -0.00035, -0.00194, -0.00325, -0.00425, -0.00488, -0.00499, -0.00466, -0.00403, -0.00313, -0.00198, -0.00066, 0.00064, 0.00186, 0.00296, 0.00376, 0.00418, 0.00431, 0.00412, 0.00362, 0.00289, 0.00193, 0.0008, -0.00038, -0.00156, -0.00261, -0.00344, -0.00399, -0.00421, -0.00406, -0.0036, -0.00295, -0.00211, -0.00109, -0.0, 0.00105, 0.00201, 0.0028, 0.00335, 0.00367, 0.00368, 0.00341, 0.00291, 0.00218, 0.0013, 0.00038, -0.00051, -0.00134, -0.00208, -0.00269, -0.00308, -0.00323, -0.00311, -0.00274, -0.00214, -0.00141, -0.00062, 0.00017, 0.00091, 0.00158, 0.00214, 0.00253, 0.00273, 0.00271, 0.00249, 0.0021, 0.00157, 0.00093, 0.0002, -0.00058, -0.00131, -0.00194, -0.00241, -0.00271, -0.00278, -0.00262, -0.00225, -0.00168, -0.00098, -0.00023, 0.00051, 0.00117, 0.00171, 0.00213, 0.0024, 0.0025, 0.00239, 0.00207, 0.00159, 0.00099, 0.00036, -0.00024, -0.00079, -0.0013, -0.00171, -0.00197, -0.00205, -0.00196, -0.00171, -0.00134, -0.00091, -0.00044, 4e-05, 0.00051, 0.00094, 0.00131, 0.00158, 0.00173, 0.00173, 0.00161, 0.00137, 0.00106, 0.00067, 0.00023, -0.00024, -0.0007, -0.0011, -0.0014, -0.00159, -0.00167, -0.00163, -0.00146, -0.00118, -0.00081, -0.00039, 6e-05, 0.0005, 0.00088, 0.00118, 0.00137, 0.00145, 0.00143, 0.0013, 0.00108, 0.00079, 0.00045, 0.0001, -0.00024, -0.00055, -0.0008, -0.00097, -0.00106, -0.00106, -0.00099, -0.00084, -0.00065, -0.00042, -0.00017, 7e-05, 0.0003, 0.0005, 0.00063, 0.00072, 0.00075, 0.00072, 0.00064, 0.0005, 0.00033, 0.00013, -8e-05, -0.00027, -0.00043, -0.00055, -0.00063, -0.00067, -0.00067, -0.0006, -0.0005, -0.00034, -0.00016, 2e-05, 0.0002, 0.00037, 0.0005, 0.00061, 0.00067, 0.00068, 0.00064, 0.00055, 0.00042, 0.00027, 0.0001, -7e-05, -0.00022, -0.00035, -0.00047, -0.00053, -0.00055, -0.00053, -0.00049, -0.00041, -0.00031, -0.00019, -5e-05, 9e-05, 0.00021, 0.00032, 0.0004, 0.00044, 0.00046, 0.00045, 0.0004, 0.00032, 0.00022, 0.0001, -2e-05, -0.00013, -0.00022, -0.0003, -0.00035, -0.00037, -0.00038, -0.00036, -0.00031, -0.00025, -0.00017, -9e-05, -0.0, 9e-05, 0.00017, 0.00024, 0.00029, 0.00032, 0.00033, 0.00031, 0.00026, 0.0002, 0.00012, 4e-05, -5e-05, -0.00013, -0.0002, -0.00025, -0.00028, -0.00028, -0.00027, -0.00023, -0.00018, -0.00011, -4e-05, 4e-05, 0.00011, 0.00018, 0.00023, 0.00026, 0.00027, 0.00027, 0.00024, 0.0002, 0.00014, 7e-05, 0.0, -7e-05, -0.00013, -0.00018, -0.00022, -0.00024, -0.00024, -0.00022, -0.00019, -0.00015, -0.0001, -5e-05, 1e-05, 6e-05, 0.0001, 0.00014, 0.00016, 0.00017, 0.00017, 0.00015, 0.00013, 9e-05, 5e-05, 0.0, -4e-05, -8e-05, -0.00011, -0.00014, -0.00015, -0.00015, -0.00014, -0.00012, -9e-05, -5e-05, -1e-05, 3e-05, 7e-05, 0.0001, 0.00013, 0.00015, 0.00016, 0.00015, 0.00014, 0.00012, 9e-05, 6e-05, 2e-05, -1e-05, -5e-05, -8e-05, -0.00011, -0.00013, -0.00013, -0.00013, -0.00012, -0.0001, -7e-05, -4e-05, -1e-05, 2e-05, 5e-05, 8e-05, 9e-05, 0.0001, 0.0001, 0.0001, 8e-05, 6e-05, 4e-05, 1e-05, -2e-05, -4e-05, -6e-05, -8e-05, -9e-05, -0.0001, -9e-05, -9e-05, -7e-05, -5e-05, -3e-05, -0.0, 2e-05, 4e-05, 6e-05, 7e-05, 8e-05, 8e-05, 8e-05, 7e-05, 5e-05, 3e-05, 1e-05], [0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 1e-05, 1e-05, 1e-05, 1e-05, 1e-05, 0.0, 0.0, -1e-05, -2e-05, -2e-05, -2e-05, 0.0, 2e-05, 4e-05, 5e-05, 3e-05, 0.0, -2e-05, -3e-05, -4e-05, -4e-05, -2e-05, 1e-05, 5e-05, 6e-05, 1e-05, -8e-05, -0.00017, -0.00021, -0.00018, -6e-05, 8e-05, 0.00018, 0.00017, 8e-05, 2e-05, 1e-05, 2e-05, 0.0, -6e-05, -0.00011, -0.00015, -0.00018, -0.00015, -6e-05, 7e-05, 0.00016, 0.00018, 0.00012, 3e-05, -2e-05, -6e-05, -0.00013, -0.00018, -0.00017, -0.00011, 1e-05, 0.00013, 0.00022, 0.00025, 0.00017, 3e-05, -0.00012, -0.00023, -0.0002, -4e-05, 0.00014, 0.00022, 0.00023, 0.00015, 2e-05, -8e-05, -0.00012, -4e-05, 7e-05, 0.00016, 0.00017, 0.0001, -4e-05, -0.0002, -0.0003, -0.00028, -0.00013, 0.00015, 0.0004, 0.00043, 0.00022, -0.00011, -0.00038, -0.00046, -0.00031, 2e-05, 0.00034, 0.00047, 0.00037, 0.00011, -0.0002, -0.00041, -0.00041, -0.00025, -0.0, 0.00024, 0.00038, 0.00035, 0.00015, -0.0001, -0.00031, -0.00039, -0.00031, -8e-05, 0.00019, 0.00033, 0.0003, 0.00014, -4e-05, -0.0002, -0.00026, -0.0002, -4e-05, 0.00011, 0.00018, 0.00012, -0.0, -0.00012, -0.0002, -0.0002, -0.00013, -2e-05, 5e-05, 6e-05, 1e-05, -5e-05, -0.0001, -0.00012, -3e-05, 0.00014, 0.00023, 0.00017, 3e-05, -0.00011, -0.00013, -3e-05, 0.00015, 0.00028, 0.00029, 0.00015, -8e-05, -0.00025, -0.00027, -0.00016, 5e-05, 0.00024, 0.00031, 0.00022, 1e-05, -0.00018, -0.00027, -0.00024, -4e-05, 0.00022, 0.00038, 0.0004, 0.00028, 4e-05, -0.00021, -0.00039, -0.00043, -0.00031, -6e-05, 0.0002, 0.00037, 0.00035, 0.00017, -0.0001, -0.00034, -0.00046, -0.00041, -0.00024, -0.0, 0.00024, 0.00039, 0.00038, 0.00021, -6e-05, -0.00028, -0.0004, -0.00035, -0.00012, 0.00017, 0.0004, 0.00046, 0.00029, -2e-05, -0.0003, -0.00045, -0.00039, -0.00016, 0.00016, 0.00043, 0.00054, 0.00041, 0.00012, -0.00019, -0.00042, -0.00048, -0.0003, -2e-05, 0.00024, 0.00037, 0.00032, 0.00013, -0.00013, -0.00034, -0.00045, -0.00035, -8e-05, 0.00022, 0.00039, 0.00035, 0.00013, -0.00016, -0.00037, -0.00034, -0.00012, 0.00015, 0.00042, 0.00052, 0.00039, 0.0001, -0.00024, -0.00053, -0.00056, -0.00034, -0.0, 0.00028, 0.00042, 0.00038, 0.00019, -5e-05, -0.00023, -0.00029, -0.00021, -2e-05, 0.00022, 0.00036, 0.00031, 0.0001, -0.00016, -0.00036, -0.00042, -0.00028, 0.0, 0.00032, 0.00052, 0.00053, 0.00032, -2e-05, -0.00035, -0.00053, -0.00048, -0.00023, 7e-05, 0.00031, 0.00037, 0.00024, 3e-05, -0.00017, -0.00032, -0.00035, -0.00024, -3e-05, 0.00015, 0.00021, 0.00019, 0.00013, 1e-05, -0.00012, -0.00018, -0.00013, -4e-05, 4e-05, 9e-05, 0.00011, 9e-05, 3e-05, -3e-05, -9e-05, -8e-05, -2e-05, 7e-05, 0.00014, 0.00016, 0.00015, 9e-05, 2e-05, -5e-05, -0.0001, -0.00011, -9e-05, -8e-05, -9e-05, -9e-05, -8e-05, -6e-05, 1e-05, 0.00011, 0.00017, 0.00015, 6e-05, -8e-05, -0.00022, -0.00026, -0.00022, -0.0001, 0.0001, 0.0003, 0.00038, 0.00033, 0.00018, -6e-05, -0.0003, -0.00042, -0.00036, -0.00016, 0.00013, 0.00038, 0.00046, 0.00035, 0.0001, -0.00016, -0.00034, -0.00035, -0.00018, 6e-05, 0.00026, 0.00035, 0.00035, 0.00024, 0.0, -0.00023, -0.00035, -0.00035, -0.00021, 4e-05, 0.00025, 0.00031, 0.00019, -3e-05, -0.0002, -0.00028, -0.00027, -0.00015, 3e-05, 0.00018, 0.00022, 0.00013, -2e-05, -0.00013, -0.00016, -0.00011, 0.0, 0.00012, 0.00018, 0.00016, 0.0001, -1e-05, -0.00011, -0.00018, -0.00016, -9e-05, -1e-05, 8e-05, 0.00015, 0.00013, 3e-05, -0.0001, -0.0002, -0.00021, -0.00014, 1e-05, 0.00015, 0.00025, 0.00028, 0.0002, 7e-05, -0.0001, -0.00023, -0.00024, -0.00015, -2e-05, 0.0001, 0.00015, 0.00011, 1e-05, -8e-05, -0.0001, -7e-05, -1e-05, 9e-05, 0.00016, 0.00015, 8e-05, -2e-05, -8e-05, -0.00012, -0.0001, -3e-05, 4e-05, 6e-05, 7e-05, 4e-05, -1e-05, -4e-05, -7e-05, -7e-05, -5e-05, -2e-05, 1e-05, 4e-05, 5e-05, 5e-05, 4e-05, 1e-05, -2e-05, -5e-05, -4e-05, -1e-05, 2e-05, 4e-05, 5e-05, 3e-05, 1e-05, -2e-05, -5e-05, -5e-05, -3e-05, -1e-05, 3e-05, 5e-05, 6e-05, 3e-05, -2e-05, -5e-05, -6e-05, -3e-05, 1e-05, 6e-05, 7e-05, 5e-05, 1e-05, -4e-05, -7e-05, -6e-05, -2e-05, 2e-05, 5e-05, 5e-05, 3e-05, 1e-05, -3e-05, -6e-05, -7e-05, -6e-05, -2e-05, 2e-05, 5e-05, 6e-05, 5e-05, 3e-05, 0.0, -2e-05, -3e-05, -3e-05, -2e-05, -1e-05, 1e-05, 3e-05, 3e-05, 2e-05, -1e-05, -4e-05, -5e-05, -4e-05, -0.0, 4e-05, 5e-05, 4e-05, 2e-05, -1e-05, -2e-05, -2e-05, -1e-05, -0.0, 0.0, 1e-05, 1e-05, 0.0, 1e-05, 1e-05, 0.0, -0.0, -1e-05, -1e-05, -1e-05, 0.0, 1e-05, -0.0, -1e-05, -1e-05, -1e-05, -0.0, 0.0, 1e-05, 1e-05, 1e-05, 1e-05, 0.0, -0.0, -0.0, -1e-05, -1e-05, -1e-05, -1e-05, -0.0, 0.0, 1e-05, 1e-05, 1e-05, 0.0, 0.0, 0.0, 0.0, 1e-05, 1e-05, 1e-05, 1e-05, 0.0, -1e-05, -1e-05, -1e-05, -1e-05, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -1e-05, -1e-05, -1e-05, 0.0, 1e-05, 1e-05, 1e-05, 0.0, -1e-05, -1e-05, -1e-05, -0.0, 1e-05, 1e-05, 1e-05, 1e-05, -0.0, -0.0, -1e-05, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -1e-05, -1e-05, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0], [-0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 1e-05, 1e-05, 1e-05, -0.0, -1e-05, -2e-05, -1e-05, -0.0, 1e-05, 1e-05, -0.0, -1e-05, 0.0, 1e-05, 2e-05, 0.0, -2e-05, -2e-05, 2e-05, 8e-05, 9e-05, 5e-05, -2e-05, -7e-05, -6e-05, -1e-05, 7e-05, 8e-05, -1e-05, -0.00013, -0.00015, -3e-05, 0.00014, 0.00019, 0.00011, -2e-05, -0.0001, -9e-05, -2e-05, 5e-05, 8e-05, 4e-05, -5e-05, -0.00012, -8e-05, 5e-05, 0.00017, 0.00015, 2e-05, -0.00012, -0.00016, -9e-05, 3e-05, 0.0001, 9e-05, 0.0, -6e-05, -9e-05, -8e-05, -1e-05, 8e-05, 8e-05, -0.0, -8e-05, -0.0001, -6e-05, -2e-05, 2e-05, 3e-05, 1e-05, -0.0, 1e-05, 4e-05, 6e-05, 5e-05, -3e-05, -0.00013, -0.00015, -3e-05, 0.00015, 0.00022, 0.0001, -0.0001, -0.00022, -0.00019, -2e-05, 0.00017, 0.00022, 8e-05, -9e-05, -0.00017, -0.00012, 4e-05, 0.00015, 0.00013, -2e-05, -0.00013, -0.00011, -0.0, 0.00011, 0.00014, 5e-05, -8e-05, -0.00015, -6e-05, 9e-05, 0.00015, 7e-05, -6e-05, -0.00013, -9e-05, 1e-05, 0.0001, 0.00012, 7e-05, -2e-05, -8e-05, -6e-05, 2e-05, 9e-05, 8e-05, 4e-05, -0.0, -2e-05, -1e-05, 2e-05, 3e-05, -2e-05, -0.0001, -9e-05, 3e-05, 0.00013, 0.00011, -5e-05, -0.0002, -0.00022, -8e-05, 0.00011, 0.0002, 0.00015, -3e-05, -0.00019, -0.0002, -6e-05, 0.0001, 0.00017, 0.0001, -2e-05, -0.00012, -0.00012, -3e-05, 4e-05, 2e-05, -2e-05, -6e-05, -7e-05, -2e-05, 5e-05, 0.0001, 9e-05, 2e-05, -6e-05, -9e-05, -4e-05, 4e-05, 0.0001, 9e-05, 3e-05, -2e-05, -2e-05, 3e-05, 7e-05, 4e-05, -4e-05, -9e-05, -6e-05, 3e-05, 9e-05, 9e-05, 2e-05, -8e-05, -0.00013, -8e-05, 1e-05, 0.00011, 0.00013, 4e-05, -7e-05, -0.00011, -6e-05, 0.0, 3e-05, 0.0, -2e-05, -4e-05, -2e-05, 2e-05, 6e-05, 3e-05, -2e-05, -3e-05, -1e-05, 2e-05, 5e-05, 5e-05, 2e-05, 2e-05, -0.0, -4e-05, -5e-05, -1e-05, 6e-05, 0.0001, 8e-05, -1e-05, -0.00013, -0.00016, -7e-05, 2e-05, 6e-05, 5e-05, 0.0, -2e-05, 2e-05, 4e-05, 1e-05, -1e-05, 0.0, 1e-05, 1e-05, -1e-05, -4e-05, -4e-05, -3e-05, 1e-05, 1e-05, -4e-05, -5e-05, -0.0, 6e-05, 9e-05, 6e-05, -0.0, -6e-05, -9e-05, -8e-05, -3e-05, 1e-05, 3e-05, 3e-05, 3e-05, 1e-05, -1e-05, -1e-05, 1e-05, 4e-05, 5e-05, 4e-05, -1e-05, -6e-05, -3e-05, 4e-05, 8e-05, 4e-05, -0.0, -1e-05, -2e-05, -4e-05, -2e-05, 3e-05, 4e-05, -0.0, -4e-05, -1e-05, 2e-05, 3e-05, 0.0, -2e-05, -3e-05, -0.0, 1e-05, -1e-05, -3e-05, -3e-05, -2e-05, -2e-05, -2e-05, -1e-05, -0.0, 1e-05, 2e-05, 3e-05, 4e-05, 6e-05, 5e-05, 2e-05, -1e-05, -5e-05, -7e-05, -4e-05, 2e-05, 6e-05, 8e-05, 5e-05, -1e-05, -3e-05, -2e-05, -2e-05, -5e-05, -5e-05, -3e-05, -2e-05, 2e-05, 8e-05, 7e-05, 2e-05, -4e-05, -9e-05, -8e-05, -2e-05, 5e-05, 6e-05, 2e-05, -4e-05, -7e-05, -5e-05, 0.0, 5e-05, 4e-05, -5e-05, -0.00012, -6e-05, 5e-05, 0.00011, 0.00011, 1e-05, -9e-05, -0.00012, -1e-05, 0.00012, 0.00016, 5e-05, -9e-05, -0.00012, -4e-05, 6e-05, 0.00011, 8e-05, 1e-05, -5e-05, -8e-05, -5e-05, 1e-05, 4e-05, 3e-05, -1e-05, -4e-05, -5e-05, -1e-05, 4e-05, 6e-05, 4e-05, -1e-05, -3e-05, -3e-05, -2e-05, 2e-05, 6e-05, 6e-05, 2e-05, -2e-05, -4e-05, -4e-05, -1e-05, 0.0, -1e-05, -3e-05, -4e-05, -0.0, 4e-05, 4e-05, 1e-05, -2e-05, -1e-05, 1e-05, 5e-05, 5e-05, 1e-05, -6e-05, -7e-05, -3e-05, 1e-05, 3e-05, 3e-05, 1e-05, -3e-05, -4e-05, -2e-05, 2e-05, 3e-05, 2e-05, 1e-05, -1e-05, -2e-05, -1e-05, 1e-05, 2e-05, 3e-05, 1e-05, -0.0, -1e-05, -1e-05, -0.0, 0.0, -0.0, -1e-05, 0.0, 1e-05, 0.0, -1e-05, -1e-05, -1e-05, 0.0, 1e-05, 1e-05, -0.0, -0.0, -0.0, 0.0, 1e-05, 0.0, -1e-05, -1e-05, 0.0, 2e-05, 2e-05, 0.0, -2e-05, -3e-05, -2e-05, 1e-05, 3e-05, 3e-05, 1e-05, -2e-05, -3e-05, -2e-05, 1e-05, 3e-05, 2e-05, -0.0, -2e-05, -2e-05, 1e-05, 4e-05, 4e-05, 1e-05, -2e-05, -3e-05, -2e-05, 1e-05, 2e-05, 1e-05, -1e-05, -2e-05, -1e-05, 2e-05, 2e-05, 1e-05, -1e-05, -3e-05, -1e-05, 2e-05, 3e-05, 2e-05, -1e-05, -4e-05, -3e-05, 0.0, 3e-05, 3e-05, 0.0, -3e-05, -4e-05, -1e-05, 3e-05, 4e-05, 2e-05, -1e-05, -4e-05, -3e-05, -0.0, 3e-05, 3e-05, 1e-05, -2e-05, -3e-05, -2e-05, 1e-05, 4e-05, 3e-05, -0.0, -3e-05, -3e-05, -1e-05, 2e-05, 3e-05, 1e-05, -2e-05, -3e-05, -2e-05, 1e-05, 2e-05, 2e-05, 0.0, -2e-05, -2e-05, -1e-05, 1e-05, 2e-05, 1e-05, -1e-05, -2e-05, -1e-05, 0.0, 1e-05, 1e-05, 0.0, -1e-05, -1e-05, -0.0, 1e-05, 1e-05, 1e-05, -0.0, -1e-05, -0.0, 0.0, 1e-05, 0.0, -0.0, -0.0, -0.0, 0.0, 1e-05, 0.0, -0.0, -1e-05, -0.0, 0.0, 1e-05, 0.0, -0.0, -1e-05, -1e-05, 0.0, 1e-05, 1e-05, -0.0, -1e-05, -1e-05, -0.0, 1e-05, 1e-05, 0.0, -0.0, -1e-05, -1e-05, -0.0, 1e-05, 1e-05, 0.0, -1e-05, -1e-05, -0.0, 1e-05, 1e-05, 0.0, -0.0, -1e-05, -0.0, 0.0, 1e-05, 1e-05, -0.0, -1e-05, -1e-05, 0.0, 1e-05, 1e-05, 0.0, -0.0, -1e-05, -0.0, 0.0, 1e-05, 1e-05, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0]], [[0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1e-05, 1e-05, 1e-05, 1e-05, 2e-05, 3e-05, 4e-05, 7e-05, 9e-05, 0.00013, 0.00017, 0.0002, 0.00023, 0.00025, 0.0002, 0.00011, 1e-05, -0.0001, -0.00016, -0.00018, -0.00014, -5e-05, 2e-05, 0.00011, 0.00022, 0.00027, 0.00026, 0.00019, 8e-05, 1e-05, 2e-05, 2e-05, -0.0002, -0.0007, -0.00133, -0.00202, -0.00266, -0.00308, -0.00317, -0.00305, -0.00289, -0.00251, -0.00166, -0.00037, 0.00109, 0.00229, 0.00305, 0.00345, 0.00334, 0.00267, 0.00167, 0.00058, -0.0004, -0.00131, -0.0021, -0.00272, -0.00301, -0.00282, -0.00242, -0.00216, -0.00202, -0.00188, -0.00171, -0.00131, -0.00074, 5e-05, 0.00106, 0.00202, 0.0028, 0.00335, 0.00352, 0.00362, 0.00378, 0.0037, 0.00324, 0.00266, 0.00204, 0.00132, 0.00066, 0.00014, -1e-05, -1e-05, 7e-05, 0.0001, 8e-05, -0.00014, -0.00061, -0.00125, -0.00191, -0.00227, -0.00199, -0.00129, -0.00063, -0.0003, -0.00024, -0.00017, -2e-05, 0.00027, 0.00088, 0.00156, 0.00194, 0.00205, 0.00198, 0.00163, 0.00114, 0.00069, 0.00016, -0.00045, -0.00097, -0.00127, -0.00148, -0.00174, -0.00182, -0.00192, -0.00196, -0.00193, -0.00164, -0.00109, -0.00071, -0.0004, -4e-05, 0.0004, 0.00084, 0.00116, 0.00145, 0.00171, 0.00179, 0.00156, 0.00094, 0.00018, -0.00062, -0.00146, -0.00224, -0.00294, -0.00345, -0.00398, -0.00443, -0.0047, -0.00473, -0.00451, -0.00402, -0.00292, -0.00123, 0.00046, 0.00183, 0.0029, 0.00377, 0.00472, 0.00571, 0.00665, 0.00726, 0.00739, 0.00683, 0.00556, 0.004, 0.00236, 0.00074, -0.0007, -0.00192, -0.00303, -0.00399, -0.00484, -0.00528, -0.00524, -0.00479, -0.00364, -0.0019, 1e-05, 0.00204, 0.00408, 0.00574, 0.00688, 0.00725, 0.00686, 0.00584, 0.00443, 0.00274, 0.00096, -0.00094, -0.00282, -0.00461, -0.00621, -0.00758, -0.00857, -0.00922, -0.00932, -0.00868, -0.00726, -0.00523, -0.00292, -0.00053, 0.00182, 0.00378, 0.00538, 0.0067, 0.00771, 0.00824, 0.0083, 0.0076, 0.00614, 0.00433, 0.00215, -0.00011, -0.00224, -0.00394, -0.00503, -0.00554, -0.00561, -0.00521, -0.00441, -0.00342, -0.00232, -0.00097, 0.00039, 0.00156, 0.00253, 0.00326, 0.00364, 0.00358, 0.00315, 0.00216, 0.00108, 9e-05, -0.00078, -0.00163, -0.00259, -0.00349, -0.00436, -0.00486, -0.0046, -0.00377, -0.00254, -0.00074, 0.00129, 0.00316, 0.00472, 0.00573, 0.0059, 0.00568, 0.00515, 0.00413, 0.00268, 0.00105, -0.00059, -0.00207, -0.00323, -0.004, -0.00437, -0.00437, -0.00386, -0.00278, -0.00148, -0.00026, 0.0008, 0.00158, 0.00212, 0.00234, 0.00242, 0.00257, 0.00285, 0.00315, 0.00348, 0.00362, 0.00345, 0.00287, 0.00199, 0.00095, -0.00018, -0.00142, -0.00264, -0.0038, -0.00483, -0.0054, -0.00551, -0.0054, -0.0051, -0.00447, -0.00354, -0.00253, -0.00164, -0.00057, 0.00075, 0.00195, 0.00288, 0.00361, 0.00427, 0.00456, 0.00432, 0.00374, 0.00299, 0.00208, 0.00106, -2e-05, -0.00113, -0.00198, -0.00252, -0.00274, -0.0027, -0.00234, -0.00158, -0.00063, 0.00043, 0.0015, 0.00238, 0.00303, 0.0033, 0.00306, 0.0023, 0.00116, -0.00017, -0.00158, -0.00271, -0.00337, -0.00369, -0.00373, -0.00357, -0.00335, -0.00312, -0.00273, -0.00233, -0.00187, -0.00101, 0.00023, 0.00158, 0.00298, 0.00436, 0.00527, 0.00547, 0.00519, 0.00446, 0.00337, 0.00227, 0.00123, 0.00022, -0.00073, -0.00158, -0.00223, -0.00268, -0.00284, -0.00267, -0.00225, -0.00168, -0.00092, 0.00026, 0.00163, 0.00268, 0.00344, 0.00388, 0.00382, 0.00346, 0.00298, 0.00232, 0.00126, -6e-05, -0.00153, -0.00273, -0.00372, -0.00459, -0.00519, -0.00536, -0.00515, -0.00473, -0.00417, -0.00339, -0.00225, -0.0009, 0.00058, 0.00207, 0.00345, 0.00453, 0.00531, 0.00577, 0.00579, 0.00533, 0.00441, 0.00317, 0.00168, -4e-05, -0.00164, -0.00297, -0.00416, -0.00522, -0.00597, -0.00636, -0.00637, -0.00594, -0.00498, -0.0036, -0.00183, 0.00026, 0.00241, 0.00447, 0.00607, 0.00711, 0.00767, 0.00764, 0.00695, 0.0057, 0.00398, 0.00184, -0.00047, -0.00262, -0.00438, -0.00572, -0.00657, -0.00672, -0.00628, -0.00543, -0.00422, -0.00266, -0.00089, 0.00086, 0.0025, 0.00399, 0.00506, 0.00563, 0.0058, 0.00556, 0.00488, 0.00389, 0.0026, 0.00108, -0.00052, -0.0021, -0.00351, -0.00463, -0.00538, -0.00567, -0.00547, -0.00485, -0.00397, -0.00284, -0.00146, -0.0, 0.00142, 0.00271, 0.00377, 0.00451, 0.00494, 0.00496, 0.0046, 0.00392, 0.00294, 0.00175, 0.00051, -0.00069, -0.0018, -0.00281, -0.00362, -0.00415, -0.00435, -0.00419, -0.00369, -0.00288, -0.0019, -0.00084, 0.00022, 0.00123, 0.00213, 0.00288, 0.00341, 0.00367, 0.00365, 0.00336, 0.00282, 0.00211, 0.00126, 0.00027, -0.00078, -0.00177, -0.00261, -0.00325, -0.00365, -0.00374, -0.00353, -0.00303, -0.00226, -0.00132, -0.0003, 0.00068, 0.00157, 0.0023, 0.00286, 0.00323, 0.00336, 0.00321, 0.00279, 0.00214, 0.00134, 0.00048, -0.00033, -0.00107, -0.00175, -0.0023, -0.00265, -0.00277, -0.00264, -0.00231, -0.0018, -0.00122, -0.0006, 6e-05, 0.00069, 0.00126, 0.00176, 0.00213, 0.00233, 0.00233, 0.00217, 0.00185, 0.00142, 0.00091, 0.00032, -0.00033, -0.00094, -0.00148, -0.00189, -0.00215, -0.00225, -0.00219, -0.00196, -0.00159, -0.0011, -0.00053, 8e-05, 0.00067, 0.00119, 0.00158, 0.00184, 0.00196, 0.00192, 0.00175, 0.00146, 0.00107, 0.00061, 0.00014, -0.00032, -0.00074, -0.00108, -0.00131, -0.00142, -0.00143, -0.00133, -0.00114, -0.00088, -0.00057, -0.00023, 0.0001, 0.00041, 0.00067, 0.00085, 0.00097, 0.00101, 0.00097, 0.00086, 0.00068, 0.00045, 0.00017, -0.00011, -0.00037, -0.00058, -0.00075, -0.00085, -0.00091, -0.0009, -0.00081, -0.00067, -0.00046, -0.00022, 3e-05, 0.00027, 0.00049, 0.00068, 0.00082, 0.0009, 0.00091, 0.00086, 0.00074, 0.00057, 0.00036, 0.00013, -9e-05, -0.0003, -0.00048, -0.00063, -0.00072, -0.00074, -0.00072, -0.00066, -0.00055, -0.00042, -0.00025, -7e-05, 0.00012, 0.00028, 0.00043, 0.00054, 0.0006, 0.00062, 0.0006, 0.00053, 0.00043, 0.00029, 0.00014, -2e-05, -0.00017, -0.0003, -0.0004, -0.00047, -0.0005, -0.00051, -0.00048, -0.00042, -0.00034, -0.00023, -0.00012, -0.0, 0.00012, 0.00023, 0.00033, 0.0004, 0.00044, 0.00044, 0.00041, 0.00035, 0.00027, 0.00016, 5e-05, -7e-05, -0.00017, -0.00027, -0.00034, -0.00038, -0.00038, -0.00036, -0.00031, -0.00024, -0.00015, -5e-05, 5e-05, 0.00015, 0.00024, 0.00031, 0.00035, 0.00037, 0.00036, 0.00032, 0.00026, 0.00019, 0.0001, 0.0, -9e-05, -0.00017, -0.00024, -0.00029, -0.00032, -0.00032, -0.0003, -0.00026, -0.0002, -0.00014, -7e-05, 1e-05, 8e-05, 0.00014, 0.00019, 0.00022, 0.00023, 0.00022, 0.0002, 0.00017, 0.00012, 6e-05, 0.0, -5e-05, -0.00011, -0.00015, -0.00019, -0.00021, -0.00021, -0.00019, -0.00016, -0.00012, -7e-05, -1e-05, 4e-05, 9e-05, 0.00014, 0.00017, 0.0002, 0.00021, 0.00021, 0.00019, 0.00016, 0.00013, 8e-05, 3e-05, -2e-05, -7e-05, -0.00011, -0.00015, -0.00017, -0.00018, -0.00017, -0.00016, -0.00013, -0.0001, -6e-05, -2e-05, 3e-05, 7e-05, 0.0001, 0.00012, 0.00014, 0.00014, 0.00013, 0.00011, 8e-05, 5e-05, 1e-05, -2e-05, -6e-05, -9e-05, -0.00011, -0.00012, -0.00013, -0.00013, -0.00011, -0.0001, -7e-05, -4e-05, -0.0, 3e-05, 6e-05, 8e-05, 0.0001, 0.00011, 0.00011, 0.0001, 9e-05, 7e-05, 4e-05, 2e-05], [-0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, -0.0, -0.0, -1e-05, -1e-05, -1e-05, -1e-05, -1e-05, -1e-05, -1e-05, -0.0, 1e-05, 3e-05, 4e-05, 3e-05, -0.0, -4e-05, -7e-05, -7e-05, -4e-05, -1e-05, 3e-05, 5e-05, 7e-05, 6e-05, 4e-05, -1e-05, -8e-05, -0.0001, -2e-05, 0.00014, 0.00028, 0.00034, 0.00028, 0.0001, -0.00013, -0.00029, -0.00026, -0.00014, -3e-05, -1e-05, -3e-05, -0.0, 9e-05, 0.00017, 0.00024, 0.00028, 0.00025, 0.0001, -0.00011, -0.00026, -0.00029, -0.0002, -5e-05, 4e-05, 0.0001, 0.0002, 0.00028, 0.00027, 0.00017, -2e-05, -0.00021, -0.00035, -0.00039, -0.00028, -5e-05, 0.00019, 0.00036, 0.00032, 6e-05, -0.00022, -0.00036, -0.00036, -0.00024, -4e-05, 0.00013, 0.00019, 7e-05, -0.00011, -0.00025, -0.00027, -0.00016, 7e-05, 0.00032, 0.00047, 0.00045, 0.0002, -0.00024, -0.00063, -0.00069, -0.00036, 0.00018, 0.00061, 0.00073, 0.00049, -3e-05, -0.00054, -0.00075, -0.00059, -0.00018, 0.00031, 0.00065, 0.00066, 0.0004, 0.0, -0.00038, -0.00061, -0.00056, -0.00023, 0.00016, 0.0005, 0.00063, 0.0005, 0.00013, -0.00031, -0.00052, -0.00047, -0.00023, 7e-05, 0.00031, 0.00042, 0.00032, 7e-05, -0.00018, -0.00029, -0.0002, 0.0, 0.0002, 0.00032, 0.00032, 0.00021, 3e-05, -8e-05, -9e-05, -2e-05, 8e-05, 0.00017, 0.00019, 4e-05, -0.00022, -0.00036, -0.00027, -4e-05, 0.00018, 0.00021, 5e-05, -0.00023, -0.00044, -0.00046, -0.00025, 0.00012, 0.00039, 0.00043, 0.00025, -8e-05, -0.00039, -0.00049, -0.00035, -2e-05, 0.00029, 0.00044, 0.00038, 7e-05, -0.00035, -0.00061, -0.00064, -0.00044, -7e-05, 0.00033, 0.00062, 0.00069, 0.00049, 0.0001, -0.00031, -0.00058, -0.00056, -0.00027, 0.00015, 0.00054, 0.00074, 0.00066, 0.00039, 0.0, -0.00038, -0.00061, -0.00061, -0.00033, 9e-05, 0.00045, 0.00064, 0.00056, 0.0002, -0.00028, -0.00063, -0.00073, -0.00047, 3e-05, 0.00048, 0.00071, 0.00062, 0.00026, -0.00025, -0.00069, -0.00086, -0.00065, -0.0002, 0.0003, 0.00067, 0.00076, 0.00048, 3e-05, -0.00038, -0.00058, -0.00052, -0.00021, 0.00021, 0.00054, 0.00071, 0.00055, 0.00013, -0.00034, -0.00062, -0.00056, -0.00021, 0.00026, 0.00059, 0.00054, 0.0002, -0.00024, -0.00066, -0.00083, -0.00063, -0.00016, 0.00039, 0.00084, 0.00089, 0.00054, 1e-05, -0.00045, -0.00068, -0.00061, -0.0003, 8e-05, 0.00037, 0.00046, 0.00033, 3e-05, -0.00036, -0.00057, -0.00049, -0.00016, 0.00026, 0.00057, 0.00066, 0.00045, -0.0, -0.00051, -0.00083, -0.00084, -0.00051, 3e-05, 0.00056, 0.00085, 0.00077, 0.00037, -0.00011, -0.00049, -0.00059, -0.00039, -5e-05, 0.00027, 0.0005, 0.00056, 0.00038, 5e-05, -0.00024, -0.00033, -0.0003, -0.00021, -2e-05, 0.00019, 0.00029, 0.00021, 6e-05, -6e-05, -0.00014, -0.00018, -0.00014, -5e-05, 5e-05, 0.00015, 0.00013, 2e-05, -0.00012, -0.00022, -0.00025, -0.00023, -0.00015, -2e-05, 8e-05, 0.00016, 0.00017, 0.00015, 0.00013, 0.00014, 0.00015, 0.00013, 9e-05, -2e-05, -0.00017, -0.00027, -0.00024, -9e-05, 0.00013, 0.00035, 0.00042, 0.00035, 0.00016, -0.00016, -0.00047, -0.00061, -0.00053, -0.00029, 9e-05, 0.00049, 0.00067, 0.00058, 0.00026, -0.00021, -0.0006, -0.00074, -0.00056, -0.00016, 0.00026, 0.00054, 0.00055, 0.00029, -9e-05, -0.00041, -0.00056, -0.00055, -0.00038, -1e-05, 0.00036, 0.00056, 0.00056, 0.00033, -6e-05, -0.0004, -0.00049, -0.00031, 4e-05, 0.00032, 0.00045, 0.00043, 0.00024, -4e-05, -0.00029, -0.00035, -0.00021, 3e-05, 0.0002, 0.00026, 0.00018, -0.0, -0.00019, -0.00028, -0.00026, -0.00015, 1e-05, 0.00018, 0.00028, 0.00026, 0.00015, 1e-05, -0.00013, -0.00024, -0.00021, -4e-05, 0.00017, 0.00031, 0.00034, 0.00023, -1e-05, -0.00024, -0.0004, -0.00044, -0.00033, -0.00011, 0.00016, 0.00036, 0.00038, 0.00024, 4e-05, -0.00015, -0.00024, -0.00017, -1e-05, 0.00013, 0.00017, 0.00012, 1e-05, -0.00015, -0.00026, -0.00024, -0.00012, 3e-05, 0.00013, 0.00019, 0.00016, 4e-05, -6e-05, -0.0001, -0.00011, -7e-05, 1e-05, 7e-05, 0.00011, 0.00012, 9e-05, 4e-05, -2e-05, -6e-05, -8e-05, -7e-05, -6e-05, -2e-05, 4e-05, 8e-05, 7e-05, 2e-05, -3e-05, -7e-05, -7e-05, -5e-05, -1e-05, 4e-05, 8e-05, 7e-05, 5e-05, 1e-05, -4e-05, -8e-05, -9e-05, -4e-05, 3e-05, 8e-05, 0.0001, 6e-05, -2e-05, -9e-05, -0.00012, -8e-05, -1e-05, 7e-05, 0.00011, 9e-05, 4e-05, -3e-05, -8e-05, -9e-05, -6e-05, -1e-05, 4e-05, 9e-05, 0.00011, 9e-05, 4e-05, -3e-05, -7e-05, -9e-05, -8e-05, -4e-05, -0.0, 2e-05, 4e-05, 4e-05, 3e-05, 2e-05, -1e-05, -4e-05, -5e-05, -3e-05, 1e-05, 6e-05, 8e-05, 6e-05, 0.0, -6e-05, -8e-05, -7e-05, -2e-05, 1e-05, 4e-05, 3e-05, 2e-05, 0.0, -0.0, -1e-05, -1e-05, -1e-05, -1e-05, -1e-05, -1e-05, 1e-05, 2e-05, 2e-05, 1e-05, -1e-05, -1e-05, 0.0, 2e-05, 2e-05, 2e-05, 1e-05, -0.0, -1e-05, -2e-05, -2e-05, -1e-05, -1e-05, 0.0, 0.0, 1e-05, 1e-05, 2e-05, 1e-05, 0.0, -1e-05, -1e-05, -1e-05, -1e-05, -1e-05, -0.0, -0.0, -0.0, -1e-05, -1e-05, -1e-05, -1e-05, -0.0, 1e-05, 2e-05, 2e-05, 1e-05, 1e-05, -0.0, -0.0, -0.0, 0.0, 0.0, 1e-05, 1e-05, 1e-05, 1e-05, 1e-05, -0.0, -1e-05, -2e-05, -1e-05, -0.0, 1e-05, 1e-05, 1e-05, 0.0, -1e-05, -2e-05, -2e-05, -1e-05, 0.0, 1e-05, 1e-05, 1e-05, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 1e-05, 1e-05, 0.0, -0.0, -1e-05, -1e-05, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 1e-05, 1e-05, 1e-05, 1e-05, 0.0, -0.0, -1e-05, -1e-05, -1e-05, -0.0, 0.0, 0.0, 1e-05, 1e-05, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -1e-05, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0], [0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 1e-05, 0.0, 0.0, -0.0, -0.0, 0.0, 0.0, -0.0, -0.0, -1e-05, -0.0, 1e-05, 1e-05, -1e-05, -3e-05, -4e-05, -2e-05, 1e-05, 3e-05, 3e-05, 0.0, -3e-05, -3e-05, 1e-05, 5e-05, 6e-05, 1e-05, -6e-05, -8e-05, -4e-05, 1e-05, 4e-05, 4e-05, 1e-05, -2e-05, -3e-05, -2e-05, 2e-05, 5e-05, 3e-05, -2e-05, -7e-05, -6e-05, -1e-05, 5e-05, 7e-05, 4e-05, -1e-05, -4e-05, -4e-05, -0.0, 3e-05, 4e-05, 3e-05, 0.0, -3e-05, -3e-05, 0.0, 3e-05, 4e-05, 2e-05, 1e-05, -1e-05, -1e-05, -1e-05, 0.0, -0.0, -2e-05, -3e-05, -2e-05, 1e-05, 5e-05, 6e-05, 1e-05, -6e-05, -9e-05, -4e-05, 4e-05, 9e-05, 8e-05, 1e-05, -7e-05, -9e-05, -4e-05, 4e-05, 7e-05, 5e-05, -1e-05, -6e-05, -5e-05, 1e-05, 6e-05, 5e-05, 0.0, -5e-05, -6e-05, -2e-05, 4e-05, 6e-05, 3e-05, -4e-05, -6e-05, -3e-05, 3e-05, 5e-05, 4e-05, -1e-05, -4e-05, -5e-05, -3e-05, 1e-05, 3e-05, 2e-05, -1e-05, -4e-05, -3e-05, -2e-05, 0.0, 1e-05, 0.0, -1e-05, -1e-05, 1e-05, 4e-05, 4e-05, -1e-05, -5e-05, -4e-05, 2e-05, 8e-05, 9e-05, 3e-05, -4e-05, -8e-05, -6e-05, 1e-05, 8e-05, 8e-05, 2e-05, -4e-05, -7e-05, -4e-05, 1e-05, 5e-05, 5e-05, 1e-05, -2e-05, -1e-05, 1e-05, 3e-05, 3e-05, 1e-05, -2e-05, -4e-05, -4e-05, -1e-05, 3e-05, 4e-05, 2e-05, -2e-05, -4e-05, -4e-05, -1e-05, 1e-05, 1e-05, -1e-05, -3e-05, -2e-05, 2e-05, 4e-05, 2e-05, -1e-05, -4e-05, -4e-05, -1e-05, 3e-05, 5e-05, 3e-05, -1e-05, -5e-05, -5e-05, -1e-05, 3e-05, 4e-05, 3e-05, -0.0, -1e-05, -0.0, 1e-05, 2e-05, 1e-05, -1e-05, -2e-05, -1e-05, 1e-05, 1e-05, 0.0, -1e-05, -2e-05, -2e-05, -1e-05, -1e-05, 0.0, 2e-05, 2e-05, 1e-05, -3e-05, -4e-05, -3e-05, 0.0, 5e-05, 7e-05, 3e-05, -1e-05, -2e-05, -2e-05, -0.0, 1e-05, -1e-05, -2e-05, -0.0, 0.0, -0.0, -1e-05, -0.0, 0.0, 2e-05, 2e-05, 1e-05, -0.0, -0.0, 1e-05, 2e-05, 0.0, -2e-05, -4e-05, -2e-05, 0.0, 3e-05, 4e-05, 3e-05, 1e-05, -0.0, -1e-05, -1e-05, -1e-05, -1e-05, 0.0, 1e-05, -0.0, -1e-05, -2e-05, -2e-05, 0.0, 2e-05, 1e-05, -2e-05, -3e-05, -2e-05, 0.0, 0.0, 1e-05, 2e-05, 1e-05, -1e-05, -2e-05, 0.0, 1e-05, 1e-05, -1e-05, -1e-05, -0.0, 1e-05, 1e-05, 0.0, -0.0, 0.0, 1e-05, 1e-05, 1e-05, 1e-05, 1e-05, 0.0, 0.0, -0.0, -1e-05, -1e-05, -2e-05, -2e-05, -2e-05, -1e-05, 0.0, 2e-05, 3e-05, 2e-05, -1e-05, -3e-05, -3e-05, -2e-05, 0.0, 1e-05, 1e-05, 1e-05, 2e-05, 2e-05, 1e-05, 1e-05, -1e-05, -3e-05, -3e-05, -1e-05, 2e-05, 4e-05, 3e-05, 1e-05, -2e-05, -3e-05, -1e-05, 2e-05, 3e-05, 2e-05, -0.0, -2e-05, -2e-05, 2e-05, 5e-05, 3e-05, -2e-05, -5e-05, -4e-05, -1e-05, 4e-05, 5e-05, 0.0, -5e-05, -7e-05, -2e-05, 4e-05, 5e-05, 2e-05, -3e-05, -4e-05, -3e-05, -0.0, 2e-05, 3e-05, 2e-05, -0.0, -2e-05, -1e-05, 0.0, 2e-05, 2e-05, 1e-05, -2e-05, -3e-05, -2e-05, 0.0, 1e-05, 1e-05, 1e-05, -1e-05, -3e-05, -3e-05, -1e-05, 1e-05, 2e-05, 2e-05, 1e-05, -0.0, 1e-05, 1e-05, 2e-05, 0.0, -2e-05, -2e-05, -0.0, 1e-05, 1e-05, -0.0, -2e-05, -2e-05, -0.0, 2e-05, 3e-05, 1e-05, -0.0, -1e-05, -1e-05, -0.0, 1e-05, 2e-05, 1e-05, -1e-05, -1e-05, -1e-05, -0.0, 0.0, 1e-05, 0.0, -0.0, -1e-05, -1e-05, -1e-05, 0.0, 0.0, 0.0, 0.0, -0.0, 0.0, 0.0, -0.0, -1e-05, -0.0, 0.0, 1e-05, 0.0, -0.0, -1e-05, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 1e-05, -0.0, -1e-05, -1e-05, -0.0, 1e-05, 1e-05, 1e-05, -0.0, -1e-05, -1e-05, -0.0, 1e-05, 1e-05, 1e-05, -1e-05, -1e-05, -1e-05, 0.0, 1e-05, 1e-05, -0.0, -1e-05, -1e-05, -0.0, 1e-05, 1e-05, 1e-05, -0.0, -1e-05, -0.0, 1e-05, 1e-05, 0.0, -1e-05, -1e-05, -0.0, 1e-05, 1e-05, 0.0, -1e-05, -1e-05, -1e-05, 0.0, 2e-05, 1e-05, -0.0, -1e-05, -1e-05, -0.0, 1e-05, 2e-05, 1e-05, -1e-05, -2e-05, -1e-05, 1e-05, 2e-05, 1e-05, 0.0, -1e-05, -1e-05, -0.0, 1e-05, 1e-05, 1e-05, -1e-05, -2e-05, -1e-05, 0.0, 1e-05, 1e-05, 0.0, -1e-05, -1e-05, -0.0, 1e-05, 1e-05, 1e-05, -0.0, -1e-05, -1e-05, -0.0, 1e-05, 1e-05, 0.0, -0.0, -1e-05, -0.0, 0.0, 1e-05, 1e-05, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0]]], "pk": [127.4, 29.48, 8.91], "tpk": [7.66, 9.78, 6.22], "exact": 139.18648843362772, "texact": 7.640000000000001, "Ts": [0.1, 0.15, 0.2, 0.25, 0.2538583293025505, 0.3, 0.35, 0.3673025123866709, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.9229526931791987, 1.0, 1.2, 1.5, 2.0], "Sa": [0.07934561875852562, 0.08042312019011297, 0.07919045987498902, 0.08253824361669504, 0.0791220291025365, 0.08013482609913164, 0.0800524685657019, 0.0766130699256379, 0.07062104928345384, 0.058289043936633166, 0.04866898793200828, 0.04328790935599286, 0.03865086872880635, 0.033397999908228226, 0.03440891753556929, 0.031083519369135507, 0.02632174381146855, 0.021563791269751015, 0.018404768545016468]};
+const $ = id => document.getElementById(id);
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const g = 9.81;
+const DEF = {G1:1500,G2:1500,G3:1200,k1:36000,k2:30000,k3:22000,amax:0.08,Tg:0.35};
+const MC = ['--m1','--m2','--m3'];
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let S = null, norm = 'top', gSel = 0;
+
+function jacobi(A){ // symmetric n×n
+  const n=A.length; A=A.map(r=>r.slice()); let V=A.map((r,i)=>r.map((_,j)=>i===j?1:0));
+  for(let sweep=0;sweep<100;sweep++){
+    let off=0; for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)off+=A[i][j]**2;
+    if(off<1e-20)break;
+    for(let p=0;p<n;p++)for(let q=p+1;q<n;q++){
+      if(Math.abs(A[p][q])<1e-30)continue;
+      const th=(A[q][q]-A[p][p])/(2*A[p][q]);
+      const t=Math.sign(th||1)/(Math.abs(th)+Math.sqrt(th*th+1));
+      const c=1/Math.sqrt(t*t+1), s=t*c;
+      for(let k=0;k<n;k++){const akp=A[k][p],akq=A[k][q];A[k][p]=c*akp-s*akq;A[k][q]=s*akp+c*akq;}
+      for(let k=0;k<n;k++){const apk=A[p][k],aqk=A[q][k];A[p][k]=c*apk-s*aqk;A[q][k]=s*apk+c*aqk;}
+      for(let k=0;k<n;k++){const vkp=V[k][p],vkq=V[k][q];V[k][p]=c*vkp-s*vkq;V[k][q]=s*vkp+c*vkq;}
+    }
+  }
+  return {vals:A.map((r,i)=>r[i]), vecs:V};
+}
+function alphaOf(T,amax,Tg){
+  const gm=0.9,e1=0.02,e2=1.0;
+  if(T<0.1) return (0.45+(e2-0.45)*T/0.1)*amax;
+  if(T<=Tg) return e2*amax;
+  if(T<=5*Tg) return Math.pow(Tg/T,gm)*e2*amax;
+  return (e2*Math.pow(0.2,gm)-e1*(T-5*Tg))*amax;
+}
+function rhoOf(lt,z=0.05){return 8*z*z*(1+lt)*Math.pow(lt,1.5)/((1-lt*lt)**2+4*z*z*lt*(1+lt)**2);}
+
+function compute(p){
+  const G=[p.G1,p.G2,p.G3], k=[p.k1,p.k2,p.k3], n=3, m=G.map(x=>x/g);
+  const K=[[k[0]+k[1],-k[1],0],[-k[1],k[1]+k[2],-k[2]],[0,-k[2],k[2]]];
+  const A=K.map((r,i)=>r.map((v,j)=>v/Math.sqrt(m[i]*m[j])));
+  const {vals,vecs}=jacobi(A);
+  let modes=[0,1,2].map(j=>({w2:vals[j],v:[0,1,2].map(i=>vecs[i][j]/Math.sqrt(m[i]))})).sort((a,b)=>a.w2-b.w2);
+  const w=modes.map(o=>Math.sqrt(o.w2)), T=w.map(x=>2*Math.PI/x);
+  const Xtop=modes.map(o=>o.v.map(x=>x/o.v[2]));           // [j][i]
+  const Xmass=modes.map(o=>{const s=Math.sqrt(o.v.reduce((a,x,i)=>a+x*x*m[i],0));const sg=Math.sign(o.v[2])||1;return o.v.map(x=>sg*x/s);});
+  const gamOf=X=>X.map(x=>x.reduce((a,v,i)=>a+v*G[i],0)/x.reduce((a,v,i)=>a+v*v*G[i],0));
+  const X=Xtop, gam=gamOf(X), gamM=gamOf(Xmass);
+  const sumXG=X.map(x=>x.reduce((a,v,i)=>a+v*G[i],0)), sumX2G=X.map(x=>x.reduce((a,v,i)=>a+v*v*G[i],0));
+  const Geff=sumXG.map((s,j)=>s*s/sumX2G[j]), Gt=G.reduce((a,b)=>a+b,0);
+  const al=T.map(t=>alphaOf(t,p.amax,p.Tg));
+  const F=X.map((x,j)=>x.map((v,i)=>al[j]*gam[j]*v*G[i]));
+  const V=F.map(f=>[f[0]+f[1]+f[2],f[1]+f[2],f[2]]);
+  const D=V.map(v=>v.map((x,i)=>x/k[i]*1000));
+  const R=[0,1,2].map(j=>[0,1,2].map(q=>rhoOf(T[q]/T[j])));
+  const srss=arr=>[0,1,2].map(i=>Math.sqrt(arr.reduce((a,s)=>a+s[i]*s[i],0)));
+  const cqc=arr=>[0,1,2].map(i=>{let s=0;for(let j=0;j<3;j++)for(let q=0;q<3;q++)s+=R[j][q]*arr[j][i]*arr[q][i];return Math.sqrt(s);});
+  const absS=arr=>[0,1,2].map(i=>arr.reduce((a,s)=>a+Math.abs(s[i]),0));
+  return {p,G,k,m,K,T,w,X,Xmass,gam,gamM,sumXG,sumX2G,Geff,Gt,al,F,V,D,R,
+    Vs:srss(V),Vc:cqc(V),Va:absS(V),Ds:srss(D),Dc:cqc(D),Fs:srss(F),Fc:cqc(F)};
+}
+const f=(x,d=3)=>(Math.abs(x)<5e-12?0:x).toFixed(d);
+const sub=(s,j)=>`${s}<sub>${j}</sub>`;
+const mc=j=>`c${j+1}`;
+
+/* ---------- schematic ---------- */
+function drawSchem(){
+  const s=$('schem'), {G,k}=S, ink=css('--ink'), mut=css('--muted'), acc=css('--accent');
+  const y=[270,200,130,60], x0=110,x1=210;
+  let h=`<line x1="60" y1="${y[0]}" x2="260" y2="${y[0]}" stroke="${ink}" stroke-width="2"/>`;
+  for(let i=0;i<14;i++)h+=`<line x1="${64+i*14}" y1="${y[0]}" x2="${56+i*14}" y2="${y[0]+9}" stroke="${mut}"/>`;
+  for(let i=1;i<=3;i++){
+    h+=`<line x1="${x0}" y1="${y[i-1]}" x2="${x0}" y2="${y[i]}" stroke="${ink}" stroke-width="2"/><line x1="${x1}" y1="${y[i-1]}" x2="${x1}" y2="${y[i]}" stroke="${ink}" stroke-width="2"/>`;
+    h+=`<rect x="${x0-6}" y="${y[i]-7}" width="${x1-x0+12}" height="12" fill="${acc}" opacity=".85"/>`;
+    h+=`<text x="${x1+16}" y="${y[i]+4}" font-size="13">G${'₁₂₃'[i-1]} = ${G[i-1]} kN</text>`;
+    h+=`<text x="${x0-12}" y="${(y[i-1]+y[i])/2+4}" font-size="12" text-anchor="end" class="mut">k${'₁₂₃'[i-1]} = ${k[i-1]}</text>`;
+    h+=`<text x="${(x0+x1)/2}" y="${(y[i-1]+y[i])/2+4}" font-size="11" text-anchor="middle" class="mut">4 m</text>`;
+  }
+  s.innerHTML=h;
+}
+
+/* ---------- step 1 ---------- */
+function renderModal(){
+  const {K,T,w,X,Xmass}=S, XX=norm==='top'?X:Xmass;
+  $('Kmat').innerHTML=K.flat().map(v=>`<span>${v.toFixed(0)}</span>`).join('');
+  let h=`<thead><tr><th class="l">振型 j</th><th>周期 T (s)</th><th>ω (rad/s)</th><th>X<sub>j1</sub> 首层</th><th>X<sub>j2</sub> 二层</th><th>X<sub>j3</sub> 顶层</th></tr></thead><tbody>`;
+  for(let j=0;j<3;j++)h+=`<tr><td class="t l ${mc(j)}">振型 ${j+1}</td><td>${f(T[j])}</td><td>${f(w[j],2)}</td>${XX[j].map(v=>`<td>${f(v,4)}</td>`).join('')}</tr>`;
+  $('tModal').innerHTML=h+'</tbody>';
+  renderHand();
+  renderGamma();
+}
+function renderHand(){
+  const {m,k,K,T,w,X}=S, [k1,k2,k3]=k, [m1,m2,m3]=m;
+  const K11=K[0][0],K22=K[1][1],K33=K[2][2];
+  // 特征多项式 λ³ − a λ² + b λ − c = 0（除以 −m1m2m3 后的首一形式）
+  const a=K11/m1+K22/m2+K33/m3;
+  const b=(K11*K22-k2*k2)/(m1*m2)+(K11*K33)/(m1*m3)+(K22*K33-k3*k3)/(m2*m3);
+  const c=k1*k2*k3/(m1*m2*m3);
+  const P=l=>l*l*l-a*l*l+b*l-c, dP=l=>3*l*l-2*a*l+b;
+  let l=0, it=[]; for(let n=0;n<8;n++){const fl=P(l),d=dP(l),nl=l-fl/d;it.push([n,l,fl,nl]);if(Math.abs(nl-l)<1e-9*Math.max(1,nl)){l=nl;break;}l=nl;}
+  const l1=l, B=a-l1, C=c/l1, disc=Math.sqrt(B*B-4*C), l2=(B-disc)/2, l3=(B+disc)/2, L=[l1,l2,l3];
+  const g4=x=>x.toFixed(4), g2=x=>x.toFixed(2), g1=x=>x.toFixed(1);
+  const sci=x=>{const e=Math.floor(Math.log10(Math.abs(x)));return Math.abs(e)<5?x.toFixed(2):`${(x/10**e).toFixed(4)}×10<sup>${e}</sup>`;};
+  let h=`<h4>① 质量矩阵 M（单位 t = kN·s²/m）</h4>
+  <div class="formula">m<sub>i</sub> = G<sub>i</sub>/g：&nbsp; m<sub>1</sub> = ${S.G[0]}/9.81 = ${g2(m1)}，m<sub>2</sub> = ${S.G[1]}/9.81 = ${g2(m2)}，m<sub>3</sub> = ${S.G[2]}/9.81 = ${g2(m3)}</div>
+  <h4>② 频率方程 det(<b>K</b> − λ<b>M</b>) = 0（λ = ω²）</h4>
+  <p>对三对角矩阵按第一行展开：</p>
+  <div class="formula">det(<b>K</b> − λ<b>M</b>) = (K<sub>11</sub>−λm<sub>1</sub>)[(K<sub>22</sub>−λm<sub>2</sub>)(K<sub>33</sub>−λm<sub>3</sub>) − k<sub>3</sub>²] − k<sub>2</sub>²(K<sub>33</sub>−λm<sub>3</sub>) = 0</div>
+  <p>展开后除以 −m<sub>1</sub>m<sub>2</sub>m<sub>3</sub>，得到首一三次方程：</p>
+  <div class="formula">λ³ − ${g2(a)} λ² + ${sci(b)} λ − ${sci(c)} = 0</div>
+  <p class="why">系数含义：λ² 项系数 = K<sub>11</sub>/m<sub>1</sub> + K<sub>22</sub>/m<sub>2</sub> + K<sub>33</sub>/m<sub>3</sub> = 三个根之和；常数项 = k<sub>1</sub>k<sub>2</sub>k<sub>3</sub>/(m<sub>1</sub>m<sub>2</sub>m<sub>3</sub>) = 三个根之积。可用来校核。</p>
+  <h4>③ 解方程求 λ（ω²）</h4>
+  <p>先用牛顿法求最小根 λ<sub>1</sub>：从 λ = 0 出发，λ<sub>新</sub> = λ − f(λ)/f′(λ)，f′(λ) = 3λ² − ${g2(2*a)}λ + ${sci(b)}。</p>
+  <div class="tbl"><table><thead><tr><th>迭代</th><th>λ</th><th>f(λ)</th><th>λ<sub>新</sub></th></tr></thead><tbody>${it.map(r=>`<tr><td>${r[0]+1}</td><td>${g4(r[1])}</td><td>${sci(r[2])}</td><td>${g4(r[3])}</td></tr>`).join('')}</tbody></table></div>
+  <p>得 λ<sub>1</sub> = ${g4(l1)}。再把三次式除以 (λ − λ<sub>1</sub>) 降为二次式，用求根公式求另外两个根：</p>
+  <div class="formula">λ² − (${g2(a)} − ${g2(l1)}) λ + ${sci(c)}/${g2(l1)} = λ² − ${g2(B)} λ + ${g1(C)} = 0 &nbsp;⇒&nbsp; λ<sub>2,3</sub> = [${g2(B)} ∓ √(${g2(B)}² − 4×${g1(C)})]/2</div>
+  <div class="tbl"><table><thead><tr><th class="l">振型</th><th>λ = ω² (1/s²)</th><th>ω = √λ (rad/s)</th><th>f = ω/2π (Hz)</th><th>T = 2π/ω (s)</th></tr></thead><tbody>${L.map((x,j)=>`<tr><td class="t l ${mc(j)}">振型 ${j+1}</td><td>${g4(x)}</td><td>${g4(Math.sqrt(x))}</td><td>${g4(Math.sqrt(x)/2/Math.PI)}</td><td>${g4(2*Math.PI/Math.sqrt(x))}</td></tr>`).join('')}</tbody></table></div>
+  <p class="why">校核：λ<sub>1</sub>+λ<sub>2</sub>+λ<sub>3</sub> = ${g2(l1+l2+l3)}（应为 ${g2(a)}）；λ<sub>1</sub>λ<sub>2</sub>λ<sub>3</sub> = ${sci(l1*l2*l3)}（应为 ${sci(c)}）。</p>
+  <h4>④ 把每个 λ 代回 (K − λM)X = 0 求振型</h4>
+  <p>行列式为零意味着三个方程只有两个独立，振型只能求出比例。令顶层 X<sub>3</sub> = 1，从上往下逐行求：</p>
+  <div class="formula">第 3 行：−k<sub>3</sub>X<sub>2</sub> + (k<sub>3</sub> − λm<sub>3</sub>)X<sub>3</sub> = 0 &nbsp;⇒&nbsp; X<sub>2</sub> = 1 − λm<sub>3</sub>/k<sub>3</sub></div>
+  <div class="formula">第 2 行：−k<sub>2</sub>X<sub>1</sub> + (K<sub>22</sub> − λm<sub>2</sub>)X<sub>2</sub> − k<sub>3</sub>X<sub>3</sub> = 0 &nbsp;⇒&nbsp; X<sub>1</sub> = [(K<sub>22</sub> − λm<sub>2</sub>)X<sub>2</sub> − k<sub>3</sub>] / k<sub>2</sub></div>
+  <div class="formula">第 1 行用于校核：(K<sub>11</sub> − λm<sub>1</sub>)X<sub>1</sub> − k<sub>2</sub>X<sub>2</sub> 应 ≈ 0</div>
+  <div class="tbl"><table><thead><tr><th class="l">振型</th><th class="l">X<sub>2</sub> = 1 − λm<sub>3</sub>/k<sub>3</sub></th><th class="l">X<sub>1</sub> = [(K<sub>22</sub>−λm<sub>2</sub>)X<sub>2</sub> − k<sub>3</sub>]/k<sub>2</sub></th><th>第 1 行残差 (kN)</th></tr></thead><tbody>${L.map((x,j)=>{const X2=1-x*m3/k3, X1=((K22-x*m2)*X2-k3)/k2, res=(K11-x*m1)*X1-k2*X2;
+    return `<tr><td class="t l ${mc(j)}">振型 ${j+1}</td><td class="l">1 − ${g4(x)}×${g2(m3)}/${k3} = <b>${g4(X2)}</b></td><td class="l">[(${K22} − ${g4(x)}×${g2(m2)})×${X2<0?'('+g4(X2)+')':g4(X2)} − ${k3}]/${k2} = <b>${g4(X1)}</b></td><td>${Math.abs(res)<1e-6?'≈ 0':res.toExponential(1)}</td></tr>`;}).join('')}</tbody></table></div>
+  <p>得到的 (X<sub>1</sub>, X<sub>2</sub>, 1) 就是上表“顶层 = 1”的振型。振型 2 中 X 一次变号（一个零点），振型 3 两次变号（两个零点），符合“第 n 阶振型有 n−1 个零点”的规律。</p>
+  <p class="why">实际软件（YJK、ETABS）自由度成千上万，不会去展开行列式，而是用子空间迭代、Lanczos 或 Ritz 向量法直接求前若干阶特征对，原理相同。</p>`;
+  $('hand').innerHTML=h;
+}
+function buildModeCanvases(){
+  const box=$('modecv'); box.innerHTML='';
+  for(let j=0;j<3;j++){const d=document.createElement('div');d.innerHTML=`<canvas height="150"></canvas><div style="font-size:12.5px;text-align:center" class="${mc(j)}">振型 ${j+1} · <span class="num">T=${f(S.T[j])} s</span></div>`;box.appendChild(d);}
+}
+function sizeCanvas(c){
+  // 逻辑高度只在第一次从 height 属性读取并存入 data-h；之后 c.height 会被改成物理像素，不能再读回来当逻辑高度
+  if(!c.dataset.h){c.dataset.h=c.getAttribute('height')||'150';c.style.height=c.dataset.h+'px';}
+  const h=+c.dataset.h, r=c.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
+  const cw=Math.max(1,Math.round(r.width*dpr)), ch=Math.round(h*dpr);
+  if(c.width!==cw||c.height!==ch){c.width=cw;c.height=ch;}
+  const x=c.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x,W:r.width,H:h};
+}
+function drawFrame(ctx,W,H,disp,color,ghost){ // disp[0..3] incl base, in px
+  const ink=css('--ink'),mut=css('--muted');
+  const ys=[H-22,H-22-(H-44)/3,H-22-2*(H-44)/3,22], cx=W/2, bw=Math.min(70,W*0.42);
+  ctx.strokeStyle=mut;ctx.lineWidth=1;ctx.setLineDash([3,3]);
+  ctx.beginPath();ctx.moveTo(cx,ys[0]);ctx.lineTo(cx,ys[3]);ctx.stroke();ctx.setLineDash([]);
+  ctx.strokeStyle=ink;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cx-bw/2-12,ys[0]);ctx.lineTo(cx+bw/2+12,ys[0]);ctx.stroke();
+  if(ghost){ctx.strokeStyle=mut;ctx.globalAlpha=.35;ctx.lineWidth=1.5;ctx.beginPath();for(let s of [-1,1]){ctx.moveTo(cx+s*bw/2+ghost[0],ys[0]);for(let i=1;i<4;i++)ctx.lineTo(cx+s*bw/2+ghost[i],ys[i]);}ctx.stroke();ctx.globalAlpha=1;}
+  ctx.strokeStyle=ink;ctx.lineWidth=1.8;ctx.beginPath();
+  for(let s of [-1,1]){ctx.moveTo(cx+s*bw/2+disp[0],ys[0]);for(let i=1;i<4;i++){ // S-shape column between floors (fixed-fixed)
+      const x0=cx+s*bw/2+disp[i-1],x1=cx+s*bw/2+disp[i],y0=ys[i-1],y1=ys[i];ctx.bezierCurveTo(x0,(y0*2+y1)/3,x1,(y0+y1*2)/3,x1,y1);}}
+  ctx.stroke();
+  ctx.fillStyle=color;for(let i=1;i<4;i++){ctx.fillRect(cx-bw/2-6+disp[i],ys[i]-5,bw+12,10);}
+}
+let mPlaying=false, mSpeed='same', mClock=0, mLast=null, mLoop=false, mVisible=true;
+const M_T1=8.0;
+const mTd=j=>mSpeed==='same'?M_T1:S.T[j]*M_T1/S.T[0];
+function drawModes(){
+  const cvs=[...$('modecv').querySelectorAll('canvas')];
+  cvs.forEach((c,j)=>{
+    const {x,W,H}=sizeCanvas(c); x.clearRect(0,0,W,H);
+    const Xj=S.X[j], mx=Math.max(...Xj.map(Math.abs)), amp=Math.min(W*0.16,26);
+    const Td=mTd(j);
+    const ph=(mPlaying&&mClock<Td)?Math.cos(2*Math.PI*mClock/Td):1;
+    const d=[0,...Xj.map(v=>v/mx*amp*ph)], g0=[0,...Xj.map(v=>v/mx*amp)];
+    drawFrame(x,W,H,d,css(MC[j]),mPlaying?g0:null);
+  });
+}
+function animModes(now){
+  if(!mPlaying||!mVisible){mLoop=false;mLast=null;return;}
+  if(mLast!==null)mClock+=Math.min(0.05,(now-mLast)/1000);
+  mLast=now;
+  if(mClock>=Math.max(mTd(0),mTd(1),mTd(2))){mPlaying=false;mLoop=false;mLast=null;setModeCtl();drawModes();return;}
+  drawModes(); requestAnimationFrame(animModes);
+}
+function startModes(){if(mPlaying&&mVisible&&!mLoop){mLoop=true;mLast=null;requestAnimationFrame(animModes);}else drawModes();}
+function setModeCtl(){
+  $('mPlay').textContent=mPlaying?'■ 停止':'▶ 播放一个周期';
+  $('mSame').setAttribute('aria-pressed',mSpeed==='same');$('mReal').setAttribute('aria-pressed',mSpeed==='real');
+}
+
+/* ---------- step 2 ---------- */
+function renderGamma(){
+  const {X,Xmass,G,gam,gamM,sumXG,sumX2G}=S, useM=norm!=='top', XX=useM?Xmass:X, gg=useM?gamM:gam;
+  $('gSel').innerHTML=[0,1,2].map(j=>`<button type="button" aria-pressed="${j===gSel}" data-j="${j}">振型 ${j+1}</button>`).join('');
+  $('gSel').querySelectorAll('button').forEach(b=>b.onclick=()=>{gSel=+b.dataset.j;renderGamma();});
+  const j=gSel, x=XX[j];
+  const num=x.map((v,i)=>`(${f(v,4)})×${G[i]}`).join(' + '), den=x.map((v,i)=>`(${f(v,4)})²×${G[i]}`).join(' + ');
+  const nv=x.reduce((a,v,i)=>a+v*G[i],0), dv=x.reduce((a,v,i)=>a+v*v*G[i],0);
+  $('gSub').innerHTML=`<i>γ</i><sub>${j+1}</sub> = <span class="frac"><span>${num}</span><span>${den}</span></span> = <span class="frac"><span>${f(nv,2)}</span><span>${f(dv,2)}</span></span> = <b class="${mc(j)}">${f(gg[j],4)}</b>`;
+  let h=`<thead><tr><th class="l">振型 j</th><th>γ<sub>j</sub>（${useM?'质量归一':'顶层=1'}）</th><th>γ<sub>j</sub>X<sub>j1</sub></th><th>γ<sub>j</sub>X<sub>j2</sub></th><th>γ<sub>j</sub>X<sub>j3</sub></th></tr></thead><tbody>`;
+  for(let q=0;q<3;q++)h+=`<tr><td class="t l ${mc(q)}">振型 ${q+1}</td><td>${f(gg[q],4)}</td>${XX[q].map(v=>`<td>${f(gg[q]*v,4)}</td>`).join('')}</tr>`;
+  h+=`<tr class="hl"><td class="t l">Σ 各振型</td><td>—</td>${[0,1,2].map(i=>`<td>${f(XX.reduce((a,xx,q)=>a+gg[q]*xx[i],0),4)}</td>`).join('')}</tr>`;
+  $('tGamma').innerHTML=h+'</tbody>';
+  // diverging stacked bars
+  const svg=$('gBar'), W=400,H=250, L=70,R=20, x0v=-0.6,x1v=1.6, sx=v=>L+(v-x0v)/(x1v-x0v)*(W-L-R);
+  let s=`<line x1="${sx(0)}" y1="12" x2="${sx(0)}" y2="${H-30}" stroke="${css('--muted')}"/><line x1="${sx(1)}" y1="12" x2="${sx(1)}" y2="${H-30}" stroke="${css('--ink')}" stroke-dasharray="4 3"/>`;
+  s+=`<text x="${sx(1)}" y="${H-12}" font-size="11" text-anchor="middle">1.0</text><text x="${sx(0)}" y="${H-12}" font-size="11" text-anchor="middle" class="mut">0</text><text x="${sx(-0.5)}" y="${H-12}" font-size="11" text-anchor="middle" class="mut">−0.5</text><text x="${sx(1.5)}" y="${H-12}" font-size="11" text-anchor="middle" class="mut">1.5</text>`;
+  const rows=[2,1,0];
+  rows.forEach((i,r)=>{
+    const y=24+r*68; let pos=0,neg=0;
+    s+=`<text x="${L-10}" y="${y+22}" font-size="12.5" text-anchor="end">${['首层','二层','顶层'][i]}</text>`;
+    for(let q=0;q<3;q++){
+      const v=gam[q]*X[q][i]; let a,b;
+      if(v>=0){a=pos;b=pos+v;pos=b;}else{a=neg+v;b=neg;neg=a;}
+      s+=`<rect x="${sx(a)}" y="${y+q*12}" width="${Math.max(0.5,sx(b)-sx(a))}" height="11" fill="${css(MC[q])}"/>`;
+      s+=`<text x="${v>=0?sx(b)+4:sx(a)-4}" y="${y+q*12+9.5}" font-size="10" text-anchor="${v>=0?'start':'end'}" class="mut">${f(v,3)}</text>`;
+    }
+  });
+  svg.innerHTML=s;
+}
+
+/* ---------- step 3 ---------- */
+function renderMeff(){
+  const {Geff,Gt,sumXG,gam}=S; let cum=0;
+  let h=`<thead><tr><th class="l">振型 j</th><th>M*<sub>j</sub> (t)<br><span style="font-weight:400">顶层=1</span></th><th>L<sub>j</sub> (t)<br><span style="font-weight:400">顶层=1</span></th><th>γ<sub>j</sub></th><th>G<sub>eff,j</sub> (kN)</th><th>有效质量系数</th><th>累计</th><th class="l">判断</th></tr></thead><tbody>`;
+  let need=3;
+  for(let j=0;j<3;j++){cum+=Geff[j];const r=cum/Gt; if(r>=0.9&&need===3)need=j+1;
+    h+=`<tr><td class="t l ${mc(j)}">振型 ${j+1}</td><td>${f(S.sumX2G[j]/g,1)}</td><td>${f(sumXG[j]/g,1)}</td><td>${f(gam[j],4)}</td><td>${f(Geff[j],1)}</td><td>${(Geff[j]/Gt*100).toFixed(2)}%</td><td>${(r*100).toFixed(2)}%</td><td class="t l">${r>=0.9?'<span class="pill ok">≥ 90%</span>':'<span class="pill bad">&lt; 90%</span>'}</td></tr>`;}
+  h+=`<tr class="hl"><td class="t l">合计</td><td></td><td></td><td></td><td>${f(Geff.reduce((a,b)=>a+b,0),1)}</td><td colspan="2">总重 ΣG = ${Gt} kN</td><td></td></tr>`;
+  $('tMeff').innerHTML=h+'</tbody>';
+  $('meffMsg').innerHTML=`<div class="note">本例只取振型 1，累计 ${(Geff[0]/Gt*100).toFixed(1)}%，${Geff[0]/Gt>=0.9?'已满足 90%。':'不满足 90%。'}至少需要取前 <b>${need}</b> 个振型。</div>`;
+  const svg=$('meffBar'),W=400,L=20,R=20,sx=v=>L+v*(W-L-R); let s='',a=0;
+  for(let j=0;j<3;j++){const r=Geff[j]/Gt; s+=`<rect x="${sx(a)}" y="40" width="${Math.max(0.5,sx(a+r)-sx(a))}" height="44" fill="${css(MC[j])}"/>`;
+    if(r>0.04)s+=`<text x="${(sx(a)+sx(a+r))/2}" y="67" font-size="12" text-anchor="middle" fill="${css('--paper')}" style="fill:${css('--paper')}">振型${j+1} ${(r*100).toFixed(1)}%</text>`; a+=r;}
+  s+=`<line x1="${sx(0.9)}" y1="26" x2="${sx(0.9)}" y2="100" stroke="${css('--bad')}" stroke-width="1.5" stroke-dasharray="4 3"/><text x="${sx(0.9)}" y="20" font-size="11.5" text-anchor="middle">90%</text>`;
+  cum=0; for(let j=0;j<3;j++){cum+=Geff[j]/Gt; s+=`<circle cx="${sx(cum)}" cy="${118+j*22}" r="4" fill="${css(MC[j])}"/><text x="${sx(cum)-8}" y="${122+j*22}" font-size="11.5" text-anchor="end">取前 ${j+1} 阶：${(cum*100).toFixed(1)}%</text>`;}
+  svg.innerHTML=s;
+}
+
+/* ---------- step 4 ---------- */
+function renderSpec(){
+  const {p,T,al}=S, svg=$('spec'), W=640,H=280,L=56,R=16,Tp=16,B=40, Tmax=Math.max(3,Math.ceil(T[0]*1.3));
+  const sx=t=>L+t/Tmax*(W-L-R), sy=a=>H-B-a/(p.amax*1.15)*(H-B-Tp);
+  const ink=css('--ink'),mut=css('--muted'),rule=css('--rule');
+  let s='';
+  for(let t=0;t<=Tmax;t+=0.5){s+=`<line x1="${sx(t)}" y1="${Tp}" x2="${sx(t)}" y2="${H-B}" stroke="${rule}"/><text x="${sx(t)}" y="${H-B+16}" font-size="11" text-anchor="middle" class="mut">${t.toFixed(1)}</text>`;}
+  for(let k=0;k<=4;k++){const a=p.amax*k/4;s+=`<line x1="${L}" y1="${sy(a)}" x2="${W-R}" y2="${sy(a)}" stroke="${rule}"/><text x="${L-6}" y="${sy(a)+4}" font-size="11" text-anchor="end" class="mut">${a.toFixed(3)}</text>`;}
+  s+=`<text x="${(L+W-R)/2}" y="${H-6}" font-size="12" text-anchor="middle">周期 T (s)</text><text x="14" y="${Tp+(H-B-Tp)/2}" font-size="12" text-anchor="middle" transform="rotate(-90 14 ${Tp+(H-B-Tp)/2})">α</text>`;
+  let d='';for(let t=0;t<=Tmax+1e-9;t+=0.01)d+=(t?'L':'M')+sx(t).toFixed(1)+','+sy(alphaOf(t,p.amax,p.Tg)).toFixed(1);
+  s+=`<path d="${d}" fill="none" stroke="${ink}" stroke-width="2"/>`;
+  s+=`<line x1="${sx(p.Tg)}" y1="${Tp}" x2="${sx(p.Tg)}" y2="${H-B}" stroke="${mut}" stroke-dasharray="3 3"/><text x="${sx(p.Tg)+4}" y="${Tp+12}" font-size="11" class="mut">Tg=${p.Tg}</text>`;
+  if(5*p.Tg<Tmax)s+=`<line x1="${sx(5*p.Tg)}" y1="${Tp}" x2="${sx(5*p.Tg)}" y2="${H-B}" stroke="${mut}" stroke-dasharray="3 3"/><text x="${sx(5*p.Tg)+4}" y="${Tp+12}" font-size="11" class="mut">5Tg</text>`;
+  for(let j=2;j>=0;j--){s+=`<line x1="${sx(T[j])}" y1="${sy(al[j])}" x2="${sx(T[j])}" y2="${H-B}" stroke="${css(MC[j])}" stroke-dasharray="2 2"/><circle cx="${sx(T[j])}" cy="${sy(al[j])}" r="5.5" fill="${css(MC[j])}"/>`;
+    const lx=j===2?-8:10, ly=j===2?20:(j===1?-8:-10);
+    s+=`<text x="${sx(T[j])+lx}" y="${sy(al[j])+ly}" font-size="12" text-anchor="${j===2?'end':'start'}" style="fill:${css(MC[j])}">α${j+1}=${al[j].toFixed(4)}</text>`;}
+  svg.innerHTML=s;
+  let h=`<thead><tr><th class="l">振型 j</th><th>T<sub>j</sub> (s)</th><th class="l">所在区段</th><th>α<sub>j</sub></th><th>α<sub>j</sub>/α<sub>max</sub></th></tr></thead><tbody>`;
+  const zone=t=>t<0.1?'直线上升段':t<=p.Tg?'水平段 η₂α<sub>max</sub>':t<=5*p.Tg?'曲线下降段 (Tg/T)^γ':'直线下降段';
+  for(let j=0;j<3;j++)h+=`<tr><td class="t l ${mc(j)}">振型 ${j+1}</td><td>${f(T[j])}</td><td class="t l">${zone(T[j])}</td><td>${f(al[j],4)}</td><td>${f(al[j]/p.amax,3)}</td></tr>`;
+  $('tAlpha').innerHTML=h+'</tbody>';
+  $('alphaNote').innerHTML=`高阶振型周期短，落在平台段，α 是基本振型的 ${(al[2]/al[0]).toFixed(1)} 倍，但它们的有效质量小，所以总贡献仍然小。这就是“高振型对顶部影响大、对底部总剪力影响小”的来源。`;
+}
+
+/* ---------- step 5 ---------- */
+function renderForces(){
+  const {F,V,D,al,gam,X,G,Geff,Vs}=S, svg=$('forceFig'), W=900,H=330, pw=W/4, ink=css('--ink'),mut=css('--muted'),rule=css('--rule');
+  const ys=[H-40,H-40-(H-98)/3,H-40-2*(H-98)/3,58];
+  const fmax=Math.max(...F.flat().map(Math.abs)), vmax=Math.max(...V.flat().map(Math.abs),...Vs);
+  const fs=46/fmax, vs=46/vmax;
+  let s='';
+  for(let j=0;j<4;j++){
+    const x0=j*pw, col=j<3?css(MC[j]):ink, aF=x0+pw*0.27, aV=j<3?x0+pw*0.72:x0+pw*0.5;
+    if(j)s+=`<line x1="${x0}" y1="10" x2="${x0}" y2="${H-10}" stroke="${rule}"/>`;
+    s+=`<text x="${x0+pw/2}" y="18" font-size="13" text-anchor="middle" style="fill:${col}">${j<3?'振型 '+(j+1):'SRSS 组合'}</text>`;
+    for(let i=0;i<4;i++)s+=`<line x1="${x0+10}" y1="${ys[i]}" x2="${x0+pw-10}" y2="${ys[i]}" stroke="${rule}" stroke-width="${i?1:2}"/>`;
+    if(j<3){
+      s+=`<text x="${aF}" y="34" font-size="11" text-anchor="middle" class="mut">层力 F</text><line x1="${aF}" y1="${ys[0]}" x2="${aF}" y2="${ys[3]}" stroke="${mut}" stroke-dasharray="2 2"/>`;
+      for(let i=0;i<3;i++){const fl=F[j][i]*fs,y=ys[i+1],dir=Math.sign(F[j][i])||1,hx=aF+fl;
+        s+=`<line x1="${aF}" y1="${y}" x2="${hx-dir*5}" y2="${y}" stroke="${col}" stroke-width="2.5"/><path d="M${hx},${y} l${-dir*7},-5 l0,10 z" fill="${col}"/>`;
+        s+=`<text x="${aF}" y="${y-8}" font-size="11" text-anchor="middle" style="fill:${col}">${F[j][i].toFixed(1)}</text>`;}
+    }
+    s+=`<text x="${aV}" y="34" font-size="11" text-anchor="middle" class="mut">层剪力 V</text><line x1="${aV}" y1="${ys[0]}" x2="${aV}" y2="${ys[3]}" stroke="${mut}"/>`;
+    for(let i=0;i<3;i++){const v=j<3?V[j][i]:Vs[i], w=v*vs;
+      s+=`<rect x="${Math.min(aV,aV+w)}" y="${ys[i+1]}" width="${Math.abs(w)}" height="${ys[i]-ys[i+1]}" fill="${col}" opacity=".18"/><line x1="${aV+w}" y1="${ys[i+1]}" x2="${aV+w}" y2="${ys[i]}" stroke="${col}" stroke-width="1.8"/>`;
+      s+=`<text x="${aV+(w>=0?w+3:w-3)}" y="${(ys[i]+ys[i+1])/2+4}" font-size="11" text-anchor="${w>=0?'start':'end'}">${v.toFixed(1)}</text>`;}
+    s+=`<text x="${x0+pw/2}" y="${ys[0]+22}" font-size="11.5" text-anchor="middle" class="mut">V₀ = ${(j<3?V[j][0]:Vs[0]).toFixed(1)} kN</text>`;
+  }
+  s+=`<text x="${W-8}" y="${H-6}" font-size="11" text-anchor="end" class="mut">单位：kN</text>`;
+  svg.innerHTML=s;
+  let h=`<thead><tr><th class="l">振型</th><th class="l">楼层</th><th>X<sub>ji</sub></th><th>G<sub>i</sub></th><th>F<sub>ji</sub>=α<sub>j</sub>γ<sub>j</sub>X<sub>ji</sub>G<sub>i</sub></th><th>V<sub>ji</sub> (kN)</th><th>Δ<sub>ji</sub> (mm)</th><th>Δ/h</th></tr></thead><tbody>`;
+  for(let j=0;j<3;j++){for(let i=2;i>=0;i--)h+=`<tr${i===0?' class="hl"':''}><td class="t l ${mc(j)}">${i===2?`振型 ${j+1}<br><span class="num" style="font-size:11.5px;color:var(--muted)">α=${f(al[j],4)} γ=${f(gam[j],4)}</span>`:''}</td><td class="t l">${['首层','二层','顶层'][i]}</td><td>${f(X[j][i],4)}</td><td>${G[i]}</td><td>${f(F[j][i],2)}</td><td>${f(V[j][i],2)}</td><td>${f(D[j][i],3)}</td><td>${D[j][i]===0?'—':'1/'+Math.round(4000/Math.abs(D[j][i]))}</td></tr>`;
+    h+=`<tr><td class="t l" colspan="8" style="font-size:12.5px;color:var(--muted);text-align:left;border-bottom:2px solid var(--rule)">校核：V<sub>0${j+1}</sub> = ${f(V[j][0],2)} kN；α<sub>${j+1}</sub>·G<sub>eff,${j+1}</sub> = ${f(al[j],4)} × ${f(Geff[j],1)} = ${f(al[j]*Geff[j],2)} kN ✓</td></tr>`;}
+  $('tForce').innerHTML=h+'</tbody>';
+}
+
+/* ---------- step 6 ---------- */
+function renderCombo(){
+  const {T,R,V,Vs,Vc,Va,Ds,Dc,F,Fs,Gt}=S;
+  let h=`<thead><tr><th class="l"></th><th>振型 1</th><th>振型 2</th><th>振型 3</th></tr></thead><tbody>`;
+  for(let j=0;j<3;j++)h+=`<tr><td class="t l ${mc(j)}">振型 ${j+1}</td>${R[j].map((r,q)=>`<td${q===j?' style="color:var(--muted)"':''}>${f(r,4)}</td>`).join('')}</tr>`;
+  $('tRho').innerHTML=h+'</tbody>';
+  const r21=T[1]/T[0], r32=T[2]/T[1];
+  const ok=r21<0.85&&r32<0.85;
+  $('ratioMsg').innerHTML=`<p>相邻周期比：T₂/T₁ = <span class="num">${f(r21)}</span>，T₃/T₂ = <span class="num">${f(r32)}</span> ${ok?'<span class="pill ok">均 &lt; 0.85，可用 SRSS</span>':'<span class="pill bad">有 ≥ 0.85，应用 CQC</span>'}</p>`;
+  // rho chart
+  const svg=$('rhoFig'),W=400,H=220,L=40,Rr=14,Tp=12,B=34,sx=l=>L+(l-0.3)/0.7*(W-L-Rr),sy=r=>H-B-r*(H-B-Tp);
+  const rule=css('--rule'),ink=css('--ink'),mut=css('--muted');let s='';
+  for(let l=0.3;l<=1.001;l+=0.1)s+=`<line x1="${sx(l)}" y1="${Tp}" x2="${sx(l)}" y2="${H-B}" stroke="${rule}"/><text x="${sx(l)}" y="${H-B+14}" font-size="10.5" text-anchor="middle" class="mut">${l.toFixed(1)}</text>`;
+  for(let r=0;r<=1.001;r+=0.25)s+=`<line x1="${L}" y1="${sy(r)}" x2="${W-Rr}" y2="${sy(r)}" stroke="${rule}"/><text x="${L-5}" y="${sy(r)+4}" font-size="10.5" text-anchor="end" class="mut">${r.toFixed(2)}</text>`;
+  let d='';for(let l=0.3;l<=1.0001;l+=0.005)d+=(l===0.3?'M':'L')+sx(l).toFixed(1)+','+sy(rhoOf(l)).toFixed(1);
+  s+=`<path d="${d}" fill="none" stroke="${ink}" stroke-width="2"/><line x1="${sx(0.85)}" y1="${Tp}" x2="${sx(0.85)}" y2="${H-B}" stroke="${css('--bad')}" stroke-dasharray="4 3"/><text x="${sx(0.85)-4}" y="${Tp+12}" font-size="11" text-anchor="end">0.85</text>`;
+  [[r21,'T₂/T₁',1],[r32,'T₃/T₂',2]].forEach(([l,lab,c])=>{if(l>=0.3)s+=`<circle cx="${sx(l)}" cy="${sy(rhoOf(l))}" r="5" fill="${css(MC[c])}"/><text x="${sx(l)}" y="${sy(rhoOf(l))-10}" font-size="11" text-anchor="middle">${lab}</text>`;});
+  s+=`<text x="${(L+W)/2}" y="${H-4}" font-size="11.5" text-anchor="middle">周期比 λ<tspan font-size="9">T</tspan></text>`;
+  svg.innerHTML=s;
+  h=`<thead><tr><th class="l">楼层</th><th>V₁</th><th>V₂</th><th>V₃</th><th>SRSS</th><th>CQC</th><th>绝对值和</th><th>仅振型 1</th><th>剪重比 (SRSS)</th></tr></thead><tbody>`;
+  const Gabove=[Gt,S.G[1]+S.G[2],S.G[2]];
+  for(let i=2;i>=0;i--)h+=`<tr${i===0?' class="hl"':''}><td class="t l">${['首层','二层','顶层'][i]}</td>${V.map((v,j)=>`<td class="${mc(j)}">${f(v[i],1)}</td>`).join('')}<td><b>${f(Vs[i],1)}</b></td><td>${f(Vc[i],1)}</td><td>${f(Va[i],1)}</td><td>${f(V[0][i],1)}<span style="color:var(--muted);font-size:11px"> (${((V[0][i]/Vs[i]-1)*100).toFixed(0)}%)</span></td><td>${(Vs[i]/Gabove[i]*100).toFixed(2)}%</td></tr>`;
+  $('tCombo').innerHTML=h+'</tbody>';
+  const Fd=[Vs[0]-Vs[1],Vs[1]-Vs[2],Vs[2]];
+  $('fNote').innerHTML=`<b>层力不能先组合再累加。</b>若对各振型的层力直接 SRSS，得各层力（首→顶）<span class="num">${Fs.map(x=>x.toFixed(1)).join(' / ')}</span> kN，累加后基底剪力 <span class="num">${(Fs[0]+Fs[1]+Fs[2]).toFixed(1)}</span> kN，而直接组合基底剪力得 <span class="num">${Vs[0].toFixed(1)}</span> kN。反过来，由组合后的层剪力相减得到的“层力” <span class="num">${Fd.map(x=>x.toFixed(1)).join(' / ')}</span> kN，也不是任何时刻真实存在的力。组合之后<b>没有“最终振型”，也没有一组平衡的“最终地震力”</b>，只有每个效应量各自的组合值。另外，顶层剪力中振型 2 占比明显，只取振型 1 会少算 ${((1-V[0][2]/Vs[2])*100).toFixed(0)}%，而基底剪力只少算 ${((1-V[0][0]/Vs[0])*100).toFixed(0)}%，这就是高阶振型的鞭梢效应，也是第 ⑤ 节说 90% 判据不保证局部量的原因。`;
+}
+
+/* ---------- step 7: time history ---------- */
+let thT0=null, thPlaying=!reduced, thOff=0;
+function thSetup(){
+  $('pga').textContent=Math.max(...TH.ag.map(Math.abs)).toFixed(3);
+  const e=TH.exact, sr=Math.sqrt(TH.pk.reduce((a,b)=>a+b*b,0)), ab=TH.pk.reduce((a,b)=>a+b,0);
+  const rs=Math.sqrt(DEFS.V.reduce((a,v)=>a+v[0]*v[0],0));
+  const R=DEFS.R, pk=TH.pk, cq=Math.sqrt(pk.reduce((a,x,j)=>a+pk.reduce((b,y,k)=>b+R[j][k]*x*y,0),0));
+  const rsArr=DEFS.V.map(v=>v[0]), rc=DEFS.Vc[0];
+  const pct=v=>((v/e-1)*100).toFixed(1)+'%';
+  $('thKpi').innerHTML=
+    TH.pk.map((v,j)=>`<div class="kpi"><div class="lab ${mc(j)}">振型 ${j+1} 基底剪力峰值（时程）</div><div class="big">${v.toFixed(1)}</div><div class="lab">出现在 t = ${TH.tpk[j].toFixed(2)} s；反应谱值 ${rsArr[j].toFixed(1)}</div></div>`).join('')+
+    `<div class="kpi"><div class="lab">实际总基底剪力峰值（时程）</div><div class="big">${e.toFixed(1)}</div><div class="lab">t = ${TH.texact.toFixed(2)} s，三振型实时代数和</div></div>`+
+    `<div class="kpi"><div class="lab">SRSS（时程三峰值）</div><div class="big">${sr.toFixed(1)}</div><div class="lab">与实际差 ${pct(sr)}</div></div>`+
+    `<div class="kpi"><div class="lab">CQC（时程三峰值）</div><div class="big">${cq.toFixed(1)}</div><div class="lab">与实际差 ${pct(cq)}；ρ 很小，≈ SRSS</div></div>`+
+    `<div class="kpi"><div class="lab">SRSS（反应谱值）</div><div class="big">${rs.toFixed(1)}</div><div class="lab">设计采用的算法；与实际差 ${pct(rs)}</div></div>`+
+    `<div class="kpi"><div class="lab">CQC（反应谱值）</div><div class="big">${rc.toFixed(1)}</div><div class="lab">与实际差 ${pct(rc)}</div></div>`+
+    `<div class="kpi"><div class="lab">峰值绝对值相加</div><div class="big">${ab.toFixed(1)}</div><div class="lab">比实际大 ${pct(ab)}</div></div>`;
+  drawEns();
+  $('thPlay').textContent=thPlaying?'暂停':'播放';
+  $('thPlay').onclick=()=>{thPlaying=!thPlaying;$('thPlay').textContent=thPlaying?'暂停':'播放';if(thPlaying){thT0=null;requestAnimationFrame(thLoop);}};
+  $('thRestart').onclick=()=>{thOff=0;thT0=null;if(!thPlaying){thPlaying=true;$('thPlay').textContent='暂停';requestAnimationFrame(thLoop);}};
+}
+
+const ENS=[1.0014, 1.0462, 0.9985, 0.989, 0.9586, 0.9553, 1.1486, 1.0074, 0.9803, 0.9975, 1.06, 1.0606, 1.0121, 0.9395, 1.0155, 0.9659, 1.0909, 0.9567, 0.9887, 1.0704, 1.044, 0.9404, 0.9608, 0.9081, 1.1139, 1.0035, 1.045, 1.1085, 0.9486, 1.0343, 0.945, 0.9854, 0.9194, 1.0435, 0.9626, 1.0191, 0.9857, 1.0652, 1.0572, 1.0052];
+function drawEns(){
+  const svg=$('ensFig'); if(!svg)return; const W=640,H=150,L=40,R=20,sx=v=>L+(v-0.85)/(1.20-0.85)*(W-L-R);
+  const ink=css('--ink'),mut=css('--muted'),rule=css('--rule'),acc=css('--accent');
+  let s='';
+  for(let v=0.85;v<=1.2001;v+=0.05){s+=`<line x1="${sx(v)}" y1="20" x2="${sx(v)}" y2="${H-36}" stroke="${rule}"/><text x="${sx(v)}" y="${H-20}" font-size="11" text-anchor="middle" class="mut">${v.toFixed(2)}</text>`;}
+  s+=`<line x1="${sx(1)}" y1="14" x2="${sx(1)}" y2="${H-36}" stroke="${mut}" stroke-dasharray="4 3"/><text x="${sx(1)}" y="11" font-size="11" text-anchor="middle" class="mut">= SRSS</text>`;
+  const bins={}; ENS.forEach(r=>{const b=Math.round(r/0.01);bins[b]=(bins[b]||0)+1;const y=H-44-(bins[b]-1)*9;s+=`<circle cx="${sx(r)}" cy="${y}" r="3.8" fill="${acc}" opacity=".75"/>`;});
+  const mean=ENS.reduce((a,b)=>a+b,0)/ENS.length;
+  s+=`<line x1="${sx(mean)}" y1="18" x2="${sx(mean)}" y2="${H-36}" stroke="${ink}" stroke-width="2"/><text x="${sx(mean)+5}" y="28" font-size="11">平均 ${mean.toFixed(3)}</text>`;
+  const me=TH.exact/Math.sqrt(TH.pk.reduce((a,b)=>a+b*b,0));
+  s+=`<circle cx="${sx(me)}" cy="${H-44}" r="5.5" fill="none" stroke="${css('--m2')}" stroke-width="2.2"/>`;
+  s+=`<text x="${(L+W-R)/2}" y="${H-4}" font-size="11.5" text-anchor="middle">实际峰值 / SRSS</text>`;
+  svg.innerHTML=s;
+}
+function thDraw(tt){
+  const n=TH.t.length, dt=TH.t[1]-TH.t[0], idx=Math.min(n-1,Math.max(0,Math.round(tt/dt)));
+  // building
+  {const c=$('thBld'),{x,W,H}=sizeCanvas(c);x.clearRect(0,0,W,H);
+   if(!TH._mx){let mx=0;for(let i=0;i<3;i++)for(let k=0;k<n;k++){let s=0;for(let j=0;j<3;j++)s+=TH.U[i][j][k];mx=Math.max(mx,Math.abs(s));}TH._mx=mx;} const mx=TH._mx;
+   const amp=Math.min(W*0.28,60)/mx;
+   const d=[0,...[0,1,2].map(i=>(TH.U[i][0][idx]+TH.U[i][1][idx]+TH.U[i][2][idx])*amp)];
+   drawFrame(x,W,H-18,d,css('--accent'),null);
+   x.fillStyle=css('--muted');x.font='11px '+css('--sans');x.textAlign='center';x.fillText('位移放大显示',W/2,H-4);}
+  // chart
+  const c=$('thChart'),{x,W,H}=sizeCanvas(c);x.clearRect(0,0,W,H);
+  const L=44,R=8,Tp=10,B=40,Hg=34, tmax=TH.t[n-1];
+  const vmax=Math.max(...TH.Vt.map(Math.abs))*1.08;
+  const sx=t=>L+t/tmax*(W-L-R), mid=Tp+(H-B-Hg-Tp)/2, sy=v=>mid-v/vmax*(H-B-Hg-Tp)/2;
+  x.strokeStyle=css('--rule');x.lineWidth=1;x.fillStyle=css('--muted');x.font='10.5px '+css('--mono');
+  for(let t=0;t<=tmax;t+=5){x.beginPath();x.moveTo(sx(t),Tp);x.lineTo(sx(t),H-B);x.stroke();x.textAlign='center';x.fillText(t+'s',sx(t),H-B+16);}
+  for(const v of [-100,0,100]){if(Math.abs(v)>vmax)continue;x.beginPath();x.moveTo(L,sy(v));x.lineTo(W-R,sy(v));x.stroke();x.textAlign='right';x.fillText(v,L-4,sy(v)+3);}
+  x.save();x.translate(10,mid);x.rotate(-Math.PI/2);x.textAlign='center';x.font='11px '+css('--sans');x.fillText('基底剪力 kN',0,0);x.restore();
+  const line=(arr,col,w)=>{x.strokeStyle=col;x.lineWidth=w;x.beginPath();for(let k=0;k<=idx;k++){const px=sx(TH.t[k]),py=sy(arr[k]);k?x.lineTo(px,py):x.moveTo(px,py);}x.stroke();};
+  // ghost full
+  x.globalAlpha=.15;for(let j=0;j<3;j++){x.strokeStyle=css(MC[j]);x.lineWidth=1;x.beginPath();TH.Vb[j].forEach((v,k)=>{const px=sx(TH.t[k]),py=sy(v);k?x.lineTo(px,py):x.moveTo(px,py);});x.stroke();}x.globalAlpha=1;
+  line(TH.Vt,css('--ink'),1.4);
+  for(let j=2;j>=0;j--)line(TH.Vb[j],css(MC[j]),1.3);
+  // peak markers
+  for(let j=0;j<3;j++){if(TH.tpk[j]<=TH.t[idx]){const k=Math.round(TH.tpk[j]/dt);x.fillStyle=css(MC[j]);x.beginPath();x.arc(sx(TH.t[k]),sy(TH.Vb[j][k]),4.5,0,7);x.fill();}}
+  if(TH.texact<=TH.t[idx]){const k=Math.round(TH.texact/dt);x.strokeStyle=css('--ink');x.lineWidth=2;x.beginPath();x.arc(sx(TH.t[k]),sy(TH.Vt[k]),6,0,7);x.stroke();}
+  // ground motion strip
+  const gy=H-B-Hg/2+4, gmax=Math.max(...TH.ag.map(Math.abs));
+  x.strokeStyle=css('--muted');x.lineWidth=1;x.beginPath();for(let k=0;k<=idx;k++){const px=sx(TH.t[k]),py=gy-TH.ag[k]/gmax*(Hg/2-3);k?x.lineTo(px,py):x.moveTo(px,py);}x.stroke();
+  x.fillStyle=css('--muted');x.font='10.5px '+css('--sans');x.textAlign='right';x.fillText('ag',L-4,gy+3);
+  x.strokeStyle=css('--accent');x.lineWidth=1;x.beginPath();x.moveTo(sx(TH.t[idx]),Tp);x.lineTo(sx(TH.t[idx]),H-B);x.stroke();
+  $('thTime').textContent=`t = ${TH.t[idx].toFixed(2)} s　总剪力 ${TH.Vt[idx].toFixed(1)} kN`;
+}
+function thLoop(now){
+  if(!thPlaying)return;
+  if(thT0===null)thT0=now-thOff*1000/2.2;
+  thOff=(now-thT0)/1000*2.2; // 2.2× real speed
+  const tmax=TH.t[TH.t.length-1];
+  if(thOff>tmax){thOff=tmax;thDraw(thOff);thPlaying=false;$('thPlay').textContent='播放';thOff=0;return;}
+  thDraw(thOff);requestAnimationFrame(thLoop);
+}
+
+
+function renderExtra(){
+  const {m,X,K,T,G,Gt,Geff,sumX2G,sumXG,al,Vs}=S, M=[m[0],m[1],m[2]];
+  const xMy=(a,b)=>a.reduce((s,v,i)=>s+v*M[i]*b[i],0);
+  const xKy=(a,b)=>a.reduce((s,v,i)=>s+v*K[i].reduce((t,kk,c)=>t+kk*b[c],0),0);
+  const z=v=>Math.abs(v)<5e-9?'0.000':v.toFixed(3);
+  $('Mvals').textContent=M.map(v=>v.toFixed(2)).join(', ');
+  $('orth').innerHTML=`<b>X</b><sub>1</sub><sup>T</sup><b>MX</b><sub>2</sub> = ${z(xMy(X[0],X[1]))}，<b>X</b><sub>1</sub><sup>T</sup><b>MX</b><sub>3</sub> = ${z(xMy(X[0],X[2]))}，<b>X</b><sub>2</sub><sup>T</sup><b>MX</b><sub>3</sub> = ${z(xMy(X[1],X[2]))}，<b>X</b><sub>1</sub><sup>T</sup><b>KX</b><sub>2</sub> = ${z(xKy(X[0],X[1]))}（作为对比，<b>X</b><sub>1</sub><sup>T</sup><b>MX</b><sub>1</sub> = ${xMy(X[0],X[0]).toFixed(1)} t，顶层 = 1）`;
+  const ms=(sumX2G[0]/g).toFixed(1), me=(Geff[0]/g).toFixed(1);
+  $('mstar1').textContent=ms; $('mstar1b').textContent=ms; $('meff1').textContent=me;
+  $('sumGeff').textContent=`${Geff.map(v=>v.toFixed(1)).join(' + ')} = ${Geff.reduce((a,b)=>a+b,0).toFixed(1)} kN = ΣG`;
+  $('tq').textContent=T.map(t=>(t/4).toFixed(2)).join('、');
+  $('bsmR').textContent=(Geff[0]/Gt*100).toFixed(1)+'%';
+  const FEk=al[0]*0.85*Gt;
+  $('bsm').innerHTML=`<i>F</i><sub>Ek</sub> = <i>α</i><sub>1</sub> × 0.85Σ<i>G</i> = ${al[0].toFixed(4)} × 0.85 × ${Gt} = <b>${FEk.toFixed(1)}</b> kN &nbsp;&nbsp;对比振型分解反应谱法（SRSS）<b>${Vs[0].toFixed(1)}</b> kN，相差 ${((FEk/Vs[0]-1)*100).toFixed(1)}%`;
+}
+/* ---------- wiring ---------- */
+const DEFS=compute(DEF);
+function readP(){const p={};for(const k of ['G1','G2','G3','k1','k2','k3','Tg']){const v=parseFloat($(k).value);p[k]=v>0?v:DEF[k];}p.amax=parseFloat($('amax').value);return p;}
+function renderAll(){
+  S=compute(readP());
+  const dirty=Object.keys(DEF).some(k=>Math.abs(S.p[k]-DEF[k])>1e-9); $('dirty').hidden=!dirty;
+  drawSchem(); buildModeCanvases(); renderModal(); renderMeff(); renderSpec(); renderForces(); renderCombo(); renderExtra();
+  startModes();
+}
+document.querySelectorAll('#params input,#params select').forEach(el=>el.addEventListener('change',renderAll));
+$('reset').onclick=()=>{for(const k of ['G1','G2','G3','k1','k2','k3','Tg'])$(k).value=DEF[k];$('amax').value='0.08';renderAll();};
+$('nTop').onclick=()=>{norm='top';$('nTop').setAttribute('aria-pressed','true');$('nMass').setAttribute('aria-pressed','false');renderModal();};
+$('nMass').onclick=()=>{norm='mass';$('nMass').setAttribute('aria-pressed','true');$('nTop').setAttribute('aria-pressed','false');renderModal();};
+function boot(){
+  renderAll(); thSetup();
+  setModeCtl(); startModes();
+  $('mPlay').onclick=()=>{if(mPlaying){mPlaying=false;}else{mPlaying=true;mClock=0;}setModeCtl();startModes();};
+  $('mSame').onclick=()=>{mSpeed='same';mPlaying=false;setModeCtl();startModes();};
+  $('mReal').onclick=()=>{mSpeed='real';mPlaying=false;setModeCtl();startModes();};
+  if('IntersectionObserver' in window)new IntersectionObserver(es=>{mVisible=es[0].isIntersecting;startModes();}).observe($('modecv'));
+  if(thPlaying)requestAnimationFrame(thLoop); else thDraw(TH.texact);
+  addEventListener('resize',()=>{if(!thPlaying)thDraw(thPlaying?thOff:TH.texact);});
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change',renderAll);
+  let lastTheme=document.documentElement.getAttribute('data-theme');
+  new MutationObserver(()=>{const t=document.documentElement.getAttribute('data-theme');if(t===lastTheme)return;lastTheme=t;renderAll();if(!thPlaying)thDraw(TH.texact);}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+}
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(boot);else boot();
+</script>
+</html>

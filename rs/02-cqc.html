@@ -1,0 +1,624 @@
+<!doctype html><html lang="zh-CN"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>CQC 与规定水平力</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700&display=swap">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] },
+  svg: { fontCache: 'global' },
+  options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'select', 'option', 'input'] }
+};
+</script>
+<script src="../assets/mathjax/tex-svg-full.js" defer></script>
+<style>
+/* Layout: 单栏"计算书"——每节先给公式与结论，再给可调参数的计算面板 */
+:root {
+  --bg: #f3f5f4;
+  --surface: #ffffff;
+  --ink: #182125;
+  --muted: #5a666c;
+  --line: #d4dbdb;
+  --cqc: #1d5d86;
+  --cqc-soft: #e2ecf2;
+  --spec: #a5651c;
+  --spec-soft: #f4e9da;
+  --modeg: #8a969b;
+  --warn: #b3261e;
+  --warn-soft: #f8e3e1;
+  --ok: #2c7a4c;
+  --f-display: "Noto Serif SC", "Songti SC", "SimSun", serif;
+  --f-body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1417; --surface: #161d21; --ink: #e2e8ea; --muted: #97a4aa; --line: #2a353a;
+    --cqc: #6aa9d6; --cqc-soft: #1a2b36; --spec: #e2a457; --spec-soft: #2f2518; --modeg: #6f7c82;
+    --warn: #ef7d74; --warn-soft: #3a1f1d; --ok: #6cc08d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1417; --surface: #161d21; --ink: #e2e8ea; --muted: #97a4aa; --line: #2a353a;
+  --cqc: #6aa9d6; --cqc-soft: #1a2b36; --spec: #e2a457; --spec-soft: #2f2518; --modeg: #6f7c82;
+  --warn: #ef7d74; --warn-soft: #3a1f1d; --ok: #6cc08d; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.7; }
+.wrap { max-width: 1000px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 56px; }
+header.top { display: grid; gap: 10px; padding-bottom: 20px; border-bottom: 2px solid var(--ink); }
+.meta { font-family: var(--f-mono); font-size: 12px; letter-spacing: .06em; color: var(--muted); text-transform: uppercase; }
+h1 { font-family: var(--f-display); font-weight: 700; font-size: clamp(28px, 5vw, 40px); line-height: 1.2; margin: 0; text-wrap: balance; }
+.lede { margin: 0; max-width: 62ch; color: var(--muted); }
+nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+nav.toc a { font-size: 13px; text-decoration: none; color: var(--ink); border: 1px solid var(--line); background: var(--surface); padding: 4px 10px; border-radius: 4px; }
+nav.toc a:hover, nav.toc a:focus-visible { border-color: var(--cqc); color: var(--cqc); outline: none; }
+section.sec { display: grid; gap: 18px; padding-block: 36px 8px; }
+.sec-head { display: grid; gap: 4px; }
+.sec-no { font-family: var(--f-mono); font-size: 13px; color: var(--cqc); letter-spacing: .04em; }
+h2 { font-family: var(--f-display); font-weight: 600; font-size: clamp(21px, 3.4vw, 27px); line-height: 1.3; margin: 0; text-wrap: balance; }
+h3 { font-size: 15px; font-weight: 700; margin: 0; }
+p { margin: 0; }
+.prose { display: grid; gap: 10px; max-width: 70ch; }
+.formula { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 10px 16px; overflow-x: auto; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; display: grid; gap: 18px; min-width: 0; }
+.controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px 20px; }
+.ctl { display: grid; gap: 4px; min-width: 0; }
+.ctl label { font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.ctl output, .num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; color: var(--ink); }
+input[type=range] { width: 100%; accent-color: var(--cqc); }
+select, input[type=number] { font: inherit; font-family: var(--f-mono); font-size: 14px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--ink); width: 100%; }
+input[type=number] { max-width: 92px; }
+:focus-visible { outline: 2px solid var(--cqc); outline-offset: 2px; }
+.presets { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); }
+button.chip { font: inherit; font-size: 13px; cursor: pointer; border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 999px; padding: 3px 12px; }
+button.chip:hover { border-color: var(--cqc); color: var(--cqc); }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.kpi { border-top: 3px solid var(--line); padding-top: 8px; display: grid; gap: 2px; min-width: 0; }
+.kpi.c { border-top-color: var(--cqc); }
+.kpi.s { border-top-color: var(--spec); }
+.kpi.w { border-top-color: var(--warn); }
+.kpi .k { font-size: 12.5px; color: var(--muted); }
+.kpi .v { font-family: var(--f-mono); font-variant-numeric: tabular-nums; font-size: 20px; font-weight: 500; }
+.kpi .d { font-size: 12.5px; color: var(--muted); }
+.charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+.chart { display: grid; gap: 6px; min-width: 0; }
+.chart svg { width: 100%; height: auto; display: block; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--muted); }
+.sw { display: inline-block; width: 14px; height: 4px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }
+.sw.cqc { background: var(--cqc); }
+.sw.spec { background: var(--spec); }
+.sw.sum { background: repeating-linear-gradient(90deg, var(--modeg) 0 4px, transparent 4px 7px); }
+svg .ax { stroke: var(--line); stroke-width: 1; }
+svg .tk { fill: var(--muted); font-family: var(--f-mono); font-size: 10px; }
+svg .ttl { fill: var(--ink); font-size: 11px; font-weight: 700; }
+svg .b-cqc { fill: var(--cqc); }
+svg .b-spec { fill: var(--spec); }
+svg .l-cqc { stroke: var(--cqc); fill: none; stroke-width: 2; }
+svg .l-spec { stroke: var(--spec); fill: none; stroke-width: 2; }
+svg .l-sum { stroke: var(--modeg); fill: none; stroke-width: 1.6; stroke-dasharray: 4 3; }
+svg .d-cqc { fill: var(--cqc); }
+svg .d-spec { fill: var(--spec); }
+svg .d-sum { fill: var(--modeg); }
+svg .slab0 { fill: none; stroke: var(--muted); stroke-dasharray: 4 3; }
+svg .slab-cqc { fill: var(--cqc-soft); stroke: var(--cqc); stroke-width: 2; }
+svg .slab-spec { fill: none; stroke: var(--spec); stroke-width: 2; }
+svg .lbl { fill: var(--ink); font-size: 12px; font-family: var(--f-mono); }
+svg .lbl-m { fill: var(--muted); font-size: 11px; }
+svg .arrow { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+svg .arrowhead { fill: var(--muted); }
+.tbl-wrap { overflow-x: auto; min-width: 0; border: 1px solid var(--line); border-radius: 6px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { padding: 6px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
+th { font-weight: 500; color: var(--muted); background: var(--bg); font-size: 12.5px; }
+th:first-child, td:first-child { text-align: left; }
+td { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+td.txt { font-family: var(--f-body); }
+tr:last-child td { border-bottom: 0; }
+td.hl-c { color: var(--cqc); font-weight: 500; }
+td.hl-s { color: var(--spec); font-weight: 500; }
+tr.neg td { background: var(--warn-soft); }
+.pill { display: inline-block; font-family: var(--f-body); font-size: 11.5px; padding: 0 8px; border-radius: 999px; line-height: 1.7; }
+.pill.warn { background: var(--warn-soft); color: var(--warn); border: 1px solid var(--warn); }
+.pill.ok { color: var(--ok); border: 1px solid var(--ok); }
+.note { font-size: 13px; color: var(--muted); max-width: 75ch; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+.two > * { min-width: 0; }
+.callout { border-left: 3px solid var(--spec); background: var(--spec-soft); padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 14px; }
+.callout.c { border-left-color: var(--cqc); background: var(--cqc-soft); }
+.modal-in td input { margin-left: auto; display: block; }
+.radios { display: flex; gap: 14px; flex-wrap: wrap; font-size: 14px; }
+.radios label { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+.rules { display: grid; gap: 14px; }
+.rule { display: grid; grid-template-columns: 2.2em 1fr; gap: 10px; align-items: start; }
+.rule .n { font-family: var(--f-mono); color: var(--cqc); font-size: 14px; padding-top: 2px; }
+.rule .body { display: grid; gap: 6px; min-width: 0; }
+.rule .formula { padding: 6px 12px; }
+footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
+footer a { color: var(--cqc); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="meta">计算演示 · GB 50011-2010（2016 年版） · JGJ 3-2010 · midas Gen</div>
+    <h1>CQC 与规定水平力</h1>
+    <p class="lede">三个可调参数的计算面板：规定水平力与 CQC 的区别、位移比为什么不用 CQC 位移、midas Gen 给 CQC 结果加符号后能否平衡。所有数值在浏览器内按规范公式实时计算。</p>
+    <nav class="toc" aria-label="目录">
+      <a href="#s1">§1 规定水平力与 CQC</a>
+      <a href="#s2">§2 位移比失真</a>
+      <a href="#s3">§3 midas 振型正负号</a>
+      <a href="#s4">§4 要点</a>
+    </nav>
+  </header>
+
+  <!-- §1 -->
+  <section class="sec" id="s1">
+    <div class="sec-head">
+      <div class="sec-no">§1</div>
+      <h2>规定水平力与 CQC：层剪力相同，楼层力不同</h2>
+    </div>
+    <div class="prose">
+      <p>规范只对效应做 CQC。层剪力是效应，所以先求每个振型的层剪力，再做 CQC。规定水平力由 CQC 层剪力反算，是一组满足平衡的静力荷载，只用于位移比和倾覆力矩比。</p>
+      <div class="formula">$$F_{ji}=\alpha_j\,\gamma_j\,X_{ji}\,G_i,\qquad \gamma_j=\frac{\sum_{i}X_{ji}G_i}{\sum_{i}X_{ji}^{2}G_i}$$
+      $$V_{ji}=\sum_{m\ge i}F_{jm},\qquad V_i=\sqrt{\sum_{j}\sum_{k}\rho_{jk}\,V_{ji}\,V_{ki}}$$
+      $$F_i^{\text{规定}}=\left|\,V_i-V_{i+1}\,\right|,\qquad F_i^{\mathrm{CQC}}=\sqrt{\sum_{j}\sum_{k}\rho_{jk}\,F_{ji}\,F_{ki}}\ \ (\text{仅为统计量})$$</div>
+    </div>
+
+    <div class="panel">
+      <div class="presets">
+        <span>模型预设：</span>
+        <button class="chip" type="button" data-preset="uniform">均匀剪切层</button>
+        <button class="chip" type="button" data-preset="whip">顶部小塔楼（鞭梢）</button>
+        <button class="chip" type="button" data-preset="heavy">顶部重设备层</button>
+        <button class="chip" type="button" data-preset="tall">高柔结构</button>
+      </div>
+      <div class="controls">
+        <div class="ctl"><label for="n">楼层数 n <output id="n-o" class="num"></output></label><input id="n" type="range" min="3" max="15" step="1" value="8"></div>
+        <div class="ctl"><label for="t1">基本周期 T₁ (s) <output id="t1-o" class="num"></output></label><input id="t1" type="range" min="0.3" max="5" step="0.05" value="1.2"></div>
+        <div class="ctl"><label for="mu">顶层质量比 <output id="mu-o" class="num"></output></label><input id="mu" type="range" min="0.1" max="3" step="0.05" value="1"></div>
+        <div class="ctl"><label for="kap">顶层刚度比 <output id="kap-o" class="num"></output></label><input id="kap" type="range" min="0.03" max="2" step="0.01" value="1"></div>
+        <div class="ctl"><label for="amax">αmax（多遇）</label>
+          <select id="amax">
+            <option value="0.04">0.04（6 度）</option>
+            <option value="0.08" selected>0.08（7 度 0.10g）</option>
+            <option value="0.12">0.12（7 度 0.15g）</option>
+            <option value="0.16">0.16（8 度 0.20g）</option>
+            <option value="0.24">0.24（8 度 0.30g）</option>
+            <option value="0.32">0.32（9 度）</option>
+          </select></div>
+        <div class="ctl"><label for="tg">特征周期 Tg (s)</label>
+          <select id="tg">
+            <option>0.25</option><option>0.30</option><option>0.35</option><option>0.40</option>
+            <option selected>0.45</option><option>0.55</option><option>0.65</option><option>0.75</option><option>0.90</option>
+          </select></div>
+        <div class="ctl"><label for="zeta">阻尼比 ζ</label>
+          <select id="zeta"><option>0.02</option><option>0.035</option><option selected>0.05</option></select></div>
+      </div>
+      <p class="note">模型：剪切层，各层重力荷载代表值 G = 10 000 kN，层高 3.5 m；顶层质量和层刚度按上面两个比值调整；全部振型参与组合；地震影响系数按 GB 50011 第 5.1.5 条曲线计算。</p>
+
+      <div class="kpis" id="kpis"></div>
+
+      <div class="charts">
+        <div class="chart">
+          <svg id="ch-f" role="img" aria-label="各层楼层力"></svg>
+          <div class="legend"><span><i class="sw cqc"></i>F<sup>CQC</sup></span><span><i class="sw spec"></i>F<sup>规定</sup></span></div>
+        </div>
+        <div class="chart">
+          <svg id="ch-v" role="img" aria-label="楼层剪力"></svg>
+          <div class="legend"><span><i class="sw cqc"></i>V<sup>CQC</sup></span><span><i class="sw spec"></i>Σ F<sup>规定</sup></span><span><i class="sw sum"></i>Σ F<sup>CQC</sup>（错误做法）</span></div>
+        </div>
+        <div class="chart">
+          <svg id="ch-m" role="img" aria-label="倾覆力矩"></svg>
+          <div class="legend"><span><i class="sw cqc"></i>M<sup>CQC</sup></span><span><i class="sw spec"></i>M（规定水平力）</span></div>
+        </div>
+      </div>
+
+      <h3>逐层结果（kN，kN·m）</h3>
+      <div class="tbl-wrap"><table id="tbl-floor"></table></div>
+      <h3>振型信息</h3>
+      <div class="tbl-wrap"><table id="tbl-mode"></table></div>
+    </div>
+
+    <div class="callout">观察：底部剪力两者相同；CQC 楼层力逐层累加后大于 CQC 层剪力（$V_i\le\sum_{m\ge i}F_m^{\mathrm{CQC}}$，ρ 矩阵正定，CQC 满足三角不等式）；规定水平力的倾覆力矩是静力线性累加，通常大于 CQC 倾覆力矩。某层剪力差为负时，规范取绝对值，该层以下累加剪力大于 CQC 值，表中用红色标出。</div>
+  </section>
+
+  <!-- §2 -->
+  <section class="sec" id="s2">
+    <div class="sec-head">
+      <div class="sec-no">§2</div>
+      <h2>位移比为什么不用 CQC 位移</h2>
+    </div>
+    <div class="prose">
+      <p>楼板两端为 A、B。平动振型使两端位移均为 t；扭转振型使 A 端 +r、B 端 −r。CQC 对每个节点单独组合，丢失两端扭转分量的相对符号：</p>
+      <div class="formula">$$u_A=\sqrt{t^{2}+r^{2}+2\rho\,t\,r},\qquad u_B=\sqrt{t^{2}+r^{2}-2\rho\,t\,r},\qquad \mu=\frac{\max(u_A,u_B)}{(u_A+u_B)/2}$$
+      $$\text{同一变形形态：}\ u_A=t+r,\quad u_B=t-r,\quad \mu=1+\frac{r}{t}$$</div>
+      <p>ρ 由扭转周期与平动周期之比决定。周期相差越大，ρ 越小，CQC 位移比越接近 1.0，扭转被掩盖。</p>
+    </div>
+    <div class="panel">
+      <div class="controls">
+        <div class="ctl"><label for="rt">扭转分量 r / t <output id="rt-o" class="num"></output></label><input id="rt" type="range" min="0" max="1" step="0.01" value="0.4"></div>
+        <div class="ctl"><label for="tr"><span>周期比 T<sub>θ</sub> / T₁</span> <output id="tr-o" class="num"></output></label><input id="tr" type="range" min="0.3" max="1" step="0.01" value="0.75"></div>
+        <div class="ctl"><label for="z2">阻尼比 ζ</label><select id="z2"><option>0.02</option><option>0.035</option><option selected>0.05</option></select></div>
+      </div>
+      <div class="kpis" id="kpis2"></div>
+      <div class="two">
+        <div class="chart">
+          <svg id="plan" viewBox="0 0 320 190" role="img" aria-label="楼板平面变形示意"></svg>
+          <div class="legend"><span><i class="sw cqc"></i>CQC 节点位移</span><span><i class="sw spec"></i>同一变形形态</span><span><i class="sw sum"></i>原位置</span></div>
+        </div>
+        <div class="chart">
+          <svg id="ch-mu" role="img" aria-label="位移比随周期比变化"></svg>
+          <div class="legend"><span><i class="sw cqc"></i>CQC 位移比</span><span><i class="sw spec"></i>同一变形形态 1 + r/t</span></div>
+        </div>
+      </div>
+      <p class="note">"同一变形形态"假定两振型同号、同时达峰，是上界；时程中的真实值介于两者之间。规定水平力是静力荷载，各点位移来自同一变形形态，符号保留，所以规范用它计算位移比。</p>
+    </div>
+  </section>
+
+  <!-- §3 -->
+  <section class="sec" id="s3">
+    <div class="sec-head">
+      <div class="sec-no">§3</div>
+      <h2>midas Gen 给 CQC 结果加符号后能否平衡</h2>
+    </div>
+    <div class="prose">
+      <p>“Add signs (+, −) to the Results”不改变 CQC 计算，只给组合后的幅值加符号。两种方式：</p>
+      <div class="formula">$$\text{沿主振型方向：}\ R=\operatorname{sgn}\!\left(R_{j^{*}}\right)\cdot R^{\mathrm{CQC}},\qquad j^{*}=\text{该方向质量参与最大的振型}$$
+      $$\text{沿绝对最大值：}\ R=\operatorname{sgn}\!\left(R_{k^{*}}\right)\cdot R^{\mathrm{CQC}},\qquad k^{*}=\arg\max_{k}\left|R_{k}\right|\ \ (\text{每个效应单独选})$$
+      $$\mathrm{CQC}(A)+\mathrm{CQC}(B)\neq\mathrm{CQC}(A+B)$$</div>
+      <p>每个振型的结果各自平衡；CQC 是非线性运算，加符号只改正负、不改幅值，所以组合结果不平衡。下面设 C = A + B（例如节点处两根杆件的内力之和等于外力），修改各振型数值观察差值。</p>
+    </div>
+    <div class="panel">
+      <div class="two">
+        <div class="tbl-wrap">
+          <table class="modal-in">
+            <thead><tr><th>振型</th><th>T (s)</th><th>A<sub>j</sub></th><th>B<sub>j</sub></th><th>C<sub>j</sub> = A<sub>j</sub>+B<sub>j</sub></th></tr></thead>
+            <tbody id="s3-body"></tbody>
+          </table>
+        </div>
+        <div style="display:grid;gap:12px;align-content:start">
+          <div class="ctl"><label>主振型 j*（沿主振型方向用）</label>
+            <div class="radios" id="major">
+              <label><input type="radio" name="major" value="0" checked> 振型 1</label>
+              <label><input type="radio" name="major" value="1"> 振型 2</label>
+              <label><input type="radio" name="major" value="2"> 振型 3</label>
+            </div></div>
+          <div class="ctl"><label for="z3">阻尼比 ζ</label><select id="z3"><option>0.02</option><option>0.035</option><option selected>0.05</option></select></div>
+          <div class="presets"><span>算例：</span>
+            <button class="chip" type="button" data-s3="base">对话中的算例</button>
+            <button class="chip" type="button" data-s3="close">周期接近（ρ 大）</button>
+            <button class="chip" type="button" data-s3="single">单振型主导</button>
+          </div>
+          <div class="ctl"><label>相关系数 ρ<sub>jk</sub></label><div class="tbl-wrap"><table id="rho"></table></div></div>
+        </div>
+      </div>
+      <h3>组合结果与平衡检验</h3>
+      <div class="tbl-wrap"><table id="tbl-s3"></table></div>
+      <p class="note">官方说明：扭转明显，或振型密集、主振型不突出时，“沿主振型方向”会部分歪曲结构行为，宜改用“沿绝对最大值”。两种方式都不能恢复平衡；只有单一振型主导时结果近似平衡。</p>
+    </div>
+  </section>
+
+  <!-- §4 -->
+  <section class="sec" id="s4">
+    <div class="sec-head">
+      <div class="sec-no">§4</div>
+      <h2>要点</h2>
+    </div>
+    <div class="rules">
+      <div class="rule"><div class="n">1</div><div class="body"><p>CQC 适用于任何与振型坐标线性相关的量。楼层力是弹性恢复力，也可以做 CQC，但结果只是统计量。</p><div class="formula">$$R(t)=\sum_{j}r_j\,q_j(t),\qquad \mathbf f_s(t)=\mathbf K\,\mathbf u(t)=\sum_{j}\mathbf M\,\boldsymbol\varphi_j\,\omega_j^{2}\,q_j(t)$$</div></div></div>
+      <div class="rule"><div class="n">2</div><div class="body"><p>不要先对楼层力做 CQC，再当作荷载做静力分析。CQC 是非线性运算。</p><div class="formula">$$\mathrm{CQC}\!\left(\mathbf K^{-1}\mathbf F\right)\neq\mathbf K^{-1}\,\mathrm{CQC}(\mathbf F),\qquad \sum_{m\ge i}F_m^{\mathrm{CQC}}\ \ge\ V_i$$</div></div></div>
+      <div class="rule"><div class="n">3</div><div class="body"><p>规定水平力由 CQC 层剪力反算。剪力差均不小于 0 时，逐层累加等于 CQC 层剪力；倾覆力矩、位移、构件内力与 CQC 结果不同。</p><div class="formula">$$F_i^{\text{规定}}=\left|V_i-V_{i+1}\right|,\qquad \sum_{m\ge i}F_m^{\text{规定}}=V_i$$</div></div></div>
+      <div class="rule"><div class="n">4</div><div class="body"><p>规定水平力只用于规则性判断：位移比（考虑 ±5% 偶然偏心、刚性楼板假定）和框架倾覆力矩比。构件内力和层间位移角仍用 CQC 结果。</p></div></div>
+      <div class="rule"><div class="n">5</div><div class="body"><p>midas 加符号只改变正负，不能恢复平衡。需要平衡或同时性的结果时：用静力等效荷载、Linear 组合（选定振型，保留符号）或时程分析的同一时刻结果。多个反应谱工况之间再组合时用 SRSS，不用 Add。</p></div></div>
+    </div>
+  </section>
+
+  <footer>
+    <div>依据与来源：</div>
+    <div><a href="https://gf.cabr-fire.com/m/article-15667.htm" target="_blank" rel="noopener">GB 50011-2010 第 5.2 节 水平地震作用计算</a> · <a href="https://manual.midasuser.com/EN_Common/Gen/790/Start/05_Load/01_Response_Spectrum_Analysis_Data/Response_Spectrum_Load_Cases.htm" target="_blank" rel="noopener">midas Gen Manual – Response Spectrum Load Cases</a> · <a href="https://midassupport.jitbit.com/helpdesk/KB/View/16324575-response-spectrum-analysis" target="_blank" rel="noopener">MIDAS KB – Response Spectrum Analysis</a> · <a href="https://oss.baigongbao.com/2021/08/03/3jJ55ftkYR.pdf" target="_blank" rel="noopener">SATWE WZQ.OUT 输出样例</a></div>
+    <div>规定水平力的换算原则（剪力差取绝对值、连体分塔分配）按 GB 50011 第 3.4.3 条、JGJ 3 第 3.4.5 条条文说明复述，原文未在线核对，请以纸质规范为准。演示模型为剪切层，仅用于说明原理。</div>
+  </footer>
+</div>
+
+<script>
+/*CORE-START*/
+function spectrumAlpha(T, amax, Tg, z) {
+  const g = 0.9 + (0.05 - z) / (0.3 + 6 * z);
+  let e1 = 0.02 + (0.05 - z) / (4 + 32 * z); if (e1 < 0) e1 = 0;
+  let e2 = 1 + (0.05 - z) / (0.08 + 1.6 * z); if (e2 < 0.55) e2 = 0.55;
+  let a;
+  if (T < 0.1) a = (0.45 + (e2 - 0.45) * T / 0.1) * amax;
+  else if (T <= Tg) a = e2 * amax;
+  else if (T <= 5 * Tg) a = Math.pow(Tg / T, g) * e2 * amax;
+  else a = (e2 * Math.pow(0.2, g) - e1 * (T - 5 * Tg)) * amax;
+  return Math.max(a, 0);
+}
+function rhoCQC(Tj, Tk, zj, zk) {
+  const l = Tk / Tj;
+  const num = 8 * Math.sqrt(zj * zk) * (zj + l * zk) * Math.pow(l, 1.5);
+  const den = Math.pow(1 - l * l, 2) + 4 * zj * zk * (1 + l * l) * l + 4 * (zj * zj + zk * zk) * l * l;
+  return num / den;
+}
+function cqc(vals, R) {
+  let s = 0;
+  for (let j = 0; j < vals.length; j++) for (let k = 0; k < vals.length; k++) s += R[j][k] * vals[j] * vals[k];
+  return Math.sqrt(Math.max(s, 0));
+}
+function jacobiEig(A0) {
+  const n = A0.length;
+  const A = A0.map(r => r.slice());
+  const V = Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)));
+  for (let sweep = 0; sweep < 200; sweep++) {
+    let off = 0;
+    for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) off += A[p][q] * A[p][q];
+    if (off < 1e-22) break;
+    for (let p = 0; p < n - 1; p++) for (let q = p + 1; q < n; q++) {
+      if (Math.abs(A[p][q]) < 1e-30) continue;
+      const th = (A[q][q] - A[p][p]) / (2 * A[p][q]);
+      const t = (th >= 0 ? 1 : -1) / (Math.abs(th) + Math.sqrt(th * th + 1));
+      const c = 1 / Math.sqrt(t * t + 1), s = t * c;
+      for (let k = 0; k < n; k++) { const akp = A[k][p], akq = A[k][q]; A[k][p] = c * akp - s * akq; A[k][q] = s * akp + c * akq; }
+      for (let k = 0; k < n; k++) { const apk = A[p][k], aqk = A[q][k]; A[p][k] = c * apk - s * aqk; A[q][k] = s * apk + c * aqk; }
+      for (let k = 0; k < n; k++) { const vkp = V[k][p], vkq = V[k][q]; V[k][p] = c * vkp - s * vkq; V[k][q] = s * vkp + c * vkq; }
+    }
+  }
+  return { vals: A.map((r, i) => r[i]), vecs: V };
+}
+function solveBuilding(p) {
+  const n = p.n, h = 3.5, G0 = 10000;
+  const G = Array(n).fill(G0); G[n - 1] *= p.mu;
+  const k = Array(n).fill(1); k[n - 1] *= p.kap;
+  const K = Array.from({ length: n }, () => Array(n).fill(0));
+  for (let i = 0; i < n; i++) {
+    K[i][i] = k[i] + (i + 1 < n ? k[i + 1] : 0);
+    if (i + 1 < n) { K[i][i + 1] = -k[i + 1]; K[i + 1][i] = -k[i + 1]; }
+  }
+  const A = K.map((r, i) => r.map((v, j) => v / Math.sqrt(G[i] * G[j])));
+  const { vals, vecs } = jacobiEig(A);
+  let modes = vals.map((lam, j) => ({ lam, phi: vecs.map((row, i) => row[j] / Math.sqrt(G[i])) }));
+  modes.sort((a, b) => a.lam - b.lam);
+  const w1 = Math.sqrt(modes[0].lam);
+  const sumG = G.reduce((a, b) => a + b, 0);
+  modes = modes.map(m => {
+    const w = Math.sqrt(m.lam);
+    let phi = m.phi;
+    const mx = phi.reduce((a, v) => (Math.abs(v) > Math.abs(a) ? v : a), 0);
+    const sTop = phi[n - 1] >= 0 ? 1 : -1;
+    phi = phi.map(v => v * sTop / Math.abs(mx));
+    const T = p.T1 * w1 / w;
+    const alpha = spectrumAlpha(T, p.amax, p.Tg, p.zeta);
+    const sXG = phi.reduce((a, v, i) => a + v * G[i], 0);
+    const sX2G = phi.reduce((a, v, i) => a + v * v * G[i], 0);
+    const gam = sXG / sX2G;
+    const F = phi.map((v, i) => alpha * gam * v * G[i]);
+    const V = F.map((_, i) => F.slice(i).reduce((a, b) => a + b, 0));
+    const M = F.map((_, i) => F.reduce((a, f, m) => (m >= i ? a + f * ((m + 1) * h - i * h) : a), 0));
+    return { T, alpha, gam, phi, F, V, M, part: sXG * sXG / sX2G / sumG };
+  });
+  const R = modes.map(a => modes.map(b => rhoCQC(a.T, b.T, p.zeta, p.zeta)));
+  const pick = (key, i) => modes.map(m => m[key][i]);
+  const Vc = [], Fc = [], Mc = [];
+  for (let i = 0; i < n; i++) { Vc.push(cqc(pick('V', i), R)); Fc.push(cqc(pick('F', i), R)); Mc.push(cqc(pick('M', i), R)); }
+  const diff = Vc.map((v, i) => v - (i + 1 < n ? Vc[i + 1] : 0));
+  const Fs = diff.map(Math.abs);
+  const Vs = Fs.map((_, i) => Fs.slice(i).reduce((a, b) => a + b, 0));
+  const Ms = Fs.map((_, i) => Fs.reduce((a, f, m) => (m >= i ? a + f * ((m + 1) * h - i * h) : a), 0));
+  const SFc = Fc.map((_, i) => Fc.slice(i).reduce((a, b) => a + b, 0));
+  return { n, G, modes, R, Vc, Fc, Mc, diff, Fs, Vs, Ms, SFc };
+}
+/*CORE-END*/
+
+const $ = s => document.querySelector(s);
+const fmt = (x, d = 0) => (isFinite(x) ? x.toLocaleString('zh-CN', { minimumFractionDigits: d, maximumFractionDigits: d }) : '—');
+function niceCeil(x) {
+  if (!(x > 0)) return 1;
+  const e = Math.pow(10, Math.floor(Math.log10(x))), f = x / e;
+  const nf = f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10;
+  return nf * e;
+}
+function tickLabel(v) {
+  if (v >= 1e6) return fmt(v / 1e6, v % 1e6 ? 1 : 0) + 'M';
+  if (v >= 1e4) return fmt(v / 1e3, v % 1e3 ? 1 : 0) + 'k';
+  return fmt(v, v % 1 ? 2 : 0);
+}
+
+/* ---------- 楼层剖面图 ---------- */
+function drawProfile(svg, n, title, series) {
+  const W = 300, L = 30, Rm = 14, Tm = 24, rh = Math.max(14, Math.min(24, 220 / n)), B = 24;
+  const H = Tm + n * rh + B, pw = W - L - Rm;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  let max = 0;
+  series.forEach(s => s.values.forEach(v => { if (v > max) max = v; }));
+  const xm = niceCeil(max * 1.02);
+  const X = v => L + pw * v / xm;
+  const Y = i => Tm + (n - 1 - i) * rh + rh / 2;
+  let g = `<text class="ttl" x="${L}" y="14">${title}</text>`;
+  [0, 0.5, 1].forEach(f => {
+    const x = L + pw * f;
+    g += `<line class="ax" x1="${x}" y1="${Tm}" x2="${x}" y2="${Tm + n * rh}"/>`;
+    g += `<text class="tk" x="${x}" y="${Tm + n * rh + 14}" text-anchor="${f === 0 ? 'start' : f === 1 ? 'end' : 'middle'}">${tickLabel(xm * f)}</text>`;
+  });
+  for (let i = 0; i < n; i++) g += `<text class="tk" x="${L - 6}" y="${Y(i) + 3.5}" text-anchor="end">${i + 1}</text>`;
+  const bars = series.filter(s => s.type === 'bar');
+  const bh = Math.min(6, (rh - 4) / Math.max(bars.length, 1));
+  bars.forEach((s, bi) => {
+    s.values.forEach((v, i) => {
+      const y = Y(i) - (bars.length * bh) / 2 + bi * bh;
+      g += `<rect class="${s.cls}" x="${L}" y="${y.toFixed(1)}" width="${Math.max(0, X(v) - L).toFixed(1)}" height="${(bh - 1).toFixed(1)}" rx="1"/>`;
+    });
+  });
+  series.filter(s => s.type === 'line').forEach(s => {
+    const pts = s.values.map((v, i) => `${X(v).toFixed(1)},${Y(i).toFixed(1)}`).join(' ');
+    g += `<polyline class="${s.cls}" points="${pts}"/>`;
+    s.values.forEach((v, i) => { g += `<circle class="${s.dot}" cx="${X(v).toFixed(1)}" cy="${Y(i).toFixed(1)}" r="2.4"/>`; });
+  });
+  svg.innerHTML = g;
+}
+
+/* ---------- §1 ---------- */
+const ctl1 = ['n', 't1', 'mu', 'kap'];
+const presets = {
+  uniform: { n: 8, t1: 1.2, mu: 1, kap: 1 },
+  whip: { n: 10, t1: 1.4, mu: 0.15, kap: 0.06 },
+  heavy: { n: 8, t1: 1.3, mu: 2.5, kap: 1 },
+  tall: { n: 15, t1: 4, mu: 1, kap: 1 }
+};
+function readP1() {
+  return {
+    n: +$('#n').value, T1: +$('#t1').value, mu: +$('#mu').value, kap: +$('#kap').value,
+    amax: +$('#amax').value, Tg: +$('#tg').value, zeta: +$('#zeta').value
+  };
+}
+function render1() {
+  const p = readP1();
+  $('#n-o').textContent = p.n;
+  $('#t1-o').textContent = p.T1.toFixed(2);
+  $('#mu-o').textContent = p.mu.toFixed(2);
+  $('#kap-o').textContent = p.kap.toFixed(2);
+  const r = solveBuilding(p);
+  const n = r.n;
+  const sumOver = (r.SFc[0] / r.Vc[0] - 1) * 100;
+  const mRatio = r.Ms[0] / r.Mc[0];
+  const negs = r.diff.map((d, i) => (d < -1e-9 ? i + 1 : 0)).filter(Boolean);
+  $('#kpis').innerHTML = `
+    <div class="kpi c"><div class="k">底部剪力 V<sub>1</sub><sup>CQC</sup> / Σ F<sup>规定</sup></div><div class="v">${fmt(r.Vc[0])} / ${fmt(r.Vs[0])} kN</div><div class="d">${negs.length ? '剪力差出现负值，底部累加偏大' : '两者相同'}</div></div>
+    <div class="kpi w"><div class="k">Σ F<sup>CQC</sup> 累加相对 V<sup>CQC</sup></div><div class="v">+${fmt(sumOver, 1)}%</div><div class="d">CQC 楼层力不能当荷载累加</div></div>
+    <div class="kpi s"><div class="k">底部倾覆力矩 M<sup>规定</sup> / M<sup>CQC</sup></div><div class="v">${fmt(mRatio, 3)}</div><div class="d">静力线性累加，无振型间抵消</div></div>
+    <div class="kpi ${negs.length ? 'w' : ''}"><div class="k">剪力差为负的楼层</div><div class="v">${negs.length ? negs.join('、') : '无'}</div><div class="d">${negs.length ? '该层取绝对值，以下各层剪力大于 CQC 值' : '规定水平力累加 = CQC 层剪力'}</div></div>`;
+  drawProfile($('#ch-f'), n, '楼层力 (kN)', [
+    { type: 'bar', cls: 'b-cqc', values: r.Fc },
+    { type: 'bar', cls: 'b-spec', values: r.Fs }
+  ]);
+  drawProfile($('#ch-v'), n, '楼层剪力 (kN)', [
+    { type: 'line', cls: 'l-sum', dot: 'd-sum', values: r.SFc },
+    { type: 'line', cls: 'l-cqc', dot: 'd-cqc', values: r.Vc },
+    { type: 'line', cls: 'l-spec', dot: 'd-spec', values: r.Vs }
+  ]);
+  drawProfile($('#ch-m'), n, '倾覆力矩 (kN·m)', [
+    { type: 'line', cls: 'l-cqc', dot: 'd-cqc', values: r.Mc },
+    { type: 'line', cls: 'l-spec', dot: 'd-spec', values: r.Ms }
+  ]);
+  let t = `<thead><tr><th>楼层</th><th>F<sup>CQC</sup></th><th>F<sup>规定</sup></th><th>V<sup>CQC</sup></th><th>Σ F<sup>规定</sup></th><th>Σ F<sup>CQC</sup></th><th>M<sup>CQC</sup></th><th>M<sup>规定</sup></th><th>剪力差</th></tr></thead><tbody>`;
+  for (let i = n - 1; i >= 0; i--) {
+    const neg = r.diff[i] < -1e-9;
+    t += `<tr class="${neg ? 'neg' : ''}"><td>${i + 1}</td><td>${fmt(r.Fc[i])}</td><td class="hl-s">${fmt(r.Fs[i])}</td><td class="hl-c">${fmt(r.Vc[i])}</td><td class="hl-s">${fmt(r.Vs[i])}</td><td>${fmt(r.SFc[i])}</td><td>${fmt(r.Mc[i])}</td><td>${fmt(r.Ms[i])}</td><td>${neg ? '<span class="pill warn">' + fmt(r.diff[i]) + '</span>' : fmt(r.diff[i])}</td></tr>`;
+  }
+  $('#tbl-floor').innerHTML = t + '</tbody>';
+  const nm = Math.min(6, r.modes.length);
+  let cum = 0;
+  let mt = `<thead><tr><th>振型</th><th>T (s)</th><th>α<sub>j</sub></th><th>γ<sub>j</sub></th><th>参与质量</th><th>累计</th><th>ρ<sub>1j</sub></th><th>底部剪力 V<sub>j1</sub> (kN)</th></tr></thead><tbody>`;
+  for (let j = 0; j < nm; j++) {
+    const m = r.modes[j]; cum += m.part;
+    mt += `<tr><td>${j + 1}</td><td>${fmt(m.T, 3)}</td><td>${fmt(m.alpha, 4)}</td><td>${fmt(m.gam, 3)}</td><td>${fmt(m.part * 100, 1)}%</td><td>${fmt(cum * 100, 1)}%</td><td>${fmt(r.R[0][j], 3)}</td><td>${fmt(m.V[0])}</td></tr>`;
+  }
+  $('#tbl-mode').innerHTML = mt + `</tbody>`;
+}
+ctl1.concat(['amax', 'tg', 'zeta']).forEach(id => $('#' + id).addEventListener('input', render1));
+document.querySelectorAll('[data-preset]').forEach(b => b.addEventListener('click', () => {
+  const p = presets[b.dataset.preset];
+  Object.keys(p).forEach(k => { $('#' + k).value = p[k]; });
+  render1();
+}));
+
+/* ---------- §2 ---------- */
+function render2() {
+  const rt = +$('#rt').value, tr = +$('#tr').value, z = +$('#z2').value;
+  $('#rt-o').textContent = rt.toFixed(2);
+  $('#tr-o').textContent = tr.toFixed(2);
+  const t = 1, r = rt;
+  const rho = rhoCQC(1, tr, z, z);
+  const uA = Math.sqrt(t * t + r * r + 2 * rho * t * r), uB = Math.sqrt(Math.max(t * t + r * r - 2 * rho * t * r, 0));
+  const muC = Math.max(uA, uB) / ((uA + uB) / 2), muS = 1 + r / t;
+  $('#kpis2').innerHTML = `
+    <div class="kpi"><div class="k">相关系数 ρ</div><div class="v">${fmt(rho, 3)}</div><div class="d">由周期比 ${tr.toFixed(2)} 与 ζ = ${z} 计算</div></div>
+    <div class="kpi c"><div class="k">CQC 位移比</div><div class="v">${fmt(muC, 3)}</div><div class="d">u<sub>A</sub> = ${fmt(uA, 3)}，u<sub>B</sub> = ${fmt(uB, 3)}</div></div>
+    <div class="kpi s"><div class="k">同一变形形态位移比</div><div class="v">${fmt(muS, 3)}</div><div class="d">u<sub>A</sub> = ${fmt(t + r, 3)}，u<sub>B</sub> = ${fmt(t - r, 3)}</div></div>
+    <div class="kpi ${muS > 1.2 && muC <= 1.2 ? 'w' : ''}"><div class="k">1.2 限值判断</div><div class="v">${muS > 1.2 && muC <= 1.2 ? '漏判' : (muC > 1.2 ? 'CQC 也超限' : '均未超限')}</div><div class="d">${muS > 1.2 && muC <= 1.2 ? 'CQC 显示规则，实际扭转不规则' : '按 GB 50011 表 3.4.3-1'}</div></div>`;
+  // 平面示意
+  const x0 = 50, x1 = 250, yb = 150, th = 26, s = 70 / (t + 1);
+  const poly = (a, b, cls) => `<polygon class="${cls}" points="${x0},${yb - th - a * s} ${x1},${yb - th - b * s} ${x1},${yb - b * s} ${x0},${yb - a * s}"/>`;
+  let g = `<rect class="slab0" x="${x0}" y="${yb - th}" width="${x1 - x0}" height="${th}"/>`;
+  g += poly(uA, uB, 'slab-cqc') + poly(t + r, t - r, 'slab-spec');
+  g += `<text class="lbl" x="${x0 - 8}" y="${yb - th / 2 + 4}" text-anchor="end">A</text><text class="lbl" x="${x1 + 8}" y="${yb - th / 2 + 4}">B</text>`;
+  g += `<line class="arrow" x1="290" y1="150" x2="290" y2="60"/><polygon class="arrowhead" points="286,64 294,64 290,54"/><text class="lbl-m" x="290" y="170" text-anchor="middle">地震方向</text>`;
+  g += `<text class="lbl-m" x="${x0}" y="20">平面示意（位移按比例放大）</text>`;
+  $('#plan').innerHTML = g;
+  // 位移比-周期比曲线
+  const svg = $('#ch-mu'), W = 300, Hh = 190, L = 36, Rm = 12, Tm = 24, Bm = 30, pw = W - L - Rm, ph = Hh - Tm - Bm;
+  svg.setAttribute('viewBox', `0 0 ${W} ${Hh}`);
+  const ymax = Math.max(1.1, Math.ceil((muS + 0.05) * 10) / 10);
+  const X = v => L + pw * (v - 0.3) / 0.7, Y = v => Tm + ph * (1 - (v - 1) / (ymax - 1));
+  let c = `<text class="ttl" x="${L}" y="14">位移比 μ 随 T<tspan dy="2" font-size="8">θ</tspan><tspan dy="-2">/T₁ 变化</tspan></text>`;
+  [1, (1 + ymax) / 2, ymax].forEach(v => { c += `<line class="ax" x1="${L}" y1="${Y(v)}" x2="${L + pw}" y2="${Y(v)}"/><text class="tk" x="${L - 5}" y="${Y(v) + 3.5}" text-anchor="end">${v.toFixed(2)}</text>`; });
+  [0.3, 0.5, 0.7, 0.9, 1.0].forEach(v => { c += `<text class="tk" x="${X(v)}" y="${Tm + ph + 14}" text-anchor="middle">${v.toFixed(1)}</text>`; });
+  if (1.2 < ymax) c += `<line x1="${L}" y1="${Y(1.2)}" x2="${L + pw}" y2="${Y(1.2)}" stroke="var(--warn)" stroke-dasharray="2 3"/><text class="tk" x="${L + pw}" y="${Y(1.2) - 4}" text-anchor="end" style="fill:var(--warn)">1.2</text>`;
+  const pts = [];
+  for (let v = 0.3; v <= 1.0001; v += 0.01) {
+    const rr = rhoCQC(1, v, z, z);
+    const a = Math.sqrt(t * t + r * r + 2 * rr * t * r), b = Math.sqrt(Math.max(t * t + r * r - 2 * rr * t * r, 0));
+    pts.push(`${X(v).toFixed(1)},${Y(Math.max(a, b) / ((a + b) / 2)).toFixed(1)}`);
+  }
+  c += `<line class="l-spec" x1="${L}" y1="${Y(muS)}" x2="${L + pw}" y2="${Y(muS)}" stroke-dasharray="5 3"/>`;
+  c += `<polyline class="l-cqc" points="${pts.join(' ')}"/>`;
+  c += `<circle class="d-cqc" cx="${X(tr)}" cy="${Y(muC)}" r="4"/>`;
+  c += `<text class="tk" x="${L + pw / 2}" y="${Hh - 4}" text-anchor="middle">周期比 Tθ / T₁</text>`;
+  svg.innerHTML = c;
+}
+['rt', 'tr', 'z2'].forEach(id => $('#' + id).addEventListener('input', render2));
+
+/* ---------- §3 ---------- */
+const s3sets = {
+  base: { T: [1.2, 0.4, 0.22], A: [10, 4, 1.5], B: [5, -6, -1] },
+  close: { T: [1.2, 1.1, 0.4], A: [10, 6, 1.5], B: [5, -7, -1] },
+  single: { T: [1.2, 0.4, 0.22], A: [10, 0.8, 0.2], B: [5, -0.6, -0.1] }
+};
+function buildS3(set) {
+  let h = '';
+  for (let j = 0; j < 3; j++) {
+    h += `<tr><td>${j + 1}</td>
+      <td><input type="number" id="s3T${j}" step="0.01" min="0.01" value="${set.T[j]}" aria-label="振型${j + 1}周期"></td>
+      <td><input type="number" id="s3A${j}" step="0.1" value="${set.A[j]}" aria-label="振型${j + 1} A"></td>
+      <td><input type="number" id="s3B${j}" step="0.1" value="${set.B[j]}" aria-label="振型${j + 1} B"></td>
+      <td id="s3C${j}"></td></tr>`;
+  }
+  $('#s3-body').innerHTML = h;
+  for (let j = 0; j < 3; j++) ['T', 'A', 'B'].forEach(k => $(`#s3${k}${j}`).addEventListener('input', render3));
+}
+const sgn = v => (v < 0 ? -1 : 1);
+function render3() {
+  const z = +$('#z3').value;
+  const T = [0, 1, 2].map(j => Math.max(+$(`#s3T${j}`).value || 0.01, 0.01));
+  const A = [0, 1, 2].map(j => +$(`#s3A${j}`).value || 0);
+  const B = [0, 1, 2].map(j => +$(`#s3B${j}`).value || 0);
+  const C = A.map((a, j) => a + B[j]);
+  C.forEach((c, j) => { $(`#s3C${j}`).textContent = fmt(c, 2); });
+  const R = T.map(a => T.map(b => rhoCQC(a, b, z, z)));
+  let rh = '<thead><tr><th></th><th>1</th><th>2</th><th>3</th></tr></thead><tbody>';
+  R.forEach((row, j) => { rh += `<tr><td>${j + 1}</td>${row.map(v => `<td>${fmt(v, 3)}</td>`).join('')}</tr>`; });
+  $('#rho').innerHTML = rh + '</tbody>';
+  const cA = cqc(A, R), cB = cqc(B, R), cC = cqc(C, R);
+  const major = +document.querySelector('input[name=major]:checked').value;
+  const argmax = arr => arr.reduce((bi, v, i) => (Math.abs(v) > Math.abs(arr[bi]) ? i : bi), 0);
+  const rows = [
+    { name: '无符号（CQC 幅值）', a: cA, b: cB, c: cC, src: '—' },
+    { name: '沿主振型方向', a: sgn(A[major]) * cA, b: sgn(B[major]) * cB, c: sgn(C[major]) * cC, src: `A、B、C 均取振型 ${major + 1}` },
+    { name: '沿绝对最大值', a: sgn(A[argmax(A)]) * cA, b: sgn(B[argmax(B)]) * cB, c: sgn(C[argmax(C)]) * cC, src: `A 取振型 ${argmax(A) + 1}，B 取振型 ${argmax(B) + 1}，C 取振型 ${argmax(C) + 1}` }
+  ];
+  let t = `<thead><tr><th>方式</th><th>符号来源</th><th>A</th><th>B</th><th>A + B</th><th>C</th><th>差值 (A+B) − C</th><th>相对差</th></tr></thead><tbody>`;
+  rows.forEach(r => {
+    const d = r.a + r.b - r.c, rel = Math.abs(r.c) > 1e-12 ? d / Math.abs(r.c) * 100 : 0;
+    const bad = Math.abs(rel) > 1;
+    t += `<tr><td class="txt">${r.name}</td><td class="txt" style="color:var(--muted)">${r.src}</td><td>${fmt(r.a, 2)}</td><td>${fmt(r.b, 2)}</td><td class="hl-s">${fmt(r.a + r.b, 2)}</td><td class="hl-c">${fmt(r.c, 2)}</td><td>${fmt(d, 2)}</td><td><span class="pill ${bad ? 'warn' : 'ok'}">${fmt(rel, 1)}%</span></td></tr>`;
+  });
+  $('#tbl-s3').innerHTML = t + '</tbody>';
+}
+document.querySelectorAll('input[name=major]').forEach(e => e.addEventListener('change', render3));
+$('#z3').addEventListener('input', render3);
+document.querySelectorAll('[data-s3]').forEach(b => b.addEventListener('click', () => { buildS3(s3sets[b.dataset.s3]); render3(); }));
+
+buildS3(s3sets.base);
+render1(); render2(); render3();
+</script>
+
+</body></html>
