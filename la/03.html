@@ -194,6 +194,7 @@ pre.line{font-family:var(--mono);font-size:13px;background:var(--soft);border-ra
   <div class="stephead"><span class="stepno">4</span><h2>Gram–Schmidt：从斜基造正交基</h2><span class="src">笔记 §11–§12</span></div>
   <p>手里是一组不正交的基，就逐个减掉沿前面方向的投影：</p>
   \[\boldsymbol w_j=\boldsymbol v_j-\sum_{i&lt;j}\frac{\boldsymbol w_i^T\boldsymbol v_j}{\boldsymbol w_i^T\boldsymbol w_i}\boldsymbol w_i\]
+  <p>这样得到的 \(\boldsymbol w_j\) 两两正交，但长度不是 1，\(W=[\boldsymbol w_1\ \cdots\ \boldsymbol w_n]\) 满足 \(W^TW=\mathrm{diag}(\lVert\boldsymbol w_1\rVert^2,\dots,\lVert\boldsymbol w_n\rVert^2)\)，<b>不是</b> \(I\)。再各自除以长度 \(\boldsymbol q_j=\boldsymbol w_j/\lVert\boldsymbol w_j\rVert\)，才得到正交归一基 \(Q=[\boldsymbol q_1\ \cdots\ \boldsymbol q_n]\)，此时 \(Q^TQ=I\)。下面的流水线求坐标只用正交性，所以直接用不归一的 \(\boldsymbol w_j\)，投影公式里的分母 \(\boldsymbol w_i^T\boldsymbol w_i\) 已经替归一化做了这件事。</p>
   <p>用第 1 节的一般基 \(\boldsymbol v_1=[1,1]^T,\boldsymbol v_2=[1,2]^T\)、目标 \(\boldsymbol x=[5,7]^T\)，全程不解方程、不求逆。点“播放流水线”：</p>
   <div class="fig">
     <svg class="plane" id="p4" role="img" aria-label="Gram-Schmidt流水线"></svg>
@@ -204,7 +205,7 @@ pre.line{font-family:var(--mono);font-size:13px;background:var(--soft);border-ra
     </div>
   </div>
   <p>造正交基只做一次，之后每换一个 \(\boldsymbol x\) 只需重做投影和换回两步。对同一系数矩阵反复求解（时程分析成千上万个时步）尤其划算，这正是振型分解的原型思想。\(V=QR\) 分解就是这条流水线的矩阵化打包。</p>
-  <div class="note warn"><b>正交化不是特征分解。</b>Gram–Schmidt 造出的正交基只保证 \(Q^TQ=I\)，不保证 \(Q^TKQ\) 对角。要同时对角化 \(M\)、\(K\)，需要 04 篇的广义特征值问题。</div>
+  <div class="note warn"><b>正交化不是特征分解。</b>Gram–Schmidt 造出的 \(W\) 只保证 \(W^TW\) 对角，归一化后的 \(Q\) 保证 \(Q^TQ=I\)；两者都不保证 \(Q^TKQ\) 对角。要同时对角化 \(M\)、\(K\)，需要 04 篇的广义特征值问题。</div>
   <h3>换基的两个陷阱</h3>
   <ul>
     <li><b>必须换回原基。</b>工程师要的是层间位移角、构件内力这些物理量，振型坐标 \(q_i(t)\) 是中间变量。\(\boldsymbol u=\Phi\boldsymbol q\) 在振型分解里用两次：先代入原方程得解耦方程，各阶 \(q_i(t)\) 解出后再乘 \(\Phi\) 合成物理位移。</li>
@@ -558,7 +559,8 @@ function r4(){
     TX`<span class="row${t>0&&t<=2?' on':''}">① \(\bm w_1=\bm v_1\)；\(\bm v_2\) 在 \(\bm w_1\) 上的影子系数 \(\dfrac{\bm w_1^T\bm v_2}{\bm w_1^T\bm w_1}=${fm(k,3)}\)</span>`,
     TX`<span class="row${t>1&&t<=2?' on':''}">② \(\bm w_2=\bm v_2-${fm(k,3)}\,\bm w_1=${rv(w2,3)}^T\)，\(\bm w_1^T\bm w_2=${fm(dot(w1,w2),6)}\)</span>`,
     TX`<span class="row${t>2&&t<=3?' on':''}">③ 投影各算各的：\(a_1=\dfrac{\bm w_1^T\bm x}{\bm w_1^T\bm w_1}=${fm(a1,3)},\ a_2=\dfrac{\bm w_2^T\bm x}{\bm w_2^T\bm w_2}=${fm(a2,3)}\)</span>`,
-    TX`<span class="row${t>3?' on':''}">④ 换回：\(\bm x=${fm(a1,3)}\bm w_1+${pn(a2,3)}(\bm v_2-${fm(k,3)}\bm v_1)=${fm(c1,3)}\,\bm v_1+${pn(c2,3)}\,\bm v_2\)</span>`];
+    TX`<span class="row${t>3?' on':''}">④ 换回：\(\bm x=${fm(a1,3)}\bm w_1+${pn(a2,3)}(\bm v_2-${fm(k,3)}\bm v_1)=${fm(c1,3)}\,\bm v_1+${pn(c2,3)}\,\bm v_2\)</span>`,
+    TX`<span class="row dim">注：\(W^TW=\mathrm{diag}(${fm(dot(w1,w1),3)},\ ${fm(dot(w2,w2),3)})\ne I\)；若要 \(Q^TQ=I\)，取 \(\bm q_i=\bm w_i/\lVert\bm w_i\rVert\)</span>`];
   setTex('r4',rows.join(''));
 }
 $('b4').onclick=()=>{stop4();stop4=seq([[0,1,1000],['hold',500],[1,2,1100],['hold',500],[2,3,1600],['hold',500],[3,4,900]],v=>{S4.t=v;r4();});};
