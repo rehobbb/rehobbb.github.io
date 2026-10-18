@@ -297,7 +297,7 @@ pre.line{font-family:var(--mono);font-size:13px;background:var(--soft);border-ra
     <li>对 \(\boldsymbol v_1=[1,1]^T,\boldsymbol v_2=[1,0]^T\) 做 Gram–Schmidt，写出正交基和换算式。</li>
     <li>写出三层剪切模型（刚度 \(k_1,k_2,k_3\)）的应变能，核对与 01 篇第 3 道结构题的 \(K\) 一致。</li>
     <li>\(\begin{bmatrix}2&3\\3&2\end{bmatrix}\) 正定吗？找一个使二次型为负的向量。</li>
-    <li>\(M=\mathrm{diag}(2,1)\)，\(\boldsymbol u=[3,0]^T\)，用 \(M\)-投影求振型坐标，再用 \(\Phi^{-1}\) 验证。</li>
+    <li>贯穿算例：\(M=\mathrm{diag}(2,1)\)，\(K=\begin{bmatrix}3&-1\\-1&1\end{bmatrix}\)，振型直接取第 7 节给出的 \(\Phi=[\boldsymbol\phi_1\ \boldsymbol\phi_2]=\begin{bmatrix}1&1\\2&-1\end{bmatrix}\)（怎么从 \(K\)、\(M\) 算出来见 04 篇第 4 节，本题不要求）。对 \(\boldsymbol u=[3,0]^T\)，用 \(M\)-投影求振型坐标 \(q_1,q_2\)，再用 \(\boldsymbol q=\Phi^{-1}\boldsymbol u\) 验证。</li>
     <li>只验证了 \(\boldsymbol x^TM\boldsymbol y=0\)，能否断言两个形态各自独立振动、无能量交换？</li>
   </ol>
   <details><summary>参考答案</summary>
@@ -306,7 +306,7 @@ pre.line{font-family:var(--mono);font-size:13px;background:var(--soft);border-ra
       <li>\(\boldsymbol w_1=[1,1]^T\)，\(\boldsymbol w_2=[1,0]^T-\tfrac12[1,1]^T=[\tfrac12,-\tfrac12]^T\)，换算式 \(\boldsymbol w_2=\boldsymbol v_2-\tfrac12\boldsymbol v_1\)。</li>
       <li>\(U=\tfrac12[k_1u_1^2+k_2(u_2-u_1)^2+k_3(u_3-u_2)^2]\)，\(u_1^2\) 系数 \(\tfrac12(k_1+k_2)\)，\(u_1u_2\) 系数 \(-k_2\)，对应 \(K\) 的元素。</li>
       <li>不正定：\(ad-b^2=4-9&lt;0\)；取 \([1,-1]^T\) 得 \(2-6+2=-2\)。</li>
-      <li>\(M\boldsymbol u=[6,0]^T\)，\(q_1=6/6=1\)，\(q_2=6/3=2\)；\(1\cdot[1,2]^T+2[1,-1]^T=[3,0]^T\)。</li>
+      <li>\(M\boldsymbol u=[6,0]^T\)，\(\boldsymbol\phi_1^TM\boldsymbol u=6\)，\(\boldsymbol\phi_2^TM\boldsymbol u=6\)；\(\boldsymbol\phi_1^TM\boldsymbol\phi_1=6\)，\(\boldsymbol\phi_2^TM\boldsymbol\phi_2=3\)；\(q_1=6/6=1\)，\(q_2=6/3=2\)。验证：\(\Phi^{-1}=\tfrac13\begin{bmatrix}1&1\\2&-1\end{bmatrix}\)，\(\Phi^{-1}\boldsymbol u=\tfrac13[3,6]^T=[1,2]^T\)，一致；且 \(1\cdot[1,2]^T+2[1,-1]^T=[3,0]^T\)。</li>
       <li>不能。它只说明动能交叉项为零，还要 \(\boldsymbol x^TK\boldsymbol y=0\)，有阻尼还要 \(\boldsymbol x^TC\boldsymbol y=0\)。只有真振型才同时满足前两条（04 篇）。</li>
     </ol>
   </details>
